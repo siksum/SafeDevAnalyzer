@@ -69,3 +69,12 @@ class DownloadError(Exception):
 
 class UnexpectedVersionWarning(Warning):
     pass
+
+
+class InvalidCompilation(Exception):
+    """
+    Invalid compilation exception
+    """
+
+    # pylint: disable=unnecessary-pass
+    pass
