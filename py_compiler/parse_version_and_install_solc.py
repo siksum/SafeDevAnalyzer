@@ -3,13 +3,16 @@ import re
 import os
 import requests
 import json
-from pathlib import Path
 import shutil
 import argparse
+import subprocess
+from pathlib import Path
 
 
-
+#######################################
 ############# Information #############
+#######################################
+
 def get_solidity_source(target):
     with open(target, 'r') as f:
         source_code = f.read()
@@ -34,14 +37,24 @@ def get_current_version():
     else:
         return None
 
+def get_which_solc():
+    solc_path = subprocess.check_output(["which", "solc"], encoding='utf-8').strip()
+    return solc_path
 
+
+
+
+########################################
 ############ Check version #############
+########################################
+
 def check_version(version_list, version):
     for v in version:
         if v not in version_list:
             return False
         else:
             return True
+
 
 def check_installed_version(version):
     for _, _, files in os.walk(SOLC_BINARIES_DIR):
@@ -51,7 +64,14 @@ def check_installed_version(version):
                 return True
     return False
 
+
+
+
+
+#########################################
 ############# Parse version #############
+#########################################
+
 def parse_solidity_version(source_code):
     pattern = r".*pragma solidity.*"
     pragma_lines = re.findall(pattern, source_code)
@@ -66,12 +86,20 @@ def parse_solidity_version(source_code):
             version.append(condition_match[1].strip())
     return sign, version
 
+
+
+
+
+###############################################
 ############# Select solc version #############
+###############################################
+
 def find_matching_index(versions, version_list):
     for i, v in enumerate(version_list):
         if versions == v:
             return i
     return None
+
 
 def compare_version(sign_list, version_list):
     min_version = min(version_list)
@@ -88,7 +116,13 @@ def get_highest_version(version_list, target_version, target_index):
     return matching_versions[target_index-1]
 
 
+
+
+
+#########################################################
 ############# Install/Uninstall/Switch solc #############
+#########################################################
+
 if "VIRTUAL_ENV" in os.environ:
     HOME_DIR = Path(os.environ["VIRTUAL_ENV"])
 else:
@@ -101,7 +135,7 @@ def install_solc(version):
     artifact_file_dir = SOLC_BINARIES_DIR.joinpath(f"solc-{version}")
     if os.path.exists(artifact_file_dir):
         print(f"'{version}' is already installed.")
-        return False
+        return artifact_file_dir, False
     artifacts = get_version_list()
     url = f"https://binaries.soliditylang.org/macosx-amd64/" + \
         artifacts.get(version)
@@ -115,7 +149,8 @@ def install_solc(version):
     file_path = artifact_file_dir.joinpath(f"solc-{version}")
     os.chmod(file_path, 0o775)
     print(f"Version '{version}' installed.")
-    return True
+    print(file_path)
+    return file_path, True
 
 
 def uninstall_solc(version):
@@ -150,43 +185,46 @@ def switch_global_version(version: str, always_install: bool) -> None:
         raise argparse.ArgumentTypeError(f"Unknown version '{version}'")
 
 
-def main(file_path):
+
+def parser_main(file_path):
     version_list = list(get_version_list().keys())
     solidity_file = get_solidity_source(file_path)
     sign, version = parse_solidity_version(solidity_file)
-    # print("[Input]", sign, version)
     check = check_version(version_list, version)
+
     if check == False:
         print("incorrect version")
         return
+    
     if len(version) != 1:
         sign, version = compare_version(sign, version)
+
     sign = sign[0]
     version = version[0]
-
     index = find_matching_index(version, version_list)
 
     if sign == '<':
-        version = version_list[index - 1]
-        install_solc(version)
-        switch_global_version(version, True)
+        solc_version = version_list[index - 1]
+        solc_binary_path, _ = install_solc(solc_version)
+        switch_global_version(solc_version, True)
     elif sign == '>':
-        version = version_list[index + 1]
-        install_solc(version)
-        switch_global_version(version, True)
+        solc_version = version_list[index + 1]
+        solc_binary_path, _ = install_solc(solc_version)
+        switch_global_version(solc_version, True)
     elif (sign == '^' or sign == '~'):
-        version = get_highest_version(version_list, version, index)
-        install_solc(version)
-        switch_global_version(version, True)
+        solc_version = get_highest_version(version_list, version, index)
+        solc_binary_path, _= install_solc(solc_version)
+        switch_global_version(solc_version, True)
     elif (sign == '=' or sign == '>=' or sign == '<=') or (not sign and version):
-        install_solc(version)
-        switch_global_version(version, True)
-
+        solc_version = version
+        solc_binary_path, _ = install_solc(solc_version)
+        switch_global_version(solc_version, True)
     else:
         print("incorrect sign")
         return
 
+    return solidity_file, version, solc_version, solc_binary_path
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
-    main(sys.argv[1])
+#     parser_main(sys.argv[1])
