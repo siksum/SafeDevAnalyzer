@@ -149,7 +149,6 @@ def install_solc(version):
     file_path = artifact_file_dir.joinpath(f"solc-{version}")
     os.chmod(file_path, 0o775)
     print(f"Version '{version}' installed.")
-    print(file_path)
     return file_path, True
 
 
@@ -223,7 +222,7 @@ def parser_main(file_path):
         print("incorrect sign")
         return
 
-    return solidity_file, version, solc_version, solc_binary_path
+    return file_path, solc_version, solc_binary_path
 
 # if __name__ == "__main__":
     

@@ -5,22 +5,39 @@ from semantic_version import Version
 from parse_version_and_install_solc import *
 
 
-def compile(source: str, 
-            solc_binary: Union[Path, str] = None,
+def execute_solc(source: str, 
+            solc_binary_path: Union[Path, str] = None,
             solc_version: Union[Version, str] = None,
             output_values: Optional[List] = None):
-    print("compile")
+    solc_binary_path = solc_binary_path.joinpath(f"solc-{solc_version}")
+    print("solc_binary_path: ", solc_binary_path)
+    command: List = [str(solc_binary_path)]
+
+    if isinstance(source, (str, Path)):
+        command.append(source)
+    
+    option = ["--combined-json", "bin,abi"]
+    command.extend(option)
+    print("command: ", command)
+
+    
+
+    proc = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf8",
+    )
+
+    stdoutdata, stderrdata = proc.communicate()
+    print("stdout: ", stdoutdata)
+    print("stderr: ", stderrdata)
 
 
 def main():
-    solidity_file, version, solc_version, solc_binary_path = parser_main(sys.argv[1])
-    print("sol: \n", solidity_file)
-    print("sol version: ",version)
-    print("solc version: ", solc_version)
-    print("solc path: ", solc_binary_path)
-
-    cmd = f"solc {sys.argv[1]} --combined-json abi,asm,ast,opcodes"
-    subprocess.call(cmd, shell=True)
+    solidity_file, solc_version, solc_binary_path = parser_main(sys.argv[1])
+    execute_solc(solidity_file, solc_binary_path, solc_version)
 
 
 if __name__ == "__main__":
