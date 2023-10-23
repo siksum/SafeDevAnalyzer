@@ -2,8 +2,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 from semantic_version import Version
 
-from parse_version_and_install_solc import *
+from parse_version_and_install_solc import SolcParser
 from exceptions import *
+import sys
+import json
+import subprocess
 
 
 def execute_solc(source: str, 
@@ -16,7 +19,6 @@ def execute_solc(source: str,
 
     if isinstance(source, (str, Path)):
         command.append(source)
-    
     option = ["--combined-json", "bin,abi,ast"]
     command.extend(option)
     
@@ -41,7 +43,11 @@ def execute_solc(source: str,
 
 
 def main():
-    solidity_file, solc_version, solc_binary_path = parser_main(sys.argv[1])
+    instance = SolcParser(sys.argv[1])
+    solidity_file = instance.source
+
+    solc_version = instance.solc_version
+    solc_binary_path = instance.solc_binary_path
     ret = execute_solc(solidity_file, solc_binary_path, solc_version)
     print(ret)
 

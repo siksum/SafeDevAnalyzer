@@ -1,9 +1,10 @@
 from pathlib import Path
 from typing import Dict, List
+from parse_version_and_install_solc import SolcParser
 
-class SafeDevCompile:
+class SafeDevCompile(SolcParser):
     def __init__(self, target):
-        self.source = target
+        super.__init__(target)
         self._working_dir = Path.cwd()
         self._compilation_units: Dict[str, CompilationUnit] = {}
 

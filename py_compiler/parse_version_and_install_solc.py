@@ -18,6 +18,7 @@ SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("solc_binaries")
 class SolcParser:
     def __init__(self, target):
         self.source = target
+        self.file_name= os.path.basename(target)
         self.version_list = list(self.get_version_list().keys())
         self.solidity_file = self.get_solidity_source(target)
         self.sign, self.version = self.parse_solidity_version(self.solidity_file)
@@ -71,7 +72,6 @@ class SolcParser:
                 if (installed_version == version):
                     return True
         return False
-
 
     #########################################
     ############# Parse version #############
@@ -201,6 +201,7 @@ class SolcParser:
         else:
             print("incorrect sign")
             return
-
         return file_path, solc_version, solc_binary_path
 
+# instance = SolcParser(sys.argv[1])
+# print(instance.file_path)
