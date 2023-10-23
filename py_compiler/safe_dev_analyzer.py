@@ -57,16 +57,13 @@ class SafeDevCompile(SolcParser):
         self._bytecode_only = False
         self._compilation_units: Dict[str, SafeDevCompilationUnit] = {}
 
-
-
-
     @property
     def target(self) -> str:
         return self.source
     
-    @property
-    def compilation_units(self) -> Dict[str, SafeDevCompilationUnit]:
-        return self._compilation_units
+    # @property
+    # def compilation_units(self) -> Dict[str, SafeDevCompilationUnit]:
+    #     return self._compilation_units
 
     @property
     def dependencies(self) -> Set[str]:
@@ -82,11 +79,6 @@ class SafeDevCompile(SolcParser):
     
     
     def _get_cached_offset_to_line(self, file: Filename) -> None: #모르겠음
-        """Compute the cached offsets to lines
-
-        Args:
-            file (Filename): filename
-        """
         if file not in self._cached_line_to_code:
             self._get_cached_line_to_code(file)
 
