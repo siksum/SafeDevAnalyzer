@@ -19,7 +19,7 @@ def execute_solc(source: str,
 
     if isinstance(source, (str, Path)):
         command.append(source)
-    option = ["--combined-json", "bin,abi,ast"]
+    option = ["--combined-json", "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes", "--allow-paths", "."]
     command.extend(option)
     
     proc = subprocess.Popen(
@@ -49,7 +49,7 @@ def main():
     solc_version = instance.solc_version
     solc_binary_path = instance.solc_binary_path
     ret = execute_solc(solidity_file, solc_binary_path, solc_version)
-    print(ret)
+    open("ast.json", "w").write(json.dumps(ret, indent=2))
 
 if __name__ == "__main__":
     main()

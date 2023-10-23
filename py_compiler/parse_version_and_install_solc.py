@@ -16,7 +16,7 @@ SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-parser")
 SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("solc_binaries")
 
 class SolcParser:
-    def __init__(self, target):
+    def __init__(self, target: str):
         self.source = target
         self.file_name= os.path.basename(target)
         self.version_list = list(self.get_version_list().keys())
