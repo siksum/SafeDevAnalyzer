@@ -1,0 +1,10 @@
+analyses
+core
+detectors
+formatters
+printers
+slithir
+solc_parsing
+tools
+utils
+visitors
