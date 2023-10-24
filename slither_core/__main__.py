@@ -14,8 +14,7 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
 from pkg_resources import iter_entry_points, require
 
-#from crytic_compile import cryticparser, CryticCompile
-from compile.safe_dev_analyzer import SafeDevCompile
+from crytic_compile import cryticparser, CryticCompile
 from crytic_compile.platform.standard import generate_standard_export
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
@@ -24,7 +23,7 @@ from slither_core.detectors import all_detectors
 from slither_core.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither_core.printers import all_printers
 from slither_core.printers.abstract_printer import AbstractPrinter
-from slither_core.slither import Slither
+from slither_core import Slither
 from slither_core.utils import codex
 from slither_core.utils.output import (
     output_to_json,
@@ -63,7 +62,7 @@ logger = logging.getLogger("Slither")
 
 
 def process_single(
-    target: Union[str, SafeDevCompile],
+    target: Union[str, CryticCompile],
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
@@ -295,7 +294,7 @@ def parse_args(
 
     parser.add_argument("filename", help=argparse.SUPPRESS)
 
-    #cryticparser.init(parser)
+    cryticparser.init(parser)
 
     parser.add_argument(
         "--version",
@@ -783,7 +782,7 @@ def main_impl(
 
     console_handler.setFormatter(FormatterCryticCompile())
 
-    crytic_compile_error = logging.getLogger(("SafeDevCompile"))
+    crytic_compile_error = logging.getLogger(("CryticCompile"))
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)

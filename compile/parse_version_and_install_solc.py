@@ -20,7 +20,7 @@ class SolcParser:
         self.source = target
         self.file_name= os.path.basename(target)
         self.version_list = list(self.get_version_list().keys())
-        self.solidity_file = self.get_solidity_source(target)
+        self.solidity_file = self.get_solidity_source(self.source)
         self.sign, self.version = self.parse_solidity_version(self.solidity_file)
         self.check = self.check_version(self.version_list, self.version)
         self.file_path, self.solc_version, self.solc_binary_path = self.parser_main(target)
@@ -30,6 +30,7 @@ class SolcParser:
     ############# Information #############
     #######################################
     def get_solidity_source(self, target):
+        print("get target:",target)
         with open(target, 'r') as f:
             source_code = f.read()
         return source_code

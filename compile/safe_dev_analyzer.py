@@ -1,52 +1,26 @@
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Union, Optional
 from collections import defaultdict
-from .exceptions import *
+from compile.compile_exception import InvalidCompilation
 import json
 import subprocess
 
-from .parse_version_and_install_solc import SolcParser
-from .compilation_unit import SafeDevCompilationUnit
+from compile.parse_version_and_install_solc import SolcParser
+from compile.compilation_unit import SafeDevCompilationUnit
+from compile.filename import Filename, convert_filename
 
 # from crytic_compile.crytic_compile import CryticCompile
 import os
 
-class Filename: #원래 used, short가 있었는데 왜 필요한지 모르겠어서 절대/상대 경로만 우선 넣어둠
-    def __init__(self, absolute: str, relative: str):
-        self.absolute = absolute
-        self.relative = relative
-    
-    def __hash__(self) -> int:
-        return hash(self.relative)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Filename):
-            return NotImplemented
-        return self.relative == other.relative
-
-    def __repr__(self) -> str:
-        return f"Filename(absolute={self.absolute}, relative={self.relative}))"
-
-def convert_filename(filename: str, working_dir: Path):
-    if isinstance(filename, Filename):
-        return filename
-
-    filename = Path(filename)
-    absolute = Path(os.path.abspath(filename))
-    try:
-        relative = Path(os.path.relpath(filename, Path.cwd()))
-    except ValueError:
-        relative = Path(filename)
-
-
-    return Filename(absolute=str(absolute), relative=relative.as_posix())
 
 class SafeDevCompile(SolcParser):
     def __init__(self, target: str):
         super().__init__(target)
+        
         self._working_dir = Path.cwd()
         self._dependencies: Set = set()
         self._filename: Filename =convert_filename(self.source, self.working_dir)
+        
         #self._compilation_units: Dict[str, CompilationUnit] = {}
         self._cached_line_to_code: Dict[Filename, List[bytes]] = {}
         self._cached_line_to_offset: Dict[Filename, Dict[int, int]] = defaultdict(dict)
@@ -59,9 +33,16 @@ class SafeDevCompile(SolcParser):
     def target(self) -> str:
         return self.source
     
-    # @property
-    # def compilation_units(self) -> Dict[str, SafeDevCompilationUnit]:
-    #     return self._compilation_units
+    @property
+    def compilation_units(self) -> Dict[str, SafeDevCompilationUnit]:
+        return self._compilation_units
+    
+    @property
+    def filenames(self) -> Set[Filename]: #todo
+        filenames: Set[Filename] = set()
+        for compile_unit in self._compilation_units.values():
+            filenames |= set(compile_unit.filenames)
+        return filenames
 
     @property
     def dependencies(self) -> Set[str]:
@@ -147,34 +128,34 @@ class SafeDevCompile(SolcParser):
         self._bytecode_only = bytecode_only
 
 
-    def execute_solc(self, solc_command: str) -> None:
-        solc_binary_path = self.solc_binary_path.joinpath(f"solc-{self.solc_version}")
+def execute_solc() -> None:
+    solc_binary_path = solc_binary_path.joinpath(f"solc-{solc_version}")
 
-        command: List = [str(solc_binary_path)]
+    command: List = [str(solc_binary_path)]
 
-        if isinstance(self.source, (str, Path)):
-            command.append(self.source)
-        option = ["--combined-json", "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes", "--allow-paths", "."]
-        command.extend(option)
-        
-        proc = subprocess.Popen(
-            command,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            encoding="utf8",
-        )
-
-        stdout, stderr = proc.communicate()
+    if isinstance(source, (str, Path)):
+        command.append(source)
+    option = ["--combined-json", "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes", "--allow-paths", "."]
+    command.extend(option)
     
-        if stderr:
-            print("solc stderr:\n%s", stderr) 
+    proc = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf8",
+    )
 
-        try:
-            ret: Dict = json.loads(stdout)
-            return ret
-        except json.decoder.JSONDecodeError:
-            raise InvalidCompilation(f"Invalid solc compilation {stderr}")
+    stdout, stderr = proc.communicate()
+
+    if stderr:
+        print("solc stderr:\n%s", stderr) 
+
+    try:
+        ret: Dict = json.loads(stdout)
+        return ret
+    except json.decoder.JSONDecodeError:
+        raise InvalidCompilation(f"Invalid solc compilation {stderr}")
 
 
 # instance = CryticCompile(sys.argv[1])

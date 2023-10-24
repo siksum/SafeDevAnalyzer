@@ -63,6 +63,7 @@ from .vulnerability.variables.SimilarVarsDetection import SimilarVarsDetection
 from .vulnerability.variables.FunctionInitializedState import FunctionInitializedState
 from .vulnerability.variables.PredeclarationUsageLocal import PredeclarationUsageLocal
 from .vulnerability.statements.ForcedETHSend import ForcedETHSend
+from .vulnerability.operations.ArithmeticUnderOverFlow import ArithmeticUnderOverFlow
 from .vulnerability.variables.PrivateStateVars import PrivateStateVars
 from .vulnerability.statements.IncorrectExtcodesize import IncorrectExtcodesize
 from .vulnerability.customized_rules.Backdoor import Backdoor

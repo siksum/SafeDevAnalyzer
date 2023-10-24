@@ -1,0 +1,7 @@
+binary(BinaryType.SUBTRACTION) solidity_call(blockhash(uint256)) solidity_call(abi.encodePacked()) solidity_call(keccak256(bytes)) type_conversion(uint256) (local_solc_variable(default)):=(temporary_variable) binary(BinaryType.EQUAL) condition(temporary_variable) low_level_call unpack solidity_call(require(bool,string))
+binary(BinaryType.EQUAL) solidity_call(require(bool)) binary(BinaryType.NOT_EQUAL) solidity_call(require(bool)) (state_solc_variable(uint256)):=(solidity_variable_composed(block.timestamp)) binary(BinaryType.MODULO) binary(BinaryType.EQUAL) condition(temporary_variable) type_conversion(address) solidity_call(balance(address)) low_level_call unpack solidity_call(require(bool,string))
+index(mapping) binary(BinaryType.ADDITION)
+index(mapping) (local_solc_variable(default)):=(reference(uint256)) binary(BinaryType.GREATER) solidity_call(require(bool)) low_level_call unpack solidity_call(require(bool,string)) index(mapping) (reference(uint256)):=(constant(uint256))
+type_conversion(address) solidity_call(balance(address)) return
+(state_solc_variable(address)):=(solidity_variable_composed(msg.sender))
+binary(BinaryType.EQUAL) solidity_call(require(bool,string)) low_level_call unpack solidity_call(require(bool,string))
