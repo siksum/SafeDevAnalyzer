@@ -34,11 +34,7 @@ class SafeDevAnalyzer():
                     self.crytic_compile.append(CryticCompile(self.target_list[0]))
                     self.compilation_units[os.path.basename(
                         self.target_path)] = Slither(self.crytic_compile[0])
-                # elif self.target_path.endswith('.zip') or is_supported(self.target_path):
-                    # print('is zip')
-                    # self.crytic_compile.extend(self.load_from_zip())
-                    # for crytic, filename in zip(self.crytic_compile, self.target_name):
-                    #     self.compilation_units[filename] = Slither(crytic)
+                
                     
         except InvalidCompilation:
             print('Not supported file type')
@@ -66,23 +62,6 @@ class SafeDevAnalyzer():
                 print('compile error')
         return compilation_units
 
-    def load_from_zip(self):
-        compilation_units = []
-        target_list = []
-        with ZipFile(self.target_path, "r") as file_desc:
-            for project in file_desc.namelist():
-                if project.endswith('.sol'):
-                    target_list.append(os.path.join(
-                        os.path.dirname(self.target_path), project))
-            for file in target_list:
-                self.target_name.append(os.path.basename(file))
-                try:
-                    self.solc_parse = SolcParser(file)
-                    compilation_units.append(CryticCompile(file))
-                    print('compile success')
-                except:
-                    print('not .sol file')
-        return compilation_units
 
 
 # instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
