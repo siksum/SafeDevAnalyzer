@@ -87,7 +87,6 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
     combined_data = {}
 
     output_dir = os.path.join(get_root_dir(), "json_results")
-    print(output_dir)
 
     # Delete all files inside the output directory
     files = glob.glob(os.path.join(output_dir, "*"))
@@ -113,6 +112,7 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
             output_path = os.path.join(output_dir+f"/{filename}.json")
             with open(output_path, "w") as f:
                 f.write(combined_json)
+            print(f"Successfully wrote to {output_path}")
         except Exception as e:
             print(f"Failed to write to {output_path}. Reason: {e}")
 
