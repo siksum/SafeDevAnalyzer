@@ -1,12 +1,12 @@
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional
-from zipfile import ZipFile
+from typing import Dict
 import json
+from Crytic_compile.utils.naming import convert_filename
 
 from slither_core.slither import Slither
-from Crytic_compile import CryticCompile, InvalidCompilation, is_supported
+from Crytic_compile import CryticCompile, InvalidCompilation
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.utils.naming import Filename
@@ -17,6 +17,8 @@ class SafeDevAnalyzer():
         self.crytic_compile = []
         self.compilation_units: Dict[str, Slither] = {}
         self.target_list = []
+        self.abi_list = []
+        self.bytecode_list = []
 
         try:
             if os.path.isdir(self.target_path):
@@ -33,13 +35,25 @@ class SafeDevAnalyzer():
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.crytic_compile.append(CryticCompile(self.target_list[0]))
                     self.compilation_units[os.path.basename(
-                        self.target_path)] = Slither(self.crytic_compile[0])
-                
+                        self.target_path)] = Slither(self.crytic_compile[0])  
                     
         except InvalidCompilation:
             print('Not supported file type')
             sys.exit(0)
 
+    def to_deploy(self): 
+        file_path = self.target_list
+        print (file_path)
+
+        i = 0
+        for crytic_compile in self.crytic_compile:
+            filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
+            self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
+            self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._runtime_bytecodes)
+            i += 1
+        
+        return self.abi_list, self.bytecode_list
+    
     def find_all_solidity_files(self, extension: str):
         target_list = []
         for root, dirs, files in os.walk(self.target_path):
@@ -61,6 +75,11 @@ class SafeDevAnalyzer():
             except:
                 print('compile error')
         return compilation_units
+    
+    
+def relative_to_short(relative: Path) -> Path:
+    return relative
+
 
 
 
