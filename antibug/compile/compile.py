@@ -85,24 +85,24 @@ class SafeDevAnalyzer():
         return compilation_units
 
 
-instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
-file= '/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol'
-object=Filename(absolute='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', used='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
-abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis
-runtime_bytecodes = instance.crytic_compile[0]._compilation_units[file]._source_units[object]._runtime_bytecodes
+# instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
+# file= '/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol'
+# object=Filename(absolute='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', used='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
+# abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis
+# runtime_bytecodes = instance.crytic_compile[0]._compilation_units[file]._source_units[object]._runtime_bytecodes
 
-combined_data = {
-    "abis": abis,
-    "bytecodes": runtime_bytecodes
-}
+# combined_data = {
+#     "abis": abis,
+#     "bytecodes": runtime_bytecodes
+# }
 
-combined_json = json.dumps(combined_data, indent=4)
-print("abi and bytecode")
-print(combined_json)
-print()
+# combined_json = json.dumps(combined_data, indent=4)
+# print("abi and bytecode")
+# print(combined_json)
+# print()
 
-print("compilation units")
-print(instance.crytic_compile[0])
+# print("compilation units")
+# print(instance.crytic_compile[0])
     
-
- 
+instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test')
+print(instance.compilation_units)
