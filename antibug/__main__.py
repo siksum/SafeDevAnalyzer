@@ -36,7 +36,7 @@ def parse_arguments():
     vuln_parser.add_argument('target', help='Path to the rule file')
 
     # 'deploy' sub-command
-    deploy_parser = detect_subparsers.add_parser(
+    deploy_parser = subparsers.add_parser(
         'deploy', help='Deploy detector, defaults to all')
     deploy_parser.add_argument('target', help='ath to the rule file')
 
