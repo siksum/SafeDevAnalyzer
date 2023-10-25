@@ -1,8 +1,8 @@
-from join.compile.compile import SafeDevAnalyzer
+from antibug.compile.compile import SafeDevAnalyzer
 from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib
-from join.run_simil.simil import Simil
+from antibug.run_simil.simil import Simil
 import os
 
 
@@ -101,5 +101,6 @@ class RunDetector(SafeDevAnalyzer):
         return results_combined
 
 
-# d = RunDetector('./re-entrancy.sol', ['Dream'])
-# d.run_and_print_detectors()
+d = RunDetector('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import/openzepplin.sol')
+ret = d.register_and_run_detectors()
+print(ret)

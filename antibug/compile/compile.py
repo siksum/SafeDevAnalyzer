@@ -7,8 +7,6 @@ import json
 
 from slither_core.slither import Slither
 from Crytic_compile import CryticCompile, InvalidCompilation, is_supported
-from solc_select.solc_select import switch_global_version
-import antibug.compile.solc_parse.parser_function as ps
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.utils.naming import Filename
@@ -103,6 +101,18 @@ class SafeDevAnalyzer():
 
 # print("compilation units")
 # print(instance.crytic_compile[0])
-    
-instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test')
-print(instance.compilation_units)
+
+####### test directory #######  -> done
+# instance1 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
+# print(instance1.compilation_units)
+
+# ###### test zip ######### -> not working
+# instance2 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test.zip')
+# print(instance2.compilation_units)
+
+####### test import #########
+# instance3 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import/var.sol')
+# print(instance3.compilation_units)
+
+# instance4 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import')
+# print(instance4.compilation_units)

@@ -148,7 +148,6 @@ class Solc(AbstractPlatform):
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
         compilation_unit = CompilationUnit(crytic_compile, str(self._target))
-        print(compilation_unit.compiler_version)
 
         targets_json = _get_targets_json(compilation_unit, self._target, **kwargs)
 
@@ -480,7 +479,6 @@ def _run_solc(
     Returns:
         Dict: Json compilation artifacts
     """
-    print("adadf")
 
     if not os.path.isfile(filename) and (
         not working_dir or not os.path.isfile(os.path.join(str(working_dir), filename))

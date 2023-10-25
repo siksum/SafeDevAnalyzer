@@ -3,7 +3,7 @@ import ast
 import slither_core.detectors.all_detectors as all_detectors
 import re
 from .pysimilarity import PySimilarity
-from join.run_detectors.detectors import RunDetector
+from antibug.run_detectors.detectors import RunDetector
 from termcolor import colored
 
 

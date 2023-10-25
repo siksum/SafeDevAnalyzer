@@ -1,10 +1,10 @@
 import argparse
 import sys
 from solc_select import solc_select
-from join.rule_set.rule import RuleSet
-from join.run_detectors.detectors import RunDetector
-from join.run_simil.simil import Simil
-from join.print_result.output import Output
+from antibug.rule_set.rule import RuleSet
+from antibug.run_detectors.detectors import RunDetector
+from antibug.run_simil.simil import Simil
+from antibug.print_result.output import Output
 from termcolor import colored
 import os
 

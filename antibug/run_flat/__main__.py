@@ -5,7 +5,7 @@ import shutil
 import os
 from Crytic_compile import cryticparser
 from slither_core.slither import Slither
-from join.compile.solc_parse.parser import parse as solc_parse
+from antibug.compile.solc_parse.parser import parse as solc_parse
 from slither_core.tools.flattening.flattening import (
     Flattening,
     Strategy,

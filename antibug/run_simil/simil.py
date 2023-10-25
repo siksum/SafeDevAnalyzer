@@ -5,11 +5,11 @@ import traceback
 from argparse import Namespace
 import os
 
-from join.compile.compile import SafeDevAnalyzer
-from join.run_simil.cache import save_cache
-from join.run_simil.encode import encode_contract, load_contracts, parse_target, load_and_encode
-from join.run_simil.model import train_unsupervised, load_model
-from join.run_simil.similarity import similarity
+from antibug.compile.compile import SafeDevAnalyzer
+from antibug.run_simil.cache import save_cache
+from antibug.run_simil.encode import encode_contract, load_contracts, parse_target, load_and_encode
+from antibug.run_simil.model import train_unsupervised, load_model
+from antibug.run_simil.similarity import similarity
 
 logger = logging.getLogger("Slither-simil")
 logger.setLevel(logging.INFO)  # Set log level to INFO

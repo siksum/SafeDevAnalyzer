@@ -2,8 +2,6 @@
 CryticCompile main module. Handle the compilation.
 """
 import base64
-import platform
-print(platform.__file__)
 
 import glob
 import inspect
