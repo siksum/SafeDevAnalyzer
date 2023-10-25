@@ -43,8 +43,6 @@ class SafeDevAnalyzer():
 
     def to_deploy(self): 
         file_path = self.target_list
-        print (file_path)
-
         i = 0
         for crytic_compile in self.crytic_compile:
             filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
