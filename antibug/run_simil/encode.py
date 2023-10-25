@@ -3,7 +3,7 @@ import os
 from typing import Optional, Tuple, List
 
 from slither_core.slither import Slither
-from antibug.compile.compile import SafeDevAnalyzer
+from antibug.antibug_compile.compile import SafeDevAnalyzer
 from slither_core.core.declarations import (
     Structure,
     Enum,
