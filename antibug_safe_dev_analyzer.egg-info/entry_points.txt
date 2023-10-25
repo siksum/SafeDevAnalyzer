@@ -1,0 +1,4 @@
+[console_scripts]
+antibug = antibug.__main__:main
+antibug-flat = antibug.run_flat.__main__:main
+

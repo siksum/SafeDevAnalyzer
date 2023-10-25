@@ -2,7 +2,6 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict
-import json
 from Crytic_compile.utils.naming import convert_filename
 
 from slither_core.slither import Slither
