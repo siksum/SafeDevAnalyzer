@@ -35,8 +35,6 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
         except Exception as e:
             print(f"Failed to write to {output_path}. Reason: {e}")
 
-
-
 def main():
     analyzer = SafeDevAnalyzer(sys.argv[1])
     abi_list, bytecode_list = analyzer.to_deploy()

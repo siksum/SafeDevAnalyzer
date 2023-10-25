@@ -99,8 +99,3 @@ class RunDetector(SafeDevAnalyzer):
                                        'confidence': confidence, 'description': descriptions}
                     results_combined.append(result_combined)
         return results_combined
-
-
-d = RunDetector('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import/openzepplin.sol')
-ret = d.register_and_run_detectors()
-print(ret)
