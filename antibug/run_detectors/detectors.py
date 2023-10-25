@@ -46,14 +46,6 @@ class RunDetector(SafeDevAnalyzer):
                         for item in filtered_list:
                             instance.register_detector(item)
                         results.extend(instance.run_detectors())
-                    elif detector in self.available_detector_list:
-                        filtered_list = [
-                            item for item in self.import_list if f'{detector}' in str(item)]
-                        if detector == 'addLiquidity':
-                            filtered_list.pop()
-                        for item in filtered_list:
-                            instance.register_detector(item)
-                        results.extend(instance.run_detectors())
                     else:
                         print(colored(f'{detector} is not available', "red"))
                         exit(0)

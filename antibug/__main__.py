@@ -1,14 +1,15 @@
 import argparse
 import sys
-from solc_select import solc_select
-from antibug.rule_set.rule import RuleSet
 from antibug.run_detectors.detectors import RunDetector
 # from antibug.run_simil.simil import Simil
-from antibug.print_result.output import Output
+#from antibug.print_result.output import Output
 from termcolor import colored
 import os
 from antibug.antibug_compile.compile import SafeDevAnalyzer
+from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
+
 import json
+import glob
 
 def parse_arguments():
     usage = 'antibug target [<args>]\n\n'
@@ -19,21 +20,15 @@ def parse_arguments():
 
     parser = argparse.ArgumentParser(
         prog='antibug', usage=usage, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        "--version", help="displays the current solc version and installed list", action="store_true")
+    # parser.add_argument(
+    #     "--version", help="displays the current solc version and installed list", action="store_true")
 
     subparsers = parser.add_subparsers(dest='command', required=False)
 
     # Detector (Vulnerability/Logic)
     detect_parser = subparsers.add_parser('detect')
-    detect_subparsers = detect_parser.add_subparsers(
-        dest='detect_command', required=True)
-
-    # 'vuln' sub-command
-    vuln_parser = detect_subparsers.add_parser(
-        'vuln', help='Vulnerability detector, defaults to all')
-    vuln_parser.add_argument('detector', help='Target rule', nargs='*')
-    vuln_parser.add_argument('target', help='Path to the rule file')
+    detect_parser.add_argument('detector', help='Target rule', nargs='*')
+    detect_parser.add_argument('target', help='Path to the rule file')
 
     # 'deploy' sub-command
     deploy_parser = subparsers.add_parser(
@@ -48,8 +43,9 @@ def parse_arguments():
 
 
 def version_info():
-    current_version = solc_select.current_version()
-    installed_versions = solc_select.installed_versions()
+    solc_parser = SolcParser()
+    current_version = solc_parser.get_current_version()
+    installed_versions = solc_parser.get_intalled_versions()
     version_info = f"\nCurrent version: {current_version}\n\nInstalled versions: {installed_versions}\n"
     return version_info
 
@@ -67,7 +63,6 @@ def detect_vuln_action(target, detector):
             for description in res['description']:
                 print(colored(description, "cyan"), end=' ')
             print()
-        # instance.print_detect_result(results)
 
     else:
         print("Detecting specific vulnerabilities")
@@ -81,7 +76,6 @@ def detect_vuln_action(target, detector):
             for description in res['description']:
                 print(colored(description, "cyan"), end=' ')
 
-        # instance.print_detect_result(results)
 
 def get_root_dir():
     current_working_directory = os.getcwd()
@@ -89,12 +83,20 @@ def get_root_dir():
         current_working_directory = os.path.dirname(current_working_directory)
     return current_working_directory
 
-
 def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
     combined_data = {}
 
     output_dir = os.path.join(get_root_dir(), "json_results")
     print(output_dir)
+
+    # Delete all files inside the output directory
+    files = glob.glob(os.path.join(output_dir, "*"))
+    for f in files:
+        try:
+            os.remove(f)
+        except Exception as e:
+            print(f"Failed to delete {f}. Reason: {e}")
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -114,17 +116,12 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
         except Exception as e:
             print(f"Failed to write to {output_path}. Reason: {e}")
 
+
 def main():
     args = parse_arguments()
-    if args.version:
-        print(version_info())
-        return
-    elif args.command == 'detect':
-        if args.detect_command == 'vuln':
-            detect_vuln_action(args.target, args.detector)
-        else:
-            print("Error: Invalid detect mode.")
-            return
+    if args.command == 'detect':
+        detect_vuln_action(args.target, args.detector)
+
     elif args.command == 'deploy':
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_deploy()

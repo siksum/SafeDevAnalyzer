@@ -21,7 +21,6 @@ class SafeDevAnalyzer():
 
         try:
             if os.path.isdir(self.target_path):
-                print('is dir') 
                 self.target_list = self.find_all_solidity_files('.sol')
                 self.crytic_compile.extend(self.get_crytic_compile_list())
                 for crytic, filename in zip(self.crytic_compile, self.target_name):
@@ -29,7 +28,6 @@ class SafeDevAnalyzer():
 
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
-                    print('is sol')
                     self.target_list.append(self.target_path)
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.crytic_compile.append(CryticCompile(self.target_list[0]))
