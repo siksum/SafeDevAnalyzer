@@ -11,18 +11,18 @@ from json.decoder import JSONDecodeError
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Dict, List, Union, Tuple, Optional
 
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.platform import solc_standard_json
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.platform.exceptions import InvalidCompilation
-from crytic_compile.platform.types import Type
-from crytic_compile.utils.naming import Filename
+from Crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.platforms import solc_standard_json
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
+from Crytic_compile.platforms.exceptions import InvalidCompilation
+from Crytic_compile.platforms.types import Type
+from Crytic_compile.utils.naming import Filename
 
 # Cycle dependency
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 

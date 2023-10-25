@@ -10,8 +10,8 @@ import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
-from crytic_compile import CryticCompile
-from crytic_compile.utils.naming import Filename
+from Crytic_compile import CryticCompile
+from Crytic_compile.utils.naming import Filename
 
 from slither_core.core.declarations.contract_level import ContractLevel
 from slither_core.core.compilation_unit import SlitherCompilationUnit

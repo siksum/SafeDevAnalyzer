@@ -8,10 +8,10 @@ import zipfile
 from typing import TYPE_CHECKING, List, Union
 from zipfile import ZipFile
 
-from crytic_compile.platform.archive import generate_archive_export
+from Crytic_compile.platforms.archive import generate_archive_export
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 
 def _to_str(txt: Union[bytes, str]) -> str:
@@ -38,7 +38,7 @@ def load_from_zip(target: str) -> List["CryticCompile"]:
         List[CryticCompile]: List of loaded projects
     """
     # pylint: disable=import-outside-toplevel
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
     compilations = []
     with ZipFile(target, "r") as file_desc:

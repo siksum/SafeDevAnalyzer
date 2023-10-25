@@ -4,7 +4,7 @@ import logging
 import sys
 from typing import Type, List, Any
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.tools.mutator.mutators import all_mutators

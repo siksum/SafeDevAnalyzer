@@ -5,8 +5,8 @@ Call cryticparser.init(parser: ArgumentParser) to setup all the crytic-compile a
 """
 from argparse import ArgumentParser
 
-from crytic_compile.crytic_compile import get_platforms
-from crytic_compile.cryticparser import DEFAULTS_FLAG_IN_CONFIG
+from Crytic_compile.crytic_compile import get_platforms
+from Crytic_compile.cryticparser import DEFAULTS_FLAG_IN_CONFIG
 
 
 def init(parser: ArgumentParser) -> None:

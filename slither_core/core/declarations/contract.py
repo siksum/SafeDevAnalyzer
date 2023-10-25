@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
-from crytic_compile.platform import Type as PlatformType
+from Crytic_compile.platforms import Type as PlatformType
 
 from slither_core.core.cfg.scope import Scope
 from slither_core.core.solidity_types.type import Type
@@ -1282,7 +1282,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Return true if the contract is the Migrations contract needed for Truffle
         :return:
         """
-        if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
+        if self.compilation_unit.core.Crytic_compile.platforms == PlatformType.TRUFFLE:
             if self.name == "Migrations":
                 paths = Path(self.source_mapping.filename.absolute).parts
                 if len(paths) >= 2:

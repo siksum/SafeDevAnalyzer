@@ -2,7 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.utils.code_generation import generate_interface

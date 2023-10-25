@@ -1,10 +1,10 @@
 """
 Module containing all the supported export functions
 """
-from crytic_compile.platform.archive import export_to_archive
-from crytic_compile.platform.solc import export_to_solc
-from crytic_compile.platform.standard import export_to_standard
-from crytic_compile.platform.truffle import export_to_truffle
+from Crytic_compile.platforms.archive import export_to_archive
+from Crytic_compile.platforms.solc import export_to_solc
+from Crytic_compile.platforms.standard import export_to_standard
+from Crytic_compile.platforms.truffle import export_to_truffle
 
 PLATFORMS_EXPORT = {
     "standard": export_to_standard,

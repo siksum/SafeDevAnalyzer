@@ -1,7 +1,7 @@
 import logging
 from typing import Union, List, ValuesView, Type, Dict, Optional
 
-from crytic_compile import CryticCompile, InvalidCompilation
+from Crytic_compile import CryticCompile, InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither_core.core.compilation_unit import SlitherCompilationUnit

@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING, List, Optional, Dict, TypeVar
 
 import toml
 
-from crytic_compile.platform.abstract_platform import AbstractPlatform, PlatformConfig
-from crytic_compile.platform.types import Type
-from crytic_compile.platform.hardhat import hardhat_like_parsing
-from crytic_compile.utils.subprocess import run
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform, PlatformConfig
+from Crytic_compile.platforms.types import Type
+from Crytic_compile.platforms.hardhat import hardhat_like_parsing
+from Crytic_compile.utils.subprocess import run
 
 # Handle cycle
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 T = TypeVar("T")
 

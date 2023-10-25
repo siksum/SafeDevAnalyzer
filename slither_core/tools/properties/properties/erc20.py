@@ -3,8 +3,8 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Tuple, List
 
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.platform import Type as PlatformType
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
+from Crytic_compile.platforms import Type as PlatformType
 
 from slither_core.core.declarations import Contract
 from slither_core.tools.properties.addresses.address import Addresses
@@ -101,7 +101,7 @@ def generate_erc20(
 
     # Generate the output directory
     output_dir = _platform_to_output_dir(
-        contract.compilation_unit.core.crytic_compile.platform)
+        contract.compilation_unit.core.Crytic_compile.platforms)
     output_dir.mkdir(exist_ok=True)
 
     # Get the properties

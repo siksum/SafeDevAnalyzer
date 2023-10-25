@@ -14,18 +14,18 @@ from pathlib import Path
 # Cycle dependency
 from typing import TYPE_CHECKING, List, Optional
 
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.platform.types import Type
-from crytic_compile.utils.naming import convert_filename, extract_name
+from Crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
+from Crytic_compile.platforms.types import Type
+from Crytic_compile.utils.naming import convert_filename, extract_name
 
 # Handle cycle
-from crytic_compile.utils.natspec import Natspec
-from crytic_compile.utils.subprocess import run
+from Crytic_compile.utils.natspec import Natspec
+from Crytic_compile.utils.subprocess import run
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 
@@ -191,7 +191,7 @@ def _run_dapp(target: str) -> None:
         InvalidCompilation: If dapp failed to run
     """
     # pylint: disable=import-outside-toplevel
-    from crytic_compile.platform.exceptions import InvalidCompilation
+    from Crytic_compile.platforms.exceptions import InvalidCompilation
 
     cmd = ["dapp", "build"]
 

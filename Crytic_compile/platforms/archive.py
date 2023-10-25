@@ -9,14 +9,14 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type, Any
 
-from crytic_compile.platform import Type as TypePlatform
-from crytic_compile.platform import standard
+from Crytic_compile.platforms import Type as TypePlatform
+from Crytic_compile.platforms import standard
 
 # Cycle dependency
-from crytic_compile.platform.abstract_platform import AbstractPlatform
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 
 def export_to_archive(crytic_compile: "CryticCompile", **kwargs: Any) -> List[str]:
@@ -75,7 +75,7 @@ class Archive(AbstractPlatform):
             **_kwargs: unused
         """
         # pylint: disable=import-outside-toplevel
-        from crytic_compile.crytic_compile import get_platforms
+        from Crytic_compile.crytic_compile import get_platforms
 
         try:
             if isinstance(self._target, str) and os.path.isfile(self._target):

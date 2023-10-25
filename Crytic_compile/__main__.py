@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from pkg_resources import require
 
-from crytic_compile.crytic_compile import compile_all, get_platforms
-from crytic_compile.cryticparser import DEFAULTS_FLAG_IN_CONFIG, cryticparser
-from crytic_compile.platform import InvalidCompilation
-from crytic_compile.platform.all_export import PLATFORMS_EXPORT
-from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED, save_to_zip
+from Crytic_compile.crytic_compile import compile_all, get_platforms
+from Crytic_compile.cryticparser import DEFAULTS_FLAG_IN_CONFIG, cryticparser
+from Crytic_compile.platforms import InvalidCompilation
+from Crytic_compile.platforms.all_export import PLATFORMS_EXPORT
+from Crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED, save_to_zip
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 
 logging.basicConfig()

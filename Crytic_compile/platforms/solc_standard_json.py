@@ -9,18 +9,18 @@ import shutil
 import subprocess
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.platform.exceptions import InvalidCompilation
-from crytic_compile.platform.solc import Solc, get_version, is_optimized, relative_to_short
-from crytic_compile.platform.types import Type
-from crytic_compile.utils.naming import convert_filename
+from Crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.platforms.exceptions import InvalidCompilation
+from Crytic_compile.platforms.solc import Solc, get_version, is_optimized, relative_to_short
+from Crytic_compile.platforms.types import Type
+from Crytic_compile.utils.naming import convert_filename
 
 # Cycle dependency
-from crytic_compile.utils.natspec import Natspec
+from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 

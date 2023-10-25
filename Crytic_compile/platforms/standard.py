@@ -7,17 +7,17 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type, Any
 
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.platform import Type as PlatformType
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.utils.naming import Filename
+from Crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.platforms import Type as PlatformType
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
+from Crytic_compile.utils.naming import Filename
 
 # Cycle dependency
-from crytic_compile.utils.natspec import Natspec
+from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 
 def export_to_standard(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
@@ -83,7 +83,7 @@ class Standard(AbstractPlatform):
 
         """
         # pylint: disable=import-outside-toplevel
-        from crytic_compile.crytic_compile import get_platforms
+        from Crytic_compile.crytic_compile import get_platforms
 
         with open(self._target, encoding="utf8") as file_desc:
             loaded_json = json.load(file_desc)
@@ -265,8 +265,8 @@ def generate_standard_export(crytic_compile: "CryticCompile") -> Dict:
         "compilation_units": compilation_units,
         "package": crytic_compile.package,
         "working_dir": str(crytic_compile.working_dir),
-        "type": int(crytic_compile.platform.platform_type_used),
-        "unit_tests": crytic_compile.platform.guessed_tests(),
+        "type": int(Crytic_compile.platforms.platform_type_used),
+        "unit_tests": Crytic_compile.platforms.guessed_tests(),
         "crytic_version": "0.0.2",
     }
     return output

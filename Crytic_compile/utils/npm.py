@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional, Union, Dict
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from crytic_compile.platform.solc_standard_json import SolcStandardJson
+    from Crytic_compile.platforms.solc_standard_json import SolcStandardJson
 
 
 def get_package_name(target_txt: Union[str, "SolcStandardJson"]) -> Optional[str]:

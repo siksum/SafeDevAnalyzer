@@ -3,7 +3,7 @@ import sys
 import logging
 from argparse import ArgumentParser, Namespace
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 from slither_core import Slither
 from slither_core.core.declarations import FunctionContract
 from slither_core.utils.colors import red

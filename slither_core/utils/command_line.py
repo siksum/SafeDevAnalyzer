@@ -6,7 +6,7 @@ import logging
 from collections import defaultdict
 from typing import Dict, List, Type, Union
 
-from crytic_compile.cryticparser.defaults import (
+from Crytic_compile.cryticparser.defaults import (
     DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 )
 

@@ -1,5 +1,5 @@
-from crytic_compile.cryticcompile import CryticCompile
-from crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.cryticcompile import CryticCompile
+from Crytic_compile.compilation_unit import CompilationUnit
 
 from typing import TYPE_CHECKING
 from safe_dev_analyzer import SafeDevCompile

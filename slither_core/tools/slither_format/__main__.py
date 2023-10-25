@@ -1,7 +1,7 @@
 import sys
 import argparse
 import logging
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 from slither_core import Slither
 from slither_core.utils.command_line import read_config_file
 from slither_core.tools.slither_format.slither_format import slither_format

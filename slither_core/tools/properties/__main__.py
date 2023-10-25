@@ -3,7 +3,7 @@ import logging
 import sys
 from typing import Any
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES

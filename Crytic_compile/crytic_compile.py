@@ -2,6 +2,9 @@
 CryticCompile main module. Handle the compilation.
 """
 import base64
+import platform
+print(platform.__file__)
+
 import glob
 import inspect
 import json
@@ -14,22 +17,22 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Type, Union
 
-from solc_select.solc_select import (
-    install_artifacts,
-    installed_versions,
-    artifact_path,
-)
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.platform import all_platforms
-from crytic_compile.platform.solc_standard_json import SolcStandardJson
-from crytic_compile.platform.vyper import VyperStandardJson
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.platform.all_export import PLATFORMS_EXPORT
-from crytic_compile.platform.solc import Solc
-from crytic_compile.platform.standard import export_to_standard
-from crytic_compile.utils.naming import Filename
-from crytic_compile.utils.npm import get_package_name
-from crytic_compile.utils.zip import load_from_zip
+# from solc_select.solc_select import (
+#     install_artifacts,
+#     installed_versions,
+#     artifact_path,
+# )
+from Crytic_compile.compilation_unit import CompilationUnit
+from Crytic_compile.platforms import all_platforms
+from Crytic_compile.platforms.solc_standard_json import SolcStandardJson
+from Crytic_compile.platforms.vyper import VyperStandardJson
+from Crytic_compile.platforms.abstract_platform import AbstractPlatform
+from Crytic_compile.platforms.all_export import PLATFORMS_EXPORT
+from Crytic_compile.platforms.solc import Solc
+from Crytic_compile.platforms.standard import export_to_standard
+from Crytic_compile.utils.naming import Filename
+from Crytic_compile.utils.npm import get_package_name
+from Crytic_compile.utils.zip import load_from_zip
 
 # Cycle dependency
 if TYPE_CHECKING:
@@ -98,15 +101,15 @@ def _configure_solc(solc_requested: str, offline: bool) -> str:
     """
     if Path(solc_requested).exists():
         solc_path = Path(solc_requested)
-    else:
-        solc_version = solc_requested
-        if solc_requested in installed_versions():
-            solc_path = artifact_path(solc_requested)
-        else:
-            # Respect foundry offline option and skip installation.
-            if not offline:
-                install_artifacts([solc_version])
-            solc_path = artifact_path(solc_version)
+    # else:
+    #     solc_version = solc_requested
+    #     if solc_requested in installed_versions():
+    #         solc_path = artifact_path(solc_requested)
+    #     else:
+    #         # Respect foundry offline option and skip installation.
+    #         if not offline:
+    #             install_artifacts([solc_version])
+    #         solc_path = artifact_path(solc_version)
     return solc_path.absolute().as_posix()
 
 

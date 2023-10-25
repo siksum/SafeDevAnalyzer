@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from crytic_compile import cryticcompile
+from Crytic_compile import cryticcompile
 
 from slither_core.tools.doctor.utils import snip_section
 from slither_core.utils.colors import red, yellow, green

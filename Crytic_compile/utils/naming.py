@@ -9,11 +9,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from crytic_compile.platform.exceptions import InvalidCompilation
+from Crytic_compile.platforms.exceptions import InvalidCompilation
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 

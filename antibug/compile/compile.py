@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from zipfile import ZipFile
 
 from slither_core.slither import Slither
-from crytic_compile import CryticCompile, InvalidCompilation, is_supported
+from Crytic_compile import CryticCompile, InvalidCompilation, is_supported
 from solc_select.solc_select import switch_global_version
 import antibug.compile.solc_parse.parser_function as ps
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser

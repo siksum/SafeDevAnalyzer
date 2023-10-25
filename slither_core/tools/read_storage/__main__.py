@@ -4,7 +4,7 @@ Tool to read on-chain storage from EVM
 import json
 import argparse
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.tools.read_storage.read_storage import SlitherReadStorage

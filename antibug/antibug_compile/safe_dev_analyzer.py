@@ -9,7 +9,7 @@ from compile.parse_version_and_install_solc import SolcParser
 from compile.compilation_unit import SafeDevCompilationUnit
 from compile.filename import Filename, convert_filename
 
-# from crytic_compile.crytic_compile import CryticCompile
+# from Crytic_compile.crytic_compile import CryticCompile
 import os
 
 

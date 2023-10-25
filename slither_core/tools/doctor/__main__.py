@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 
-from crytic_compile import cryticparser
+from Crytic_compile import cryticparser
 
 from slither_core.tools.doctor.utils import report_section
 from slither_core.tools.doctor.checks import ALL_CHECKS

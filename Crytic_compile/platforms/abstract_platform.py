@@ -7,11 +7,11 @@ import abc
 from typing import TYPE_CHECKING, List, Dict, Optional
 from dataclasses import dataclass, field
 
-from crytic_compile.platform import Type
-from crytic_compile.utils.unit_tests import guess_tests
+from Crytic_compile.platforms import Type
+from Crytic_compile.utils.unit_tests import guess_tests
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 
 class IncorrectPlatformInitialization(Exception):

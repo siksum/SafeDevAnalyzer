@@ -9,7 +9,7 @@ import cbor2
 
 from Crypto.Hash import keccak
 
-from crytic_compile.utils.natspec import Natspec
+from Crytic_compile.utils.natspec import Natspec
 from compile.filename import Filename
 
 if TYPE_CHECKING:

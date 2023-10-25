@@ -9,13 +9,13 @@ import uuid
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.source_unit import SourceUnit
-from crytic_compile.utils.naming import Filename
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.source_unit import SourceUnit
+from Crytic_compile.utils.naming import Filename
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from Crytic_compile import CryticCompile
 
 # pylint: disable=too-many-instance-attributes
 class CompilationUnit:
@@ -237,10 +237,10 @@ class CompilationUnit:
             Filename: Associated Filename object
         """
         # pylint: disable=import-outside-toplevel
-        from crytic_compile.platform.truffle import Truffle
+        # from Crytic_compile.platforms.truffle import Truffle
 
-        if isinstance(self.crytic_compile.platform, Truffle) and filename.startswith("project:/"):
-            filename = filename[len("project:/") :]
+        # if isinstance(self._crytic_compile.platforms, Truffle) and filename.startswith("project:/"):
+        #     filename = filename[len("project:/") :]
 
         if self._filenames_lookup is None:
             self._filenames_lookup = {}

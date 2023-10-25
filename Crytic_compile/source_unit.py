@@ -9,11 +9,11 @@ import cbor2
 
 from Crypto.Hash import keccak
 
-from crytic_compile.utils.naming import Filename
-from crytic_compile.utils.natspec import Natspec
+from Crytic_compile.utils.naming import Filename
+from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from crytic_compile.compilation_unit import CompilationUnit
+    from Crytic_compile.compilation_unit import CompilationUnit
 
 
 def get_library_candidate(filename: Filename, contract_name: str) -> List[str]:

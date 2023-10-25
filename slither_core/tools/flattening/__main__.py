@@ -2,8 +2,8 @@ import argparse
 import logging
 import sys
 
-from crytic_compile import cryticparser
-from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
+from Crytic_compile import cryticparser
+from Crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
 
 from slither_core import Slither
 from slither_core.tools.flattening.flattening import (

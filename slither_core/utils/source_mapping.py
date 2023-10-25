@@ -1,5 +1,5 @@
 from typing import List
-from crytic_compile import CryticCompile
+from Crytic_compile import CryticCompile
 from slither_core.core.declarations import Contract, Function, Enum, Event, Import, Pragma, Structure
 from slither_core.core.solidity_types.type import Type
 from slither_core.core.source_mapping.source_mapping import Source, SourceMapping

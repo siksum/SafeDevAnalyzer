@@ -1,9 +1,9 @@
 import math
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
-from crytic_compile import CompilationUnit, CryticCompile
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.utils.naming import Filename
+from Crytic_compile import CompilationUnit, CryticCompile
+from Crytic_compile.compiler.compiler import CompilerVersion
+from Crytic_compile.utils.naming import Filename
 
 from slither_core.core.context.context import Context
 from slither_core.core.declarations import (
