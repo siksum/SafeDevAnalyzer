@@ -1,4 +1,4 @@
-from crytic_compile.crytic_compile import CryticCompile
+from crytic_compile.cryticcompile import CryticCompile
 from crytic_compile.compilation_unit import CompilationUnit
 
 from typing import TYPE_CHECKING

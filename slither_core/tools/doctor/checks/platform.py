@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from crytic_compile import crytic_compile
+from crytic_compile import cryticcompile
 
 from slither_core.tools.doctor.utils import snip_section
 from slither_core.utils.colors import red, yellow, green
@@ -19,7 +19,7 @@ def detect_platform(project: str, **kwargs) -> None:
 
     print(f"Trying to detect project type for {project!r}")
 
-    supported_platforms = crytic_compile.get_platforms()
+    supported_platforms = cryticcompile.get_platforms()
     skip_platforms = {"solc", "solc-json", "archive", "standard", "etherscan"}
     detected_platforms = {
         platform.NAME: platform.is_supported(project, **kwargs)
@@ -56,7 +56,7 @@ def compile_project(project: str, **kwargs):
     print("Invoking crytic-compile on the project, please wait...")
 
     try:
-        crytic_compile.CryticCompile(project, **kwargs)
+        cryticcompile.CryticCompile(project, **kwargs)
     except Exception as e:  # pylint: disable=broad-except
         with snip_section("Project compilation failed :( The following error was generated:"):
             logging.exception(e)

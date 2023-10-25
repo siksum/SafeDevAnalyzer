@@ -28,6 +28,7 @@ class Join():
 
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
+                    print('is sol')
                     self.solc_parse = SolcParser(self.target_path)
                     self.crytic_compile.append(CryticCompile(self.target_path))
                     self.compilation_units[os.path.basename(
@@ -37,6 +38,7 @@ class Join():
                     self.crytic_compile.extend(self.load_from_zip())
                     for crytic, filename in zip(self.crytic_compile, self.target_name):
                         self.compilation_units[filename] = Slither(crytic)
+                    
         except InvalidCompilation:
             print('Not supported file type')
             sys.exit(0)
@@ -82,7 +84,7 @@ class Join():
         return compilation_units
 
 
-instance = Join('./test/overflow.sol')
+instance = Join('./test/reentrancy.sol')
 print(instance.compilation_units)
 
     # def get_versions(self, file):
