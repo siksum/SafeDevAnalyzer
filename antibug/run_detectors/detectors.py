@@ -2,8 +2,6 @@ from antibug.antibug_compile.compile import SafeDevAnalyzer
 from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib
-from antibug.run_simil.simil import Simil
-import os
 
 
 class RunDetector(SafeDevAnalyzer):
@@ -55,24 +53,6 @@ class RunDetector(SafeDevAnalyzer):
 
         result = self.detect_result(results)
         return result
-
-    def register_and_run_detectors_similmode(self, fname):
-        simil = Simil()
-        simil_result = []
-        cache_path = os.path.abspath(os.path.join(os.path.dirname(
-            os.path.abspath(__file__)), "../run_simil/cache.npz"))
-        bin_path = os.path.join(os.path.dirname(
-            __file__), "../run_simil/etherscan_verified_contracts.bin")
-        for function in fname:
-            results = simil.test(
-                self.target_path, function, cache_path, bin_path)
-            for result in results:
-                simil_result.append({
-                    'target': function,
-                    'detect': f'{result[1]}.{result[2]}',
-                    'score': result[3],
-                })
-        return simil_result
 
     def detect_result(self, results):
         results_combined = []
