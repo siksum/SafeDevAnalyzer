@@ -5,7 +5,7 @@ import traceback
 from argparse import Namespace
 import os
 
-from join.compile.compile import Join
+from join.compile.compile import SafeDevAnalyzer
 from join.run_simil.cache import save_cache
 from join.run_simil.encode import encode_contract, load_contracts, parse_target, load_and_encode
 from join.run_simil.model import train_unsupervised, load_model
@@ -107,7 +107,7 @@ class Simil:
             sys.exit(-1)
 
     def _check_similar(self, path, detector, contract):
-        compile = Join(path)
+        compile = SafeDevAnalyzer(path)
         detector_path = os.path.join(
             os.path.dirname(__file__), "Category", detector)
         path = compile.target_path

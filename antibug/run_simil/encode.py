@@ -3,7 +3,7 @@ import os
 from typing import Optional, Tuple, List
 
 from slither_core.slither import Slither
-from join.compile.compile import Join
+from join.compile.compile import SafeDevAnalyzer
 from slither_core.core.declarations import (
     Structure,
     Enum,
@@ -225,7 +225,7 @@ def encode_contract(cfilename, **kwargs):
     r = {}
     # Init slither
     try:
-        compile = Join(cfilename, **kwargs)
+        compile = SafeDevAnalyzer(cfilename, **kwargs)
     except Exception:  # pylint: disable=broad-except
         simil_logger.error("Compilation failed for %s using %s",
                            cfilename, kwargs["solc"])

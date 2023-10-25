@@ -1,10 +1,14 @@
-result = "# Detect Report\n\n"
-result += "## Reentrancy\n\n"
-result += """ ```solidity
+# Detect Report
+
+## Reentrancy
+
+ ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity  ^0.8.1;
 
-contract EtherStore {\n\n    mapping(address => uint) public balances;
+contract EtherStore {
+
+    mapping(address => uint) public balances;
 
     function deposit() public payable {
         balances[msg.sender] += msg.value;
@@ -26,5 +30,4 @@ contract EtherStore {\n\n    mapping(address => uint) public balances;
         return address(this).balance;
     }
 }
-``` """
-open("../result/output.md", "w").write(result)
+``` 

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional
 from zipfile import ZipFile
+import json
 
 from slither_core.slither import Slither
 from Crytic_compile import CryticCompile, InvalidCompilation, is_supported
@@ -10,8 +11,8 @@ from solc_select.solc_select import switch_global_version
 import antibug.compile.solc_parse.parser_function as ps
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
-
-class Join():
+from Crytic_compile.utils.naming import Filename
+class SafeDevAnalyzer():
     def __init__(self, target: str, **kwargs) -> None:
         self.target_path = os.path.abspath(target)
         self.target_name = []
@@ -84,75 +85,24 @@ class Join():
         return compilation_units
 
 
-instance = Join('./test/reentrancy.sol')
-print(instance.compilation_units)
+instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
+file= '/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol'
+object=Filename(absolute='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', used='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
+abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis
+runtime_bytecodes = instance.crytic_compile[0]._compilation_units[file]._source_units[object]._runtime_bytecodes
 
-    # def get_versions(self, file):
-    #     content = ps.get_solidity_source(file)
-    #     sign, version = ps.parse_solidity_version(content)
-    #     return sign, version
+combined_data = {
+    "abis": abis,
+    "bytecodes": runtime_bytecodes
+}
 
-    # def select_compile_version(self, version: str):
-    #     try:
-    #         if (self.check_installed_version(version)):
-    #             switch_global_version(version, True)
-    #         else:
-    #             ps.install_solc(version)
-    #             switch_global_version(version, True)
-    #     except:
-    #         print('Failed to switch compile versions')
+combined_json = json.dumps(combined_data, indent=4)
+print("abi and bytecode")
+print(combined_json)
+print()
 
-    # def parse_all_version_to_dict(self):
-    #     version_list = ps.get_version_list()
-    #     versions = version_list.keys()
-
-    #     minor_versions_dict = {}
-    #     for version in versions:
-    #         minor_version = version.split('.')[1]
-    #         minor_versions_dict[minor_version] = []
-
-    #     for version in versions:
-    #         minor_version = version.split('.')[1]
-    #         minor_versions_dict[minor_version].append(version)
-
-    #     return minor_versions_dict
-
-    # def check_installed_version(self, version):
-    #     if "VIRTUAL_ENV" in os.environ:
-    #         HOME_DIR = Path(os.environ["VIRTUAL_ENV"])
-    #     else:
-    #         HOME_DIR = Path.home()
-    #     SOLC_SELECT_DIR = HOME_DIR.joinpath(".solc-select")
-    #     ARTIFACTS_DIR = SOLC_SELECT_DIR.joinpath("artifacts")
-
-    #     for _, _, files in os.walk(ARTIFACTS_DIR):
-    #         for file in files:
-    #             installed_version = file.split('-')[1]
-    #             if (installed_version == version):
-    #                 return True
-    #     return False
-
-    # def parse(self, file_path):
-        # sign, version = self.get_versions(file_path)
-        # version_list = ps.get_version_list()
-
-        # if len(version) != 1:
-        #     sign, version = ps.compare_version(sign, version)
-        # sign = sign[0]
-        # version = version[0]
-
-        # index = ps.find_matching_index(version, version_list)
-
-        # if sign == '<':
-        #     version = version_list[index - 1]
-        # elif sign == '>':
-        #     version = version_list[index + 1]
-        # elif (sign == '^' or sign == '~'):
-        #     version = ps.get_highest_version(version_list, version)
-        # elif (sign == '=' or sign == '>=' or sign == '<=') or (not sign and version):
-        #     version = version
-        # else:
-        #     print("incorrect sign")
-        # return version
+print("compilation units")
+print(instance.crytic_compile[0])
+    
 
  

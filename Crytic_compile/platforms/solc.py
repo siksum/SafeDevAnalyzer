@@ -22,6 +22,7 @@ from Crytic_compile.utils.naming import (
     extract_name,
 )
 
+from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 # Cycle dependency
 from Crytic_compile.utils.natspec import Natspec
 
@@ -147,6 +148,7 @@ class Solc(AbstractPlatform):
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
         compilation_unit = CompilationUnit(crytic_compile, str(self._target))
+        print(compilation_unit.compiler_version)
 
         targets_json = _get_targets_json(compilation_unit, self._target, **kwargs)
 

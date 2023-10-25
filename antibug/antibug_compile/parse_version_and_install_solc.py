@@ -12,8 +12,8 @@ if "VIRTUAL_ENV" in os.environ:
     HOME_DIR = Path(os.environ["VIRTUAL_ENV"])
 else:
     HOME_DIR = Path.home()
-SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-parser")
-SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("solc_binaries")
+SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-select")
+SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("artifacts")
 
 class SolcParser:
     def __init__(self, target: str):
@@ -113,7 +113,7 @@ class SolcParser:
             if v.startswith(target_major_minor):
                 matching_versions.append(v)
         if target_version == matching_versions[0]:
-            return version_list[target_index - 1]
+            return version_list[target_index]
         else:
             return matching_versions[target_index -1]
 
