@@ -49,7 +49,7 @@ def main():
     solc_version = instance.solc_version
     solc_binary_path = instance.solc_binary_path
     ret = execute_solc(solidity_file, solc_binary_path, solc_version)
-    open("ast.json", "w").write(json.dumps(ret, indent=2))
+    open("output.json", "w").write(json.dumps(ret, indent=2))
 
 if __name__ == "__main__":
     main()

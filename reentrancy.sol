@@ -23,3 +23,4 @@ contract EtherStore {
         return address(this).balance;
     }
 }
+
