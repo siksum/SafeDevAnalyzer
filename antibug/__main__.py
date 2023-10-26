@@ -119,7 +119,7 @@ def detect_based_blacklist_action(target, fname, input, bin):
         path, contract, function = key
         score = float(value)
         if score >= 0.9:
-            vuln_type, severity = vuln(path)
+            vuln_type, severity, etherscan, description = vuln(path)
             with open(path, "r") as code_files:
                 code_content = "```solidity\n" + code_files.read() + "```"
             entry = {
@@ -129,7 +129,9 @@ def detect_based_blacklist_action(target, fname, input, bin):
                 "code" : code_content,
                 "contract" : contract,
                 "function" : function,
-                "score" : score
+                "score" : score,
+                "etherscan" : etherscan,
+                "description" : description
             }
             similarity.append(entry)
     
