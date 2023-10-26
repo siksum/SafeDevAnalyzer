@@ -60,9 +60,15 @@ class RunDetector(SafeDevAnalyzer):
             print(colored("Nothing to result", "red"))
             exit(0)
         else:
+            print(results)
             for detector_result in results:
                 if detector_result:
-                    check = detector_result[0].get('check')
+                    # filename=detector_result[0]['filename']
+                    # contract=detector_result[0]['contract']
+                    # function=detector_result[0]['function']
+                    filename = detector_result[0]['filename_absolute']
+                    
+                    check = detector_result[0]['check']
                     impact = detector_result[0]['impact']
                     confidence = detector_result[0]['confidence']
                     descriptions = [result['description']

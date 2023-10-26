@@ -1,15 +1,22 @@
 import argparse
 import sys
-from antibug.run_detectors.detectors import RunDetector
-# from antibug.run_simil.simil import Simil
-#from antibug.print_result.output import Output
 from termcolor import colored
 import os
+import argparse
+import logging
+import json
+import glob
+
+from Crytic_compile import cryticparser
+
+from antibug.run_detectors.detectors import RunDetector
+from antibug.run_detectors.based_blacklist.test import test
+from antibug.run_detectors.based_blacklist.vuln import vuln
+
 from antibug.antibug_compile.compile import SafeDevAnalyzer
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
-import json
-import glob
+
 
 def parse_arguments():
     usage = 'antibug target [<args>]\n\n'
@@ -27,13 +34,32 @@ def parse_arguments():
 
     # Detector (Vulnerability/Logic)
     detect_parser = subparsers.add_parser('detect')
-    detect_parser.add_argument('detector', help='Target rule', nargs='*')
-    detect_parser.add_argument('target', help='Path to the rule file')
+    detect_subparser = detect_parser.add_subparsers(dest='detect_command', required=True)
+
+    basic_parser = detect_subparser.add_parser('basic')
+    basic_parser.add_argument('detector', help='Target rule', nargs='*')
+    basic_parser.add_argument('target', help='Path to the rule file')
+
+    blacklist_parser = detect_subparser.add_parser('blacklist')
+    blacklist_parser.add_argument("model", help="model.bin")
+    blacklist_parser.add_argument("filename", action="store", help="contract.sol")
+    blacklist_parser.add_argument("fname", action="store", help="Target function")
+    blacklist_parser.add_argument("input", action="store", help="File or directory used as input")
+    blacklist_parser.add_argument(
+        "--ntop",
+        action="store",
+        type=int,
+        default=10,
+        help="Number of more similar contracts to show for testing",
+    )
 
     # 'deploy' sub-command
     deploy_parser = subparsers.add_parser(
         'deploy', help='Deploy detector, defaults to all')
     deploy_parser.add_argument('target', help='ath to the rule file')
+
+    cryticparser.init(blacklist_parser)
+
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -55,15 +81,15 @@ def detect_vuln_action(target, detector):
         print("Detecting all vulnerabilities")
         instance = RunDetector(target)
         result = instance.register_and_run_detectors()
-        for res in result:
-            print(colored(f"check: {res['check']}", "magenta"))
-            print(colored(f"impact: {res['impact']}", "magenta"))
-            print(colored(f"confidence: {res['confidence']}", "magenta"))
-            print(colored(f"description", "magenta"))
-            for description in res['description']:
-                print(colored(description, "cyan"), end=' ')
-            print()
-
+        # for res in result:
+            # print(colored(f"check: {res['check']}", "magenta"))
+            # print(colored(f"impact: {res['impact']}", "magenta"))
+            # print(colored(f"confidence: {res['confidence']}", "magenta"))
+            # print(colored(f"description", "magenta"))
+            # for description in res['description']:
+            #     print(colored(description, "cyan"), end=' ')
+            # print()
+        return result
     else:
         print("Detecting specific vulnerabilities")
         instance = RunDetector(target, detector)
@@ -75,6 +101,45 @@ def detect_vuln_action(target, detector):
             print(colored(f"description", "magenta"))
             for description in res['description']:
                 print(colored(description, "cyan"), end=' ')
+        return result
+    
+def detect_based_blacklist_action(target, fname, input, bin):
+    filename, contract, fname, res = test(target, fname, input, bin)
+
+    target_info = {
+        # "model" : model,
+        "filename" : filename,
+        "contract" : contract,
+        "fname" : fname
+    }
+
+    similarity = []
+
+    for key, value in res.items():
+        path, contract, function = key
+        score = float(value)
+        if score >= 0.9:
+            vuln_type, severity = vuln(path)
+            with open(path, "r") as code_files:
+                code_content = "```solidity\n" + code_files.read() + "```"
+            entry = {
+                "vulneability_type" : vuln_type,
+                "severity" : severity,
+                "path" : path,
+                "code" : code_content,
+                "contract" : contract,
+                "function" : function,
+                "score" : score
+            }
+            similarity.append(entry)
+    
+    result = {
+        "target" : [target_info],
+        "similarity" : similarity
+    }
+    
+    with open(f"{contract}_{fname}.json", "w") as json_file:
+        json.dump(result, json_file, indent=2)
 
 
 def get_root_dir():
@@ -84,7 +149,7 @@ def get_root_dir():
 def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
     combined_data = {}
 
-    output_dir = os.path.join(get_root_dir(), "json_results")
+    output_dir = os.path.join(get_root_dir(), "result/json_results")
     print(f"Output directory: {output_dir}")
 
     # Delete all files inside the output directory
@@ -114,17 +179,51 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
         except Exception as e:
             print(f"Failed to write to {output_path}. Reason: {e}")
 
+def convert_to_detector_json(result, target):
+    output_dir = os.path.join(get_root_dir(), "result/detector_json_results")
+    print(f"Output directory: {output_dir}")
+
+    # Delete all files inside the output directory
+    files = glob.glob(os.path.join(output_dir, "*"))
+    for f in files:
+        try:
+            os.remove(f)
+        except Exception as e:
+            print(f"Failed to delete {f}. Reason: {e}")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for res in result:
+        combined_json = json.dumps(res, indent=2)
+        filename=os.path.basename(target)[:-4]
+        i=1
+        output_path = os.path.join(output_dir+filename+str(i)+".json")
+
+        try:
+            with open(output_path, "w") as f:
+                f.write(combined_json)
+            i+=1
+        except Exception as e:
+            print(f"Failed to write to {output_path}. Reason: {e}")
+    
+
 
 def main():
     args = parse_arguments()
     if args.command == 'detect':
-        detect_vuln_action(args.target, args.detector)
-
+        if args.detect_command == 'basic':
+            result = detect_vuln_action(args.target, args.detector)
+            convert_to_detector_json(result, args.target)
+        elif args.detect_command == 'blacklist':
+            detect_based_blacklist_action(args.filename, args.fname, args.input, args.model)
+        else:
+            print("Error: Invalid command.")
+            return
     elif args.command == 'deploy':
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_deploy()
         convert_to_json(abi_list, bytecode_list, analyzer)
-
     else:
         print("Error: Invalid command.")
         return
