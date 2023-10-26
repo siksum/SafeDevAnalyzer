@@ -78,15 +78,15 @@ def detect_vuln_action(target, detector):
 
 
 def get_root_dir():
-    current_working_directory = os.getcwd()
-    while not os.path.basename(current_working_directory) == "safe_dev_analyzer":
-        current_working_directory = os.path.dirname(current_working_directory)
-    return current_working_directory
+    current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+
+    return current_path
 
 def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
     combined_data = {}
 
     output_dir = os.path.join(get_root_dir(), "json_results")
+    print(f"Output directory: {output_dir}")
 
     # Delete all files inside the output directory
     files = glob.glob(os.path.join(output_dir, "*"))
@@ -134,3 +134,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
