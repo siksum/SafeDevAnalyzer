@@ -94,7 +94,9 @@ def load_contracts(
     dirname: str, ext: Optional[str] = None, nsamples: Optional[int] = None
 ) -> List[str]:
     r = []
+    dirname="/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/run_detectors/based_blacklist/lending"
     walk = list(os.walk(dirname))
+    print(walk)
     for x, y, files in walk:
         for f in files:
             if ext is None or f.endswith(ext):

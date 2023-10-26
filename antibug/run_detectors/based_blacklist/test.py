@@ -21,23 +21,22 @@ def test(path, fname, input, bin) -> list:
         contract, fname = parse_target(args.fname)
         infile = args.input
         ntop = args.ntop
-   
+
+
         if filename is None or contract is None or fname is None or infile is None:
             logger.error("The test mode requires filename, contract, fname and input parameters.")
             sys.exit(-1)
 
         irs = encode_contract(filename, **vars(args))
-
         if len(irs) == 0:
             sys.exit(-1)
 
         y = " ".join(irs[(filename, contract, fname)])
-
         fvector = model.get_sentence_vector(y)
 
         cache = load_and_encode(infile, model, **vars(args))
+        
         # save_cache("cache.npz", cache)
-
         r = {}
         for x, y in cache.items():
             r[x] = similarity(fvector, y)
@@ -51,6 +50,8 @@ def test(path, fname, input, bin) -> list:
         for x, score in r[:ntop]:
             score = str(round(score, 3))
             result[x] = score
+            print("Aaaa")
+
             # logger.info(format_table.format(*(list(x) + [score])))
         return filename, contract, fname, result
 
