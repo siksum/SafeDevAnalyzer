@@ -79,7 +79,6 @@ def detect_vuln_action(target, detector):
 
 def get_root_dir():
     current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-
     return current_path
 
 def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
@@ -112,7 +111,6 @@ def convert_to_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
             output_path = os.path.join(output_dir+f"/{filename}.json")
             with open(output_path, "w") as f:
                 f.write(combined_json)
-            print(f"Successfully wrote to {output_path}")
         except Exception as e:
             print(f"Failed to write to {output_path}. Reason: {e}")
 
