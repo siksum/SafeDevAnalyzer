@@ -60,20 +60,22 @@ class RunDetector(SafeDevAnalyzer):
             print(colored("Nothing to result", "red"))
             exit(0)
         else:
-            print(results)
             for detector_result in results:
                 if detector_result:
-                    # filename=detector_result[0]['filename']
-                    # contract=detector_result[0]['contract']
-                    # function=detector_result[0]['function']
-                    filename = detector_result[0]['filename_absolute']
-                    
+                    file_name = detector_result[0]['elements'][0]['source_mapping']['filename_absolute']
+                    contract_name = detector_result[0]['elements'][0]['type_specific_fields']['parent']['name']
+                    function_name = detector_result[0]['elements'][0]['name']
+                    detect_line = detector_result[0]['elements'][1]['source_mapping']['lines']
+                    node = detector_result[0]['elements'][1]['name']
+
                     check = detector_result[0]['check']
+
                     impact = detector_result[0]['impact']
                     confidence = detector_result[0]['confidence']
                     descriptions = [result['description']
                                     for result in detector_result]
-                    result_combined = {'check': check, 'impact': impact,
+                    result_combined = {'file_name': file_name, 'contract_name': contract_name,
+                                        'function_name': function_name, 'detect_line': detect_line, 'node': node, 'check': check, 'impact': impact,
                                        'confidence': confidence, 'description': descriptions}
                     results_combined.append(result_combined)
         return results_combined

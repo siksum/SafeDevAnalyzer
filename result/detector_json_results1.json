@@ -1,8 +1,0 @@
-{
-  "check": "constable-states",
-  "impact": "Optimization",
-  "confidence": "High",
-  "description": [
-    "Foo.name (test/import/foo.sol#16) should be constant \n"
-  ]
-}

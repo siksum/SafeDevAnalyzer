@@ -82,13 +82,13 @@ def detect_vuln_action(target, detector):
         instance = RunDetector(target)
         result = instance.register_and_run_detectors()
         # for res in result:
-            # print(colored(f"check: {res['check']}", "magenta"))
-            # print(colored(f"impact: {res['impact']}", "magenta"))
-            # print(colored(f"confidence: {res['confidence']}", "magenta"))
-            # print(colored(f"description", "magenta"))
-            # for description in res['description']:
-            #     print(colored(description, "cyan"), end=' ')
-            # print()
+        #     print(colored(f"check: {res['check']}", "magenta"))
+        #     print(colored(f"impact: {res['impact']}", "magenta"))
+        #     print(colored(f"confidence: {res['confidence']}", "magenta"))
+        #     print(colored(f"description", "magenta"))
+        #     for description in res['description']:
+        #         print(colored(description, "cyan"), end=' ')
+        #     print()
         return result
     else:
         print("Detecting specific vulnerabilities")
@@ -194,18 +194,18 @@ def convert_to_detector_json(result, target):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for res in result:
-        combined_json = json.dumps(res, indent=2)
-        filename=os.path.basename(target)[:-4]
-        i=1
-        output_path = os.path.join(output_dir+filename+str(i)+".json")
+    # for res in result:
+    combined_json = json.dumps(result, indent=2)
+    filename=os.path.basename(target)[:-4]
+    i=1
+    output_path = os.path.join(output_dir+filename+str(i)+".json")
 
-        try:
-            with open(output_path, "w") as f:
-                f.write(combined_json)
-            i+=1
-        except Exception as e:
-            print(f"Failed to write to {output_path}. Reason: {e}")
+    try:
+        with open(output_path, "w") as f:
+            f.write(combined_json)
+        i+=1
+    except Exception as e:
+        print(f"Failed to write to {output_path}. Reason: {e}")
     
 
 
