@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from Crytic_compile.platforms.exceptions import InvalidCompilation
+from Crytic_compile.solc_compile.exceptions import InvalidCompilation
 
 # Cycle dependency
 if TYPE_CHECKING:

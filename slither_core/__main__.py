@@ -15,8 +15,8 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 from pkg_resources import iter_entry_points, require
 
 from Crytic_compile import cryticparser, CryticCompile
-from Crytic_compile.platforms.standard import generate_standard_export
-from Crytic_compile.platforms.etherscan import SUPPORTED_NETWORK
+from Crytic_compile.solc_compile.standard import generate_standard_export
+from Crytic_compile.solc_compile.etherscan import SUPPORTED_NETWORK
 from Crytic_compile import compile_all, is_supported
 
 from slither_core.detectors import all_detectors

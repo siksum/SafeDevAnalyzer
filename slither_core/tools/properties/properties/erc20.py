@@ -3,8 +3,8 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Tuple, List
 
-from Crytic_compile.platforms.abstract_platform import AbstractPlatform
-from Crytic_compile.platforms import Type as PlatformType
+from Crytic_compile.solc_compile.abstract_platform import AbstractPlatform
+from Crytic_compile.solc_compile import Type as PlatformType
 
 from slither_core.core.declarations import Contract
 from slither_core.tools.properties.addresses.address import Addresses

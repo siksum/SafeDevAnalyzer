@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
-from Crytic_compile.platforms import Type as PlatformType
+from Crytic_compile.solc_compile import Type as PlatformType
 
 from slither_core.core.cfg.scope import Scope
 from slither_core.core.solidity_types.type import Type

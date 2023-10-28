@@ -15,22 +15,12 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Type, Union
 
-# from solc_select.solc_select import (
-#     install_artifacts,
-#     installed_versions,
-#     artifact_path,
-# )
 from Crytic_compile.compilation_unit import CompilationUnit
-from Crytic_compile.platforms import all_platforms
-#from Crytic_compile.platforms.solc_standard_json import SolcStandardJson
-#from Crytic_compile.platforms.vyper import VyperStandardJson
-from Crytic_compile.platforms.abstract_platform import AbstractPlatform
-from Crytic_compile.platforms.all_export import PLATFORMS_EXPORT
-from Crytic_compile.platforms.solc import Solc
-#from Crytic_compile.platforms.standard import export_to_standard
+from Crytic_compile.solc_compile import all_platforms
+from Crytic_compile.solc_compile.all_export import PLATFORMS_EXPORT
+from Crytic_compile.solc_compile.solc import Solc
 from Crytic_compile.utils.naming import Filename
 from Crytic_compile.utils.npm import get_package_name
-#from Crytic_compile.utils.zip import load_from_zip
 
 # Cycle dependency
 if TYPE_CHECKING:
@@ -41,30 +31,6 @@ logging.basicConfig()
 
 
 # pylint: disable=too-many-lines
-
-
-# def get_platforms() -> List[Type[AbstractPlatform]]:
-#     """Return the available platforms classes in order of preference
-
-#     Returns:
-#         List[Type[AbstractPlatform]]: Available platforms
-#     """
-#     platforms = [getattr(all_platforms, name) for name in dir(all_platforms)]
-#     platforms = [d for d in platforms if inspect.isclass(d) and issubclass(d, AbstractPlatform)]
-#     return sorted(platforms, key=lambda platform: (platform.TYPE.priority(), platform.TYPE))
-
-
-# def is_supported(target: str) -> bool:
-#     """Check if the target is supporte. Iterate over all known platforms
-
-#     Args:
-#         target (str): path to the target
-
-#     Returns:
-#         bool: True if the target is supported
-#     """
-#     platforms = get_platforms()
-#     return any(platform.is_supported(target) for platform in platforms) or target.endswith(".zip")
 
 
 def _extract_libraries(libraries_str: Optional[str]) -> Optional[Dict[str, int]]:
@@ -86,31 +52,6 @@ def _extract_libraries(libraries_str: Optional[str]) -> Optional[Dict[str, int]]
     return ret
 
 
-def _configure_solc(solc_requested: str, offline: bool) -> str:
-    """
-    Determine which solc binary to use based on the requested version or path (e.g. '0.8.0' or '/usr/bin/solc-0.8.0').
-
-    Args:
-        solc_requested (str): solc version or path
-        offline (bool): whether to allow network requests
-
-    Returns:
-        str: path to solc binary
-    """
-    if Path(solc_requested).exists():
-        solc_path = Path(solc_requested)
-    # else:
-    #     solc_version = solc_requested
-    #     if solc_requested in installed_versions():
-    #         solc_path = artifact_path(solc_requested)
-    #     else:
-    #         # Respect foundry offline option and skip installation.
-    #         if not offline:
-    #             install_artifacts([solc_version])
-    #         solc_path = artifact_path(solc_version)
-    return solc_path.absolute().as_posix()
-
-
 # pylint: disable=too-many-instance-attributes
 class CryticCompile:
     """
@@ -118,13 +59,13 @@ class CryticCompile:
     """
 
     # pylint: disable=too-many-branches
-    def __init__(self, target: Union[str, AbstractPlatform], **kwargs: str) -> None:
+    def __init__(self, target: Union[str, Solc], **kwargs: str) -> None:
         """See https://github.com/crytic/crytic-compile/wiki/Configuration
-        Target is usually a file or a project directory. It can be an AbstractPlatform
+        Target is usually a file or a project directory. It can be an Solc
         for custom setup
 
         Args:
-            target (Union[str, AbstractPlatform]): Target
+            target (Union[str, Solc]): Target
             **kwargs: additional arguments
         """
 
@@ -151,53 +92,11 @@ class CryticCompile:
         # pylint: disable=too-many-nested-blocks
         if isinstance(target, str):
             platform = self._init_platform(target, **kwargs)
-            # If the platform is Solc it means we are trying to compile a single
-            # we try to see if we are in a known compilation framework to retrieve
-            # information like remappings and solc version
-            #if isinstance(platform, Solc):
-                # Try to get the platform of the current working directory
-                # platform_wd = next(
-                #     (
-                #         p(target)
-                #         for p in get_platforms()
-                #         if p.is_supported(str(self._working_dir), **kwargs)
-                #     ),
-                #     None,
-                # )
-                # If no platform has been found or if it's the Solc platform, we can't automatically compile.
-                # if platform_wd and not isinstance(platform_wd, Solc):
-                #     platform_config = platform_wd.config(str(self._working_dir))
-                #     if platform_config:
-                #         kwargs["solc_args"] = ""
-                #         kwargs["solc_remaps"] = ""
 
-                #         if platform_config.remappings:
-                #             kwargs["solc_remaps"] = platform_config.remappings
-                #         if platform_config.solc_version is None:
-                #             message = f"Could not detect solc version from {platform_wd.NAME} config. Falling back to system version..."
-                #             LOGGER.warning(message)
-                #         else:
-                #             kwargs["solc"] = _configure_solc(
-                #                 platform_config.solc_version, platform_config.offline
-                #             )
-                #         if platform_config.optimizer:
-                #             kwargs["solc_args"] += "--optimize"
-                #         if platform_config.optimizer_runs:
-                #             kwargs[
-                #                 "solc_args"
-                #             ] += f"--optimize-runs {platform_config.optimizer_runs}"
-                #         if platform_config.via_ir:
-                #             kwargs["solc_args"] += "--via-ir"
-                #         if platform_config.allow_paths:
-                #             kwargs["solc_args"] += f"--allow-paths {platform_config.allow_paths}"
-                #         if platform_config.evm_version:
-                #             kwargs["solc_args"] += f"--evm-version {platform_config.evm_version}"
-        # else:
-        #     platform = target
 
         self._package = get_package_name(platform.target)
 
-        self._platform: AbstractPlatform = platform
+        self._platform: Solc = platform
 
         self._compilation_units: Dict[str, CompilationUnit] = {}
 
@@ -477,11 +376,11 @@ class CryticCompile:
         return self._platform.TYPE
 
     @property
-    def platform(self) -> AbstractPlatform:
+    def platform(self) -> Solc:
         """Return the underlying platform
 
         Returns:
-            AbstractPlatform: Underlying platform
+            Solc: Underlying platform
         """
         assert self._platform
         return self._platform
@@ -583,7 +482,7 @@ class CryticCompile:
     ###################################################################################
 
     # pylint: disable=no-self-use
-    def _init_platform(self, target: str, **kwargs: str) -> AbstractPlatform:
+    def _init_platform(self, target: str, **kwargs: str) -> Solc:
         """Init the platform
 
         Args:
@@ -592,7 +491,7 @@ class CryticCompile:
 
 
         Returns:
-            AbstractPlatform: Underlying platform
+            Solc: Underlying platform
         """
         #platforms = get_platforms()
  

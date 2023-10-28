@@ -7,7 +7,7 @@ import logging
 import json
 import glob
 
-from Crytic_compile import cryticparser
+#from Crytic_compile import cryticparser
 
 from antibug.run_detectors.detectors import RunDetector
 from antibug.run_detectors.based_blacklist.test import test
@@ -57,8 +57,6 @@ def parse_arguments():
     deploy_parser = subparsers.add_parser(
         'deploy', help='Deploy detector, defaults to all')
     deploy_parser.add_argument('target', help='ath to the rule file')
-
-    cryticparser.init(blacklist_parser)
 
 
     if len(sys.argv) == 1:
