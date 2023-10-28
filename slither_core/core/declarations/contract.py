@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
-from Crytic_compile.solc_compile import Type as PlatformType
+#from Crytic_compile.solc_compile import Type as PlatformType
 
 from slither_core.core.cfg.scope import Scope
 from slither_core.core.solidity_types.type import Type
@@ -1272,31 +1272,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     # endregion
     ###################################################################################
     ###################################################################################
-    # region Test
-    ###################################################################################
-    ###################################################################################
 
-    @property
-    def is_truffle_migration(self) -> bool:
-        """
-        Return true if the contract is the Migrations contract needed for Truffle
-        :return:
-        """
-        if self.compilation_unit.core.Crytic_compile.platforms == PlatformType.TRUFFLE:
-            if self.name == "Migrations":
-                paths = Path(self.source_mapping.filename.absolute).parts
-                if len(paths) >= 2:
-                    return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
-        return False
-
-    @property
-    def is_test(self) -> bool:
-        # type: ignore
-        return is_test_contract(self) or self.is_truffle_migration
-
-    # endregion
-    ###################################################################################
-    ###################################################################################
     # region Function analyses
     ###################################################################################
     ###################################################################################

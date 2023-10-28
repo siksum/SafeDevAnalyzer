@@ -2,8 +2,8 @@ import math
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from Crytic_compile import CompilationUnit, CryticCompile
-from Crytic_compile.compiler.compiler import CompilerVersion
-from Crytic_compile.utils.naming import Filename
+#from solc_compile.compiler import CompilerVersion
+from Crytic_compile.naming import Filename
 
 from slither_core.core.context.context import Context
 from slither_core.core.declarations import (
@@ -82,9 +82,9 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     ###################################################################################
 
-    @property
-    def compiler_version(self) -> CompilerVersion:
-        return self._crytic_compile_compilation_unit.compiler_version
+    # @property
+    # def compiler_version(self) -> CompilerVersion:
+    #     return self._crytic_compile_compilation_unit.compiler_version
 
     @property
     def solc_version(self) -> str:

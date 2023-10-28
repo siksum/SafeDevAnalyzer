@@ -3,7 +3,7 @@ from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
-from Crytic_compile.utils.naming import Filename
+from Crytic_compile.naming import Filename
 from slither_core.core.context.context import Context
 
 if TYPE_CHECKING:

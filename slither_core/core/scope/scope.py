@@ -2,7 +2,7 @@ from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
 
 from Crytic_compile import CompilationUnit
 from Crytic_compile.source_unit import SourceUnit
-from Crytic_compile.utils.naming import Filename
+from Crytic_compile.naming import Filename
 
 from slither_core.core.declarations import Contract, Import, Pragma
 from slither_core.core.declarations.custom_error_top_level import CustomErrorTopLevel

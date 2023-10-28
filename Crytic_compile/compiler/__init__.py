@@ -1,1 +1,0 @@
-from Crytic_compile.compiler.defaults import DEFAULTS_FLAG_IN_CONFIG

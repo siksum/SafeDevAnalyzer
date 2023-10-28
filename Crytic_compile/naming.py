@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from Crytic_compile.solc_compile.exceptions import InvalidCompilation
+from Crytic_compile.exceptions import InvalidCompilation
 
 # Cycle dependency
 if TYPE_CHECKING:
@@ -159,12 +159,6 @@ def convert_filename(
             cwd = working_dir
         else:
             cwd = Path.cwd().joinpath(Path(working_dir)).resolve()
-
-    if crytic_compile.package_name:
-        try:
-            filename = filename.relative_to(Path(crytic_compile.package_name))
-        except ValueError:
-            pass
 
     filename = _verify_filename_existence(filename, cwd)
 

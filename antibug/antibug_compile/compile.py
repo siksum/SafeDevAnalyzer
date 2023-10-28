@@ -2,13 +2,13 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict
-from Crytic_compile.utils.naming import convert_filename
+from Crytic_compile.naming import convert_filename
 
 from slither_core.slither import Slither
 from Crytic_compile import CryticCompile, InvalidCompilation
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
-from Crytic_compile.utils.naming import Filename
+from Crytic_compile.naming import Filename
 class SafeDevAnalyzer():
     def __init__(self, target: str, **kwargs) -> None:
         self.target_path = os.path.abspath(target)

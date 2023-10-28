@@ -13,14 +13,13 @@ import subprocess
 import tempfile
 from collections import defaultdict
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
 from Crytic_compile.compilation_unit import CompilationUnit
-from Crytic_compile.solc_compile import all_platforms
-from Crytic_compile.solc_compile.all_export import PLATFORMS_EXPORT
-from Crytic_compile.solc_compile.solc import Solc
-from Crytic_compile.utils.naming import Filename
-from Crytic_compile.utils.npm import get_package_name
+
+from solc import Solc
+from Crytic_compile.naming import Filename
+#from Crytic_compile.utils.npm import get_package_name
 
 # Cycle dependency
 if TYPE_CHECKING:
@@ -94,7 +93,7 @@ class CryticCompile:
             platform = self._init_platform(target, **kwargs)
 
 
-        self._package = get_package_name(platform.target)
+#        self._package = get_package_name(platform.target)
 
         self._platform: Solc = platform
 
@@ -550,23 +549,23 @@ class CryticCompile:
     ###################################################################################
     ###################################################################################
 
-    @property
-    def package_name(self) -> Optional[str]:
-        """Return the npm package name
+    # @property
+    # def package_name(self) -> Optional[str]:
+    #     """Return the npm package name
 
-        Returns:
-            Optional[str]: Package name
-        """
-        return self._package
+    #     Returns:
+    #         Optional[str]: Package name
+    #     """
+    #     return self._package
 
-    @package_name.setter
-    def package_name(self, name: Optional[str]) -> None:
-        """Set the package name
+    # @package_name.setter
+    # def package_name(self, name: Optional[str]) -> None:
+    #     """Set the package name
 
-        Args:
-            name (Optional[str]): New package name
-        """
-        self._package = name
+    #     Args:
+    #         name (Optional[str]): New package name
+    #     """
+    #     self._package = name
 
 
 # endregion

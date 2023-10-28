@@ -11,11 +11,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
 from Crytic_compile.compilation_unit import CompilationUnit
-from Crytic_compile.compiler.compiler import CompilerVersion
-#from Crytic_compile.solc_compile.abstract_platform import AbstractPlatform
-from Crytic_compile.solc_compile.exceptions import InvalidCompilation
-from Crytic_compile.solc_compile.types import Type
-from Crytic_compile.utils.naming import (
+#from solc_compile.compiler import CompilerVersion
+from Crytic_compile.exceptions import InvalidCompilation
+from Crytic_compile.naming import (
     combine_filename_name,
     convert_filename,
     extract_filename,
@@ -24,7 +22,7 @@ from Crytic_compile.utils.naming import (
 
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 # Cycle dependency
-from Crytic_compile.utils.natspec import Natspec
+#from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
     from Crytic_compile import CryticCompile
@@ -343,8 +341,8 @@ def solc_handle_contracts(
             source_unit.srcmaps_runtime[contract_name] = info["srcmap-runtime"].split(";")
             userdoc = json.loads(info.get("userdoc", "{}")) if not is_above_0_8 else info["userdoc"]
             devdoc = json.loads(info.get("devdoc", "{}")) if not is_above_0_8 else info["devdoc"]
-            natspec = Natspec(userdoc, devdoc)
-            source_unit.natspec[contract_name] = natspec
+            #natspec = Natspec(userdoc, devdoc)
+            #source_unit.natspec[contract_name] = natspec
 
 
 def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: int) -> bool:

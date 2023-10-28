@@ -9,8 +9,8 @@ import cbor2
 
 from Crypto.Hash import keccak
 
-from Crytic_compile.utils.naming import Filename
-from Crytic_compile.utils.natspec import Natspec
+from Crytic_compile.naming import Filename
+#from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
     from Crytic_compile.compilation_unit import CompilationUnit
@@ -394,14 +394,14 @@ class SourceUnit:
     ###################################################################################
     ###################################################################################
 
-    @property
-    def natspec(self) -> Dict[str, Natspec]:
-        """Return the natspec of the contracts
+    # @property
+    # def natspec(self) -> Dict[str, Natspec]:
+    #     """Return the natspec of the contracts
 
-        Returns:
-            Dict[str, Natspec]: Contract name -> Natspec
-        """
-        return self._natspec
+    #     Returns:
+    #         Dict[str, Natspec]: Contract name -> Natspec
+    #     """
+    #     return self._natspec
 
     # endregion
     ###################################################################################

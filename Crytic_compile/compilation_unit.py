@@ -10,7 +10,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
 from Crytic_compile.source_unit import SourceUnit
-from Crytic_compile.utils.naming import Filename
+from Crytic_compile.naming import Filename
 
 # Cycle dependency
 if TYPE_CHECKING:
