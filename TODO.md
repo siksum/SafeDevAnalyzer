@@ -122,7 +122,8 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 ### deploy, detector(basic, blacklist) output JSON으로 뽑아내기
-  - result 폴더 내 `deploy_info_json
+  - result 폴더 내 `deploy_info_json_results`, `basic_detector_json_results`, `blacklist_json_results` 하위에 위치하도록 설정
+  - `__main__.py` 내에 로직 수정 -> 리팩토링 필요(다른 파일로 빼는게 좋을 것 같음요)
 
 <br></br>
 

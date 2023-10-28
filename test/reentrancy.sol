@@ -47,3 +47,4 @@ contract EtherGame {
         require(sent, "Failed to send Ether");
     }
 }
+
