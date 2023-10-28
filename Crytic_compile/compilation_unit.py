@@ -40,15 +40,6 @@ class CompilationUnit:
         # mapping from absolute/relative/used to filename
         self._filenames_lookup: Optional[Dict[str, Filename]] = None
 
-        # # compiler.compiler
-        # self._compiler_version: CompilerVersion = CompilerVersion(
-        #     compiler="N/A", version="N/A", optimized=False
-        # )
-
-        # if the compilation unit comes from etherscan-like service and is a proxy,
-        # store the implementation address
-        self._implementation_address: Optional[str] = None
-
         self._crytic_compile: "CryticCompile" = crytic_compile
 
         if unique_id == ".":
@@ -133,23 +124,6 @@ class CompilationUnit:
                 self.filenames.append(filename)
         return self._source_units[filename]
 
-    @property
-    def implementation_address(self) -> Optional[str]:
-        """Return the implementation address if the compilation unit is a proxy
-
-        Returns:
-            Optional[str]: Implementation address
-        """
-        return self._implementation_address
-
-    @implementation_address.setter
-    def implementation_address(self, implementation: str) -> None:
-        """Set the implementation address
-
-        Args:
-            implementation (str): Implementation address
-        """
-        self._implementation_address = implementation
 
     # endregion
     ###################################################################################
@@ -235,11 +209,6 @@ class CompilationUnit:
         Returns:
             Filename: Associated Filename object
         """
-        # pylint: disable=import-outside-toplevel
-        # from Crytic_compile.platforms.truffle import Truffle
-
-        # if isinstance(self._crytic_compile.platforms, Truffle) and filename.startswith("project:/"):
-        #     filename = filename[len("project:/") :]
 
         if self._filenames_lookup is None:
             self._filenames_lookup = {}
@@ -252,31 +221,6 @@ class CompilationUnit:
                 f"{filename} does not exist in {[f.absolute for f in self._filenames_lookup.values()]}"
             )
         return self._filenames_lookup[filename]
-
-    # endregion
-    ###################################################################################
-    ###################################################################################
-    # region Compiler information
-    ###################################################################################
-    ###################################################################################
-
-    # @property
-    # def compiler_version(self) -> "CompilerVersion":
-    #     """Return the compiler info
-
-    #     Returns:
-    #         CompilerVersion: compiler info
-    #     """
-    #     return self._compiler_version
-
-    # @compiler_version.setter
-    # def compiler_version(self, compiler: CompilerVersion) -> None:
-    #     """Set the compiler version
-
-    #     Args:
-    #         compiler (CompilerVersion): New compiler version
-    #     """
-    #     self._compiler_version = compiler
 
     # endregion
     ###################################################################################
