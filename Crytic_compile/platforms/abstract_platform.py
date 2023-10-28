@@ -75,10 +75,10 @@ class AbstractPlatform(metaclass=abc.ABCMeta):
                 f"PROJECT_URL is not initialized {self.__class__.__name__}"
             )
 
-        if self.TYPE == Type.NOT_IMPLEMENTED:
-            raise IncorrectPlatformInitialization(
-                f"TYPE is not initialized {self.__class__.__name__}"
-            )
+        # if self.TYPE == Type.NOT_IMPLEMENTED:
+        #     raise IncorrectPlatformInitialization(
+        #         f"TYPE is not initialized {self.__class__.__name__}"
+        #     )
 
         self._target: str = target
         self._cached_dependencies: Dict[str, bool] = {}

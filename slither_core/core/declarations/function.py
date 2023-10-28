@@ -346,7 +346,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         :return:
         """
 
-        return self.compilation_unit.solc_version >= "0.8.0"
+        return self.compilation_unit.solc_version[0] >= "0.8.0"
 
     @property
     def id(self) -> Optional[str]:

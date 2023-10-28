@@ -9,7 +9,7 @@ import uuid
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
-from Crytic_compile.compiler.compiler import CompilerVersion
+#from Crytic_compile.compiler.compiler import CompilerVersion
 from Crytic_compile.source_unit import SourceUnit
 from Crytic_compile.utils.naming import Filename
 
@@ -41,10 +41,10 @@ class CompilationUnit:
         # mapping from absolute/relative/used to filename
         self._filenames_lookup: Optional[Dict[str, Filename]] = None
 
-        # compiler.compiler
-        self._compiler_version: CompilerVersion = CompilerVersion(
-            compiler="N/A", version="N/A", optimized=False
-        )
+        # # compiler.compiler
+        # self._compiler_version: CompilerVersion = CompilerVersion(
+        #     compiler="N/A", version="N/A", optimized=False
+        # )
 
         # if the compilation unit comes from etherscan-like service and is a proxy,
         # store the implementation address
@@ -261,23 +261,23 @@ class CompilationUnit:
     ###################################################################################
     ###################################################################################
 
-    @property
-    def compiler_version(self) -> "CompilerVersion":
-        """Return the compiler info
+    # @property
+    # def compiler_version(self) -> "CompilerVersion":
+    #     """Return the compiler info
 
-        Returns:
-            CompilerVersion: compiler info
-        """
-        return self._compiler_version
+    #     Returns:
+    #         CompilerVersion: compiler info
+    #     """
+    #     return self._compiler_version
 
-    @compiler_version.setter
-    def compiler_version(self, compiler: CompilerVersion) -> None:
-        """Set the compiler version
+    # @compiler_version.setter
+    # def compiler_version(self, compiler: CompilerVersion) -> None:
+    #     """Set the compiler version
 
-        Args:
-            compiler (CompilerVersion): New compiler version
-        """
-        self._compiler_version = compiler
+    #     Args:
+    #         compiler (CompilerVersion): New compiler version
+    #     """
+    #     self._compiler_version = compiler
 
     # endregion
     ###################################################################################

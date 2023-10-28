@@ -22,15 +22,15 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Type, Union
 # )
 from Crytic_compile.compilation_unit import CompilationUnit
 from Crytic_compile.platforms import all_platforms
-from Crytic_compile.platforms.solc_standard_json import SolcStandardJson
-from Crytic_compile.platforms.vyper import VyperStandardJson
+#from Crytic_compile.platforms.solc_standard_json import SolcStandardJson
+#from Crytic_compile.platforms.vyper import VyperStandardJson
 from Crytic_compile.platforms.abstract_platform import AbstractPlatform
 from Crytic_compile.platforms.all_export import PLATFORMS_EXPORT
 from Crytic_compile.platforms.solc import Solc
-from Crytic_compile.platforms.standard import export_to_standard
+#from Crytic_compile.platforms.standard import export_to_standard
 from Crytic_compile.utils.naming import Filename
 from Crytic_compile.utils.npm import get_package_name
-from Crytic_compile.utils.zip import load_from_zip
+#from Crytic_compile.utils.zip import load_from_zip
 
 # Cycle dependency
 if TYPE_CHECKING:
@@ -43,28 +43,28 @@ logging.basicConfig()
 # pylint: disable=too-many-lines
 
 
-def get_platforms() -> List[Type[AbstractPlatform]]:
-    """Return the available platforms classes in order of preference
+# def get_platforms() -> List[Type[AbstractPlatform]]:
+#     """Return the available platforms classes in order of preference
 
-    Returns:
-        List[Type[AbstractPlatform]]: Available platforms
-    """
-    platforms = [getattr(all_platforms, name) for name in dir(all_platforms)]
-    platforms = [d for d in platforms if inspect.isclass(d) and issubclass(d, AbstractPlatform)]
-    return sorted(platforms, key=lambda platform: (platform.TYPE.priority(), platform.TYPE))
+#     Returns:
+#         List[Type[AbstractPlatform]]: Available platforms
+#     """
+#     platforms = [getattr(all_platforms, name) for name in dir(all_platforms)]
+#     platforms = [d for d in platforms if inspect.isclass(d) and issubclass(d, AbstractPlatform)]
+#     return sorted(platforms, key=lambda platform: (platform.TYPE.priority(), platform.TYPE))
 
 
-def is_supported(target: str) -> bool:
-    """Check if the target is supporte. Iterate over all known platforms
+# def is_supported(target: str) -> bool:
+#     """Check if the target is supporte. Iterate over all known platforms
 
-    Args:
-        target (str): path to the target
+#     Args:
+#         target (str): path to the target
 
-    Returns:
-        bool: True if the target is supported
-    """
-    platforms = get_platforms()
-    return any(platform.is_supported(target) for platform in platforms) or target.endswith(".zip")
+#     Returns:
+#         bool: True if the target is supported
+#     """
+#     platforms = get_platforms()
+#     return any(platform.is_supported(target) for platform in platforms) or target.endswith(".zip")
 
 
 def _extract_libraries(libraries_str: Optional[str]) -> Optional[Dict[str, int]]:
@@ -154,46 +154,46 @@ class CryticCompile:
             # If the platform is Solc it means we are trying to compile a single
             # we try to see if we are in a known compilation framework to retrieve
             # information like remappings and solc version
-            if isinstance(platform, Solc):
+            #if isinstance(platform, Solc):
                 # Try to get the platform of the current working directory
-                platform_wd = next(
-                    (
-                        p(target)
-                        for p in get_platforms()
-                        if p.is_supported(str(self._working_dir), **kwargs)
-                    ),
-                    None,
-                )
+                # platform_wd = next(
+                #     (
+                #         p(target)
+                #         for p in get_platforms()
+                #         if p.is_supported(str(self._working_dir), **kwargs)
+                #     ),
+                #     None,
+                # )
                 # If no platform has been found or if it's the Solc platform, we can't automatically compile.
-                if platform_wd and not isinstance(platform_wd, Solc):
-                    platform_config = platform_wd.config(str(self._working_dir))
-                    if platform_config:
-                        kwargs["solc_args"] = ""
-                        kwargs["solc_remaps"] = ""
+                # if platform_wd and not isinstance(platform_wd, Solc):
+                #     platform_config = platform_wd.config(str(self._working_dir))
+                #     if platform_config:
+                #         kwargs["solc_args"] = ""
+                #         kwargs["solc_remaps"] = ""
 
-                        if platform_config.remappings:
-                            kwargs["solc_remaps"] = platform_config.remappings
-                        if platform_config.solc_version is None:
-                            message = f"Could not detect solc version from {platform_wd.NAME} config. Falling back to system version..."
-                            LOGGER.warning(message)
-                        else:
-                            kwargs["solc"] = _configure_solc(
-                                platform_config.solc_version, platform_config.offline
-                            )
-                        if platform_config.optimizer:
-                            kwargs["solc_args"] += "--optimize"
-                        if platform_config.optimizer_runs:
-                            kwargs[
-                                "solc_args"
-                            ] += f"--optimize-runs {platform_config.optimizer_runs}"
-                        if platform_config.via_ir:
-                            kwargs["solc_args"] += "--via-ir"
-                        if platform_config.allow_paths:
-                            kwargs["solc_args"] += f"--allow-paths {platform_config.allow_paths}"
-                        if platform_config.evm_version:
-                            kwargs["solc_args"] += f"--evm-version {platform_config.evm_version}"
-        else:
-            platform = target
+                #         if platform_config.remappings:
+                #             kwargs["solc_remaps"] = platform_config.remappings
+                #         if platform_config.solc_version is None:
+                #             message = f"Could not detect solc version from {platform_wd.NAME} config. Falling back to system version..."
+                #             LOGGER.warning(message)
+                #         else:
+                #             kwargs["solc"] = _configure_solc(
+                #                 platform_config.solc_version, platform_config.offline
+                #             )
+                #         if platform_config.optimizer:
+                #             kwargs["solc_args"] += "--optimize"
+                #         if platform_config.optimizer_runs:
+                #             kwargs[
+                #                 "solc_args"
+                #             ] += f"--optimize-runs {platform_config.optimizer_runs}"
+                #         if platform_config.via_ir:
+                #             kwargs["solc_args"] += "--via-ir"
+                #         if platform_config.allow_paths:
+                #             kwargs["solc_args"] += f"--allow-paths {platform_config.allow_paths}"
+                #         if platform_config.evm_version:
+                #             kwargs["solc_args"] += f"--evm-version {platform_config.evm_version}"
+        # else:
+        #     platform = target
 
         self._package = get_package_name(platform.target)
 
@@ -594,23 +594,9 @@ class CryticCompile:
         Returns:
             AbstractPlatform: Underlying platform
         """
-        platforms = get_platforms()
-        platform = None
-
-        compile_force_framework: Union[str, None] = kwargs.get("compile_force_framework", None)
-        if compile_force_framework:
-            platform = next(
-                (p(target) for p in platforms if p.NAME.lower() == compile_force_framework.lower()),
-                None,
-            )
-
-        if not platform:
-            platform = next(
-                (p(target) for p in platforms if p.is_supported(target, **kwargs)), None
-            )
-
-        if not platform:
-            platform = Solc(target)
+        #platforms = get_platforms()
+ 
+        platform = Solc(target)
 
         return platform
 
@@ -708,35 +694,35 @@ def compile_all(target: str, **kwargs: str) -> List[CryticCompile]:
     # Check if the target refers to a valid target already.
     compilations: List[CryticCompile] = []
     if os.path.isfile(target) or is_supported(target):
-        if target.endswith(".zip"):
-            compilations = load_from_zip(target)
-        elif target.endswith(".zip.base64"):
-            with tempfile.NamedTemporaryFile() as tmp:
-                with open(target, encoding="utf8") as target_file:
-                    tmp.write(base64.b64decode(target_file.read()))
-                    compilations = load_from_zip(tmp.name)
-        else:
+        # if target.endswith(".zip"):
+        #     compilations = load_from_zip(target)
+        # elif target.endswith(".zip.base64"):
+        #     with tempfile.NamedTemporaryFile() as tmp:
+        #         with open(target, encoding="utf8") as target_file:
+        #             tmp.write(base64.b64decode(target_file.read()))
+        #             compilations = load_from_zip(tmp.name)
+        # else:
             compilations.append(CryticCompile(target, **kwargs))
     elif os.path.isdir(target):
         solidity_filenames = glob.glob(os.path.join(target, "*.sol"))
-        vyper_filenames = glob.glob(os.path.join(target, "*.vy"))
+        #vyper_filenames = glob.glob(os.path.join(target, "*.vy"))
         # Determine if we're using --standard-solc option to
         # aggregate many files into a single compilation.
-        if use_solc_standard_json:
-            # If we're using standard solc, then we generated our
-            # input to create a single compilation with all files
-            solc_standard_json = SolcStandardJson()
-            solc_standard_json.add_source_files(solidity_filenames)
-            compilations.append(CryticCompile(solc_standard_json, **kwargs))
-        else:
+        # if use_solc_standard_json:
+        #     # If we're using standard solc, then we generated our
+        #     # input to create a single compilation with all files
+        #     solc_standard_json = SolcStandardJson()
+        #     solc_standard_json.add_source_files(solidity_filenames)
+        #     compilations.append(CryticCompile(solc_standard_json, **kwargs))
+        # else:
             # We compile each file and add it to our compilations.
-            for filename in solidity_filenames:
-                compilations.append(CryticCompile(filename, **kwargs))
+        for filename in solidity_filenames:
+            compilations.append(CryticCompile(filename, **kwargs))
 
-        if vyper_filenames:
-            vyper_standard_json = VyperStandardJson()
-            vyper_standard_json.add_source_files(vyper_filenames)
-            compilations.append(CryticCompile(vyper_standard_json, **kwargs))
+        # if vyper_filenames:
+        #     vyper_standard_json = VyperStandardJson()
+        #     vyper_standard_json.add_source_files(vyper_filenames)
+        #     compilations.append(CryticCompile(vyper_standard_json, **kwargs))
     else:
         raise NotImplementedError()
         # TODO split glob into language

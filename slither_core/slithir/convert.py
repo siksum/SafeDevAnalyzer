@@ -1191,7 +1191,7 @@ def convert_to_low_level(
         new_ir.call_gas = ir.call_gas
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
-        if ir.node.compilation_unit.solc_version >= "0.5":
+        if ir.node.compilation_unit.solc_version[0] >= "0.5":
             new_ir.lvalue.set_type(
                 [ElementaryType("bool"), ElementaryType("bytes")])
         else:

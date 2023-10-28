@@ -1110,7 +1110,7 @@ class FunctionSolc(CallerContextExpression):
             self._function.is_empty = True
         else:
             self._function.is_empty = False
-            check_arithmetic = self.compilation_unit.solc_version >= "0.8.0"
+            check_arithmetic = self.compilation_unit.solc_version[0] >= "0.8.0"
             self._parse_block(cfg, node, check_arithmetic=check_arithmetic)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
