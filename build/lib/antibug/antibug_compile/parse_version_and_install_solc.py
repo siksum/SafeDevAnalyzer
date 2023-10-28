@@ -7,6 +7,7 @@ import shutil
 import argparse
 import subprocess
 from pathlib import Path
+from typing import Optional
 
 if "VIRTUAL_ENV" in os.environ:
     HOME_DIR = Path(os.environ["VIRTUAL_ENV"])
@@ -16,7 +17,7 @@ SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-select")
 SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("artifacts")
 
 class SolcParser:
-    def __init__(self, target: str):
+    def __init__(self, target:str):
         self.source = target
         self.file_name= os.path.basename(target)
         self.version_list = list(self.get_version_list().keys())
@@ -30,7 +31,6 @@ class SolcParser:
     ############# Information #############
     #######################################
     def get_solidity_source(self, target):
-        print("get target:",target)
         with open(target, 'r') as f:
             source_code = f.read()
         return source_code
@@ -124,7 +124,7 @@ class SolcParser:
     def install_solc(self, version):
         artifact_file_dir = SOLC_BINARIES_DIR.joinpath(f"solc-{version}")
         if os.path.exists(artifact_file_dir):
-            print(f"'{version}' is already installed.")
+            #print(f"'{version}' is already installed.")
             return artifact_file_dir, False
         artifacts = self.get_version_list()
         url = f"https://binaries.soliditylang.org/macosx-amd64/" + \
@@ -162,7 +162,7 @@ class SolcParser:
         if version in self.get_intalled_versions():
             with open(f"{SOLC_PARSER_DIR}/global-version", "w", encoding="utf-8") as f:
                 f.write(version)
-            print("Switched global version to", version)
+            #print("Switched global version to", version)
         elif version in self.get_version_list():
             if always_install:
                 self.install_solc([version])

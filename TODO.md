@@ -75,20 +75,73 @@ def get_highest_version(self, version_list, target_version, target_index):
   ```
 
 <br></br>
+
+### blacklist 기반 detector 붙이기
+- slither-simil에 있는 기능 수정하여 lending 관련 취약점 코드를 모아둔 `SafeDevAnalyzer/antibug/run_detectors/based_blacklist/lending` 기반으로 코드 유사도 돌리는 기능 추가
+- encode.py에 있는 Slither 클래스 대신 우리가 만들어둔 SafeDevAnalyzer wrapping
+  ```python
+  def encode_ir(ir):  
+      ...
+    if isinstance(ir, Index):
+        return f"index({ntype(ir.variable_left.type)})"
+  
+  ```
+
+- 기존에는 Slither 클래스를 호출하고 있어 contract에 바로 접근할 수 있었으나, SafeDevAnalyzer 클래스를 호출할 경우 compilation_unit부터 시작해 contract까지 접근하도록 로직 변경이 필요함
+  ```python
+  def encode_contract(cfilename, **kwargs):
+      r = {}
+
+      # Init slither
+      try:
+          slither = SafeDevAnalyzer(cfilename, **kwargs)
+      except Exception:  # pylint: disable=broad-except
+          simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
+          return r
+
+      # Iterate over all the contracts
+      for compilation_unit in slither.compilation_units.values():
+          for contract in compilation_unit.contracts:
+              for function in contract.functions_declared:
+                  if function.nodes == [] or function.is_constructor_variables:
+                      continue
+
+                  x = (cfilename, contract.name, function.name)
+
+                  r[x] = []
+
+                  # Iterate over the nodes of the function
+                  for node in function.nodes:
+                      # Print the Solidity expression of the nodes
+                      # And the SlithIR operations
+                      if node.expression:
+                          for ir in node.irs:
+                              r[x].append(encode_ir(ir))
+      return r
+  ```
 <br></br>
+
+### deploy, detector(basic, blacklist) output JSON으로 뽑아내기
+  - result 폴더 내 `deploy_info_json
+
+<br></br>
+
 
 # TODOs
 
-[ ] openzepplin import 시 compile이 되지 않는 문제 -> flat으로 해결?
+- [ ] openzepplin import 시 compile이 되지 않는 문제 -> flat으로 해결?
 
 - 해결책 모색 필요함
   <br></br>
 
-[ ] OPCODE로 코드 가스비 알아내기
+- [ ] OPCODE로 코드 가스비 알아내기
 
 - json_result로 보여줄 수 있게
   <br></br>
 
-[ ] json_result path 바꿀 수 있는 옵션 제공하기
+- [ ] json_result path 바꿀 수 있는 옵션 제공하기
 
 - 현재는 SafeDevAnalyzer/json_result로 생성됨
+  
+- [ ] detector basic 돌렸을 때 filename, contract, function 추출 시 인덱스 번호가 달라서 추출되지 않는 파일도 존재함
+  - test/reentrancy.sol 기준으로 정해둔거라 일반화된 수정 필요함

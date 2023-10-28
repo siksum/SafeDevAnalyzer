@@ -1,5 +1,14 @@
 # Detect Report
 
+## Result Graph
+
+```mermaid
+    pie
+        title Result
+        "Dogs" : 33
+        "Cats" : 85
+```
+
 ## Reentrancy
 
  ```solidity

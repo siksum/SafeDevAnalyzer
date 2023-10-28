@@ -35,7 +35,7 @@ def test(path, fname, input, bin) -> list:
         fvector = model.get_sentence_vector(y)
 
         cache = load_and_encode(infile, model, **vars(args))
-        
+
         # save_cache("cache.npz", cache)
         r = {}
         for x, y in cache.items():
@@ -50,7 +50,6 @@ def test(path, fname, input, bin) -> list:
         for x, score in r[:ntop]:
             score = str(round(score, 3))
             result[x] = score
-            print("Aaaa")
 
             # logger.info(format_table.format(*(list(x) + [score])))
         return filename, contract, fname, result

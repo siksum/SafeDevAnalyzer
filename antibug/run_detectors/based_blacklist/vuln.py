@@ -20,7 +20,6 @@ vulnerabilities = {
 }
 
 def get_vulnerability_info(path):
-    print(path)
     head, filename = os.path.split(path)
 
     # 두 번째 split로 'to'와 나머지 부분을 분리

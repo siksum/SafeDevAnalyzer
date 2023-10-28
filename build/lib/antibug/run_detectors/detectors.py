@@ -2,8 +2,6 @@ from antibug.antibug_compile.compile import SafeDevAnalyzer
 from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib
-from antibug.run_simil.simil import Simil
-import os
 
 
 class RunDetector(SafeDevAnalyzer):
@@ -46,14 +44,6 @@ class RunDetector(SafeDevAnalyzer):
                         for item in filtered_list:
                             instance.register_detector(item)
                         results.extend(instance.run_detectors())
-                    elif detector in self.available_detector_list:
-                        filtered_list = [
-                            item for item in self.import_list if f'{detector}' in str(item)]
-                        if detector == 'addLiquidity':
-                            filtered_list.pop()
-                        for item in filtered_list:
-                            instance.register_detector(item)
-                        results.extend(instance.run_detectors())
                     else:
                         print(colored(f'{detector} is not available', "red"))
                         exit(0)
@@ -64,24 +54,6 @@ class RunDetector(SafeDevAnalyzer):
         result = self.detect_result(results)
         return result
 
-    def register_and_run_detectors_similmode(self, fname):
-        simil = Simil()
-        simil_result = []
-        cache_path = os.path.abspath(os.path.join(os.path.dirname(
-            os.path.abspath(__file__)), "../run_simil/cache.npz"))
-        bin_path = os.path.join(os.path.dirname(
-            __file__), "../run_simil/etherscan_verified_contracts.bin")
-        for function in fname:
-            results = simil.test(
-                self.target_path, function, cache_path, bin_path)
-            for result in results:
-                simil_result.append({
-                    'target': function,
-                    'detect': f'{result[1]}.{result[2]}',
-                    'score': result[3],
-                })
-        return simil_result
-
     def detect_result(self, results):
         results_combined = []
         if all(not sublist for sublist in results):
@@ -90,12 +62,20 @@ class RunDetector(SafeDevAnalyzer):
         else:
             for detector_result in results:
                 if detector_result:
-                    check = detector_result[0].get('check')
+                    file_name = detector_result[0]['elements'][0]['source_mapping']['filename_absolute']
+                    contract_name = detector_result[0]['elements'][0]['type_specific_fields']['parent']['name']
+                    function_name = detector_result[0]['elements'][0]['name']
+                    detect_line = detector_result[0]['elements'][1]['source_mapping']['lines']
+                    node = detector_result[0]['elements'][1]['name']
+
+                    check = detector_result[0]['check']
+
                     impact = detector_result[0]['impact']
                     confidence = detector_result[0]['confidence']
                     descriptions = [result['description']
                                     for result in detector_result]
-                    result_combined = {'check': check, 'impact': impact,
+                    result_combined = {'file_name': file_name, 'contract_name': contract_name,
+                                        'function_name': function_name, 'detect_line': detect_line, 'node': node, 'check': check, 'impact': impact,
                                        'confidence': confidence, 'description': descriptions}
                     results_combined.append(result_combined)
         return results_combined
