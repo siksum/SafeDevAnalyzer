@@ -80,7 +80,7 @@ class SourceUnit:
         self.ast: Dict = {}
 
         # Natspec
-        self._natspec: Dict[str, Natspec] = {}
+        #self._natspec: Dict[str, Natspec] = {}
 
         # Libraries used by the contract
         # contract_name -> (library, pattern)

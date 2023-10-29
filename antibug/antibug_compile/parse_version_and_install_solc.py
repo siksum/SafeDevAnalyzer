@@ -112,8 +112,10 @@ class SolcParser:
         for v in version_list:
             if v.startswith(target_major_minor):
                 matching_versions.append(v)
+        target_index = matching_versions.index(target_version)
+        
         if target_version == matching_versions[0]:
-            return version_list[target_index]
+            return matching_versions[target_index]
         else:
             return matching_versions[target_index -1]
 

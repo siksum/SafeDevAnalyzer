@@ -237,9 +237,11 @@ def solc_handle_contracts(
 
             source_unit.add_contract_name(contract_name)
             compilation_unit.filename_to_contracts[filename].add(contract_name)
-            source_unit.abis[contract_name] = (
-                json.loads(info["abi"]) if not is_above_0_8 else info["abi"]
-            )
+            #print("info: ", info["abi"])
+            source_unit.abis[contract_name] = info["abi"]
+            # (
+            #     json.loads(info["abi"]) if not is_above_0_8 else info["abi"]
+            # )
             source_unit.bytecodes_init[contract_name] = info["bin"]
             source_unit.bytecodes_runtime[contract_name] = info["bin-runtime"]
             source_unit.srcmaps_init[contract_name] = info["srcmap"].split(";")
@@ -334,22 +336,22 @@ def _build_options(compiler_version: SolcParser, force_legacy_json: bool) -> str
     Returns:
         str: options to be passed to the CI
     """
-    # old_04_versions = [f"0.4.{x}" for x in range(0, 12)]
-    # # compact-format was introduced in 0.4.12 and made the default in solc 0.8.10
-    # explicit_compact_format = (
-    #     [f"0.4.{x}" for x in range(0, 27)]
-    #     + [f"0.5.{x}" for x in range(0, 18)]
-    #     + [f"0.6.{x}" for x in range(0, 13)]
-    #     + [f"0.7.{x}" for x in range(0, 7)]
-    #     + [f"0.8.{x}" for x in range(0, 10)]
-    # )
-    # assert compiler_version.version
-    # if compiler_version.version in old_04_versions or compiler_version.version.startswith("0.3"):
-    #     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
-    # if force_legacy_json:
-    #     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
-    # if compiler_version.version in explicit_compact_format:
-    #     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
+    old_04_versions = [f"0.4.{x}" for x in range(0, 12)]
+    # compact-format was introduced in 0.4.12 and made the default in solc 0.8.10
+    explicit_compact_format = (
+        [f"0.4.{x}" for x in range(0, 27)]
+        + [f"0.5.{x}" for x in range(0, 18)]
+        + [f"0.6.{x}" for x in range(0, 13)]
+        + [f"0.7.{x}" for x in range(0, 7)]
+        + [f"0.8.{x}" for x in range(0, 10)]
+    )
+    assert compiler_version.version
+    if compiler_version.version in old_04_versions or compiler_version.version[0].startswith("0.3"):
+        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
+    if force_legacy_json:
+        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
+    if compiler_version.version in explicit_compact_format:
+        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
 
     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
 
