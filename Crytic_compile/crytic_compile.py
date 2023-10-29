@@ -147,16 +147,16 @@ class CryticCompile:
         """
         return self._dependencies
 
-    def is_dependency(self, filename: str) -> bool:
-        """Check if the filename is a dependency
+    # def is_dependency(self, filename: str) -> bool:
+    #     """Check if the filename is a dependency
 
-        Args:
-            filename (str): filename
+    #     Args:
+    #         filename (str): filename
 
-        Returns:
-            bool: True if the filename is a dependency
-        """
-        return filename in self._dependencies or self.platform.is_dependency(filename)
+    #     Returns:
+    #         bool: True if the filename is a dependency
+    #     """
+    #     return filename in self._dependencies or self.platform.is_dependency(filename)
 
     def _get_cached_offset_to_line(self, file: Filename) -> None:
         """Compute the cached offsets to lines

@@ -167,8 +167,8 @@ def _convert_source_mapping(
 
     filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(
         filename_used)
-    is_dependency = compilation_unit.core.crytic_compile.is_dependency(
-        filename.absolute)
+    # is_dependency = compilation_unit.core.crytic_compile.is_dependency(
+    #     filename.absolute)
 
     (lines, starting_column, ending_column) = _compute_line(
         compilation_unit, filename, s, l)
@@ -177,7 +177,7 @@ def _convert_source_mapping(
     new_source.start = s
     new_source.length = l
     new_source.filename = filename
-    new_source.is_dependency = is_dependency
+    #new_source.is_dependency = is_dependency
     new_source.lines = lines
     new_source.starting_column = starting_column
     new_source.ending_column = ending_column
