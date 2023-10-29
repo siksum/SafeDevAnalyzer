@@ -25,7 +25,6 @@ class SafeDevAnalyzer():
                 self.crytic_compile.extend(self.get_crytic_compile_list())
                 for crytic, filename in zip(self.crytic_compile, self.target_name):
                     self.compilation_units[filename] = Slither(crytic)
-
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
@@ -33,7 +32,8 @@ class SafeDevAnalyzer():
                     self.crytic_compile.append(CryticCompile(self.target_list[0]))
                     self.compilation_units[os.path.basename(
                         self.target_path)] = Slither(self.crytic_compile[0])  
-                    
+                    # for crytic in self.crytic_compile:
+                    #     print("crytic",crytic.compilation_units[self.target_path]._filename_to_contracts)
         except InvalidCompilation:
             print('Not supported file type')
             sys.exit(0)

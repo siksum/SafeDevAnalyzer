@@ -376,6 +376,67 @@ def get_highest_version(self, version_list, target_version, target_index):
 - crytic compile 관련하여 core 로직만 남기고 삭제함
 - 현재 sol 파일이 import 하는 것에 대해서는 고려하지 않은 상태라 library 관련 메소드들은 살려둔 상태임
 
+<br></br>
+
+### sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결
+- 단일 sol 파일에 여러 컨트랙트가 들어가는걸 고려 못했음
+- key를 가장 처음 나오는 컨트랙트 명으로 한정지어버려서(`next(iter(abi))`) 가장 처음 컨트랙트에 대해서만 abi, bytecode가 추출되었음
+  
+- 기존 코드
+  ```python
+    for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
+      filename=os.path.basename(filename)[:-4]
+      key = next(iter(abi))
+      combined_data[key] = {
+          "contract": key,
+          "abis": abi[key],
+          "bytecodes": "0x" + bytecode[key]
+      }
+      combined_json = json.dumps(combined_data[key], indent=2)
+      try:
+          output_path = os.path.join(output_dir+f"/{filename}.json")
+          with open(output_path, "w") as f:
+              f.write(combined_json)
+      except Exception as e:
+          print(f"Failed to write to {output_path}. Reason: {e}")
+  ```
+
+- Solution
+  ```python
+    combined_json = {}
+      for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
+          combined_data[contract]= {
+              "abis": abi_data,
+              "bytecodes": "0x" + bytecode
+          }
+          combined_json=combined_data
+      result_json = json.dumps(combined_json, indent=2)   
+      filename=os.path.basename(analyzer.target_list[0])[:-4]
+  ```
+  - 기존에는 디렉토리로 path가 들어올 것을 고려해서 abi, bytecode, filename을 모두 list로 받음
+  - 지금 당장 list 형태를 단일로 바꾸기에는 일이 커질 것 같아서 0번째 인덱스라고 하드코딩 해놨음..
+  - output에서 달라진 점은 
+    ```JSON
+      {
+        "contract": "EtherStore",
+        "abi": "~~~",
+        "bytecodes": "0x~~~~"
+      }
+    ```
+    형태에서
+    ```JSON
+      {
+        "EtherStore" {
+          "abi": "~~~",
+          "bytecodes": "0x~~~~"
+        }
+      }
+    ```
+    로 변경됨. "contract": "EtherStore" 형태로 남길 수 있었으면 좋았을 텐데 컨트랙트 마다 반복문을 돌려서 json 값을 업데이트 해줘야 해서 컨트랙트 이름이 2번 나오는 output이 만들어졌음.
+    extension 쪽에서 `Object keys` 함수로 접근할 수 있다고 해서 일단 저렇게 만들어놨음
+
+<br></br>
+
 # TODOs
 
 - [ ] openzepplin import 시 compile이 되지 않는 문제 -> flat으로 해결?

@@ -162,21 +162,22 @@ def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyze
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
-        filename=os.path.basename(filename)[:-4]
-        key = next(iter(abi))
-        combined_data[key] = {
-            "contract": key,
-            "abis": abi[key],
-            "bytecodes": "0x" + bytecode[key]
+    combined_json = {}
+    for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
+        combined_data[contract]= {
+            "abis": abi_data,
+            "bytecodes": "0x" + bytecode
         }
-        combined_json = json.dumps(combined_data[key], indent=2)
-        try:
-            output_path = os.path.join(output_dir+f"/{filename}.json")
-            with open(output_path, "w") as f:
-                f.write(combined_json)
-        except Exception as e:
-            print(f"Failed to write to {output_path}. Reason: {e}")
+        combined_json=combined_data
+    result_json = json.dumps(combined_json, indent=2)   
+    filename=os.path.basename(analyzer.target_list[0])[:-4]
+
+    try:
+        output_path = os.path.join(output_dir+f"/{filename}.json")
+        with open(output_path, "w") as f:
+            f.write(result_json)
+    except Exception as e:
+        print(f"Failed to write to {output_path}. Reason: {e}") 
 
 def convert_to_detect_result_json(result, target):
     output_dir = os.path.join(get_root_dir(), "result/basic_detector_json_results")
