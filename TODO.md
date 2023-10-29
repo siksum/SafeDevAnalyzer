@@ -32,28 +32,34 @@ def get_highest_version(self, version_list, target_version, target_index):
   ```
 
 ### SolcParser class 생성
+
 - 기존에 함수 형태로 주어지던 solc-parser를 class로 만들어 한번에 버전 파싱 부터 버전에 맞는 solc 바이너리 설치까지 연결되도록 구성함
-  
-``` text
+
+```text
 💡 깨달은 점
 하나로 묶을 수 있을 것 같다고 무조건 묶지 말자! 어떠한 행동을 하는 함수는 따로 빼두는게 다른 곳에서 쓰기도 편하다.. 클래스로 묶어두니까 쓸 때마다 인스턴스 생성해야 돼서 불편. Crytic Compile 중에 CompileVersion에 대한 내용이 그러했음
-  ```
+```
 
 ### markdown mermaid 그래프 그리기
+
 - markdown으로 그래프 그리려면 mermaid 사용해야 함
--  VSCode Extension 중에 mermaid viewer 설치해야 그래프 볼 수 있음(아니면 코드블럭으로 출력됨)
+- VSCode Extension 중에 mermaid viewer 설치해야 그래프 볼 수 있음(아니면 코드블럭으로 출력됨)
+
 ```mermaid
     pie
         title Result
         "Dogs" : 33
         "Cats" : 85
 ```
+
 - 근데 그래프를 나란히 둘 수는 없는 것 같음(방법 찾아보기)
-  
+
 <br></br>
 
 # 2023.10.24 (화)
+
 - 자체적으로 컴파일 되는 방식 구현
+
   ```python
     from pathlib import Path
     from typing import Any, Dict, List, Optional, Union
@@ -72,7 +78,7 @@ def get_highest_version(self, version_list, target_version, target_index):
             command.append(source)
         option = ["--combined-json", "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes", "--allow-paths", "."]
         command.extend(option)
-        
+
         proc = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
@@ -82,9 +88,9 @@ def get_highest_version(self, version_list, target_version, target_index):
         )
 
         stdout, stderr = proc.communicate()
-      
+
         if stderr:
-            print("solc stderr:\n%s", stderr) 
+            print("solc stderr:\n%s", stderr)
         try:
             ret: Dict = json.loads(stdout)
             return ret
@@ -102,6 +108,7 @@ def get_highest_version(self, version_list, target_version, target_index):
     if __name__ == "__main__":
         main()
   ```
+
 - slither, crytic-compile repo 붙이기
 
 <br></br>
@@ -119,6 +126,7 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 ### Compile 방식 변경
+
 - 만들기 전에 생각한 것은 sol 파일의 버전 파싱해서 기호에 따른 적절한 solc 바이너리 설치하고 적용후 해당 버전의 solc 바이너리를 실행하여 컴파일하는 방식으로 가면 되겠다 생각함
 - 기존에 slither에서 수행하는 컴파일 방식에서는 CryticCompile object를 결괏값으로 출력하고 있어 우리가 원하는 정보들 뽑기가 어렵다 판단
 - solc-parser에 solc 실행하는 것까지 내가 만들고, 거기서 ABI, bytecode를 뽑아낸 다음에 crytic-compile에서 컴파일하는 함수만 덮어씌워주면 되지 않을까? 생각했음
@@ -126,7 +134,7 @@ def get_highest_version(self, version_list, target_version, target_index):
     %%{init: {"flowchart": {"htmlLabels": false}} }%%
     flowchart LR
         markdown["`solc compile`"]
-        newLines["`ABI 
+        newLines["`ABI
         EVM bytecode
         CryticCompile object`"]
         markdown --> newLines
@@ -134,6 +142,7 @@ def get_highest_version(self, version_list, target_version, target_index):
 - Crytic Compile 내 solc platform 로직을 수정하면 될 것이라 생각했는데, 종속성이 심해서 변경이 불가하였음
 - 드림아카데미때 만들었던 Join에서 SolcParser 상속 받아 사용하는 형태로 로직 변경함.
 - 반대로 Crytic Compile에서 abi, bytecode를 뽑아내도로 테스트함
+
   ```python
     instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
     file= '/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol'
@@ -169,50 +178,54 @@ def get_highest_version(self, version_list, target_version, target_index):
     instance4 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import')
     print(instance4.compilation_units)
   ```
+
   -> 원하는 3개의 값을 잘 뽑아냄
 
 <br></br>
 
 ### JSON으로 output 저장하기
+
 - 뽑아낸 abi, bytecode에 대해 JSON output을 만들어야 하고, crytic-compile object는 slither로 넘겨주는 과정이 필요함
 - main 파일 생성하여 로직 구현
-    ```python
-    def get_root_dir():
-        current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-        return current_path
 
-    def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
-        combined_data = {}
-        output_dir = os.path.join(get_root_dir(), "result/deploy_info_json_results")
-        print(f"Output directory: {output_dir}")
+  ```python
+  def get_root_dir():
+      current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+      return current_path
 
-        files = glob.glob(os.path.join(output_dir, "*"))
-        for f in files:
-            try:
-                os.remove(f)
-            except Exception as e:
-                print(f"Failed to delete {f}. Reason: {e}")
+  def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
+      combined_data = {}
+      output_dir = os.path.join(get_root_dir(), "result/deploy_info_json_results")
+      print(f"Output directory: {output_dir}")
 
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+      files = glob.glob(os.path.join(output_dir, "*"))
+      for f in files:
+          try:
+              os.remove(f)
+          except Exception as e:
+              print(f"Failed to delete {f}. Reason: {e}")
 
-        for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
-            filename=os.path.basename(filename)[:-4]
-            key = next(iter(abi))
-            combined_data[key] = {
-                "contract": key,
-                "abis": abi[key],
-                "bytecodes": "0x" + bytecode[key]
-            }
-            combined_json = json.dumps(combined_data[key], indent=2)
-            try:
-                output_path = os.path.join(output_dir+f"/{filename}.json")
-                with open(output_path, "w") as f:
-                    f.write(combined_json)
-            except Exception as e:
-                print(f"Failed to write to {output_path}. Reason: {e}")
-    ```
-    -> 10/26일에 짜둔 완성본이긴 함..ㅎㅎ
+      if not os.path.exists(output_dir):
+          os.makedirs(output_dir)
+
+      for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
+          filename=os.path.basename(filename)[:-4]
+          key = next(iter(abi))
+          combined_data[key] = {
+              "contract": key,
+              "abis": abi[key],
+              "bytecodes": "0x" + bytecode[key]
+          }
+          combined_json = json.dumps(combined_data[key], indent=2)
+          try:
+              output_path = os.path.join(output_dir+f"/{filename}.json")
+              with open(output_path, "w") as f:
+                  f.write(combined_json)
+          except Exception as e:
+              print(f"Failed to write to {output_path}. Reason: {e}")
+  ```
+
+  -> 10/26일에 짜둔 완성본이긴 함..ㅎㅎ
 
 <br></br>
 
@@ -247,17 +260,20 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 ### blacklist 기반 detector 붙이기
+
 - slither-simil에 있는 기능 수정하여 lending 관련 취약점 코드를 모아둔 `SafeDevAnalyzer/antibug/run_detectors/based_blacklist/lending` 기반으로 코드 유사도 돌리는 기능 추가
 - encode.py에 있는 Slither 클래스 대신 우리가 만들어둔 SafeDevAnalyzer wrapping
+
   ```python
-  def encode_ir(ir):  
+  def encode_ir(ir):
       ...
     if isinstance(ir, Index):
         return f"index({ntype(ir.variable_left.type)})"
-  
+
   ```
 
 - 기존에는 Slither 클래스를 호출하고 있어 contract에 바로 접근할 수 있었으나, SafeDevAnalyzer 클래스를 호출할 경우 compilation_unit부터 시작해 contract까지 접근하도록 로직 변경이 필요함
+
   ```python
   def encode_contract(cfilename, **kwargs):
       r = {}
@@ -289,16 +305,20 @@ def get_highest_version(self, version_list, target_version, target_index):
                               r[x].append(encode_ir(ir))
       return r
   ```
-<br></br>
+
+  <br></br>
 
 ### deploy, detector(basic, blacklist) output JSON으로 뽑아내기
-  - result 폴더 내 `deploy_info_json_results`, `basic_detector_json_results`, `blacklist_json_results` 하위에 위치하도록 설정
-  - `__main__.py` 내에 로직 수정 -> 리팩토링 필요(다른 파일로 빼는게 좋을 것 같음요)
+
+- result 폴더 내 `deploy_info_json_results`, `basic_detector_json_results`, `blacklist_json_results` 하위에 위치하도록 설정
+- `__main__.py` 내에 로직 수정 -> 리팩토링 필요(다른 파일로 빼는게 좋을 것 같음요)
 
 <br></br>
 
 # 2023.10.28 (토)
+
 ### Crytic Compile core 코드만 남기기
+
 - 드림아카데미때는 slither 통째로 가져오고 Crytic Compile, solc-select을 pip로 설치 후에 사용해야 했음(setup.py에 정의해서)
 - VSC Extension에 들어갈 코드들이 너무 무거워질 것 같다는 판단 -> core 만 남기자!
 - 기존 Crytic Compile tree
@@ -311,10 +331,13 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 # 2023.10.29 (일)
+
 ### 버전 매칭 관련 버그 해결
+
 - 0.8, 0.7 버전은 잘돌아갔으나, 0.5 버전에 대해 제대로 out of index 에러 발생
 - target_index 값이 matching_versions 인덱스로 받아와야 하나, 전체 버전 리스트에서의 인덱스를 받아와서 부버전이 일치하는 버전 리스트에서 해당 인덱스에 접근하고자 하여 에러가 발생했음
 - 기존 코드
+
   ```python
     def get_highest_version(self, version_list, target_version, target_index):
         matching_versions = []
@@ -337,7 +360,7 @@ def get_highest_version(self, version_list, target_version, target_index):
             if v.startswith(target_major_minor):
                 matching_versions.append(v)
         target_index = matching_versions.index(target_version)
-        
+
         if target_version == matching_versions[0]:
             return matching_versions[target_index]
         else:
@@ -346,6 +369,12 @@ def get_highest_version(self, version_list, target_version, target_index):
   - matching_versions 내에서 target_version의 인덱스를 구하고, 해당 리스트 내에서 적절한 버전을 선택하도록 로직 변경
   - 그전에는 부버전 중 가장 최신일 경우 다음 부버전으로 넘어간다고 생각해서 version_list에서 인덱스를 검색했으나, 부버전 내에서만 선택해야 하므로 matching_versions만 고려하면 됨
 
+<br></br>
+
+### Crytic Compile 관련 core만 남기기
+
+- crytic compile 관련하여 core 로직만 남기고 삭제함
+- 현재 sol 파일이 import 하는 것에 대해서는 고려하지 않은 상태라 library 관련 메소드들은 살려둔 상태임
 
 # TODOs
 
@@ -362,8 +391,8 @@ def get_highest_version(self, version_list, target_version, target_index):
 - [ ] json_result path 바꿀 수 있는 옵션 제공하기
 
 - 현재는 SafeDevAnalyzer/json_result로 생성됨
-  
 - [ ] detector basic 돌렸을 때 filename, contract, function 추출 시 인덱스 번호가 달라서 추출되지 않는 파일도 존재함
+
   - test/reentrancy.sol 기준으로 정해둔거라 일반화된 수정 필요함
 
 - [ ] sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결하기
