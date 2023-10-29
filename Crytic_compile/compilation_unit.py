@@ -180,23 +180,6 @@ class CompilationUnit:
             raise ValueError("f{filename} does not exist in {d}")
         return d_file[used_filename]
 
-    def relative_filename_from_absolute_filename(self, absolute_filename: str) -> str:
-        """Return the relative file based on the absolute name
-
-        Args:
-            absolute_filename (str): Absolute filename
-
-        Raises:
-            ValueError: If the filename is not found
-
-        Returns:
-            str: Absolute filename
-        """
-        d_file = {f.absolute: f.relative for f in self._filenames}
-        if absolute_filename not in d_file:
-            raise ValueError("f{absolute_filename} does not exist in {d}")
-        return d_file[absolute_filename]
-
     def filename_lookup(self, filename: str) -> Filename:
         """Return a crytic_compile.naming.Filename from a any filename
 

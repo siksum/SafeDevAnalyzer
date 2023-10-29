@@ -79,8 +79,6 @@ class SourceUnit:
         self._srcmaps_runtime: Dict[str, List[str]] = {}
         self.ast: Dict = {}
 
-        # Natspec
-        #self._natspec: Dict[str, Natspec] = {}
 
         # Libraries used by the contract
         # contract_name -> (library, pattern)
@@ -190,53 +188,7 @@ class SourceUnit:
     # endregion
     ###################################################################################
     ###################################################################################
-    # region Source mapping
-    ###################################################################################
-    ###################################################################################
 
-    @property
-    def srcmaps_init(self) -> Dict[str, List[str]]:
-        """Return the srcmaps init
-
-        Returns:
-            Dict[str, List[str]]: Srcmaps init (solc/vyper format)
-        """
-        return self._srcmaps
-
-    @property
-    def srcmaps_runtime(self) -> Dict[str, List[str]]:
-        """Return the srcmaps runtime
-
-        Returns:
-            Dict[str, List[str]]: Srcmaps runtime (solc/vyper format)
-        """
-        return self._srcmaps_runtime
-
-    def srcmap_init(self, name: str) -> List[str]:
-        """Return the srcmap init of a contract
-
-        Args:
-            name (str): name of the contract
-
-        Returns:
-            List[str]: Srcmap init (solc/vyper format)
-        """
-        return self._srcmaps.get(name, [])
-
-    def srcmap_runtime(self, name: str) -> List[str]:
-        """Return the srcmap runtime of a contract
-
-        Args:
-            name (str): name of the contract
-
-        Returns:
-            List[str]: Srcmap runtime (solc/vyper format)
-        """
-        return self._srcmaps_runtime.get(name, [])
-
-    # endregion
-    ###################################################################################
-    ###################################################################################
     # region Libraries
     ###################################################################################
     ###################################################################################

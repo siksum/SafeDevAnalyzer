@@ -23,31 +23,12 @@ logging.basicConfig()
 
 # pylint: disable=too-many-instance-attributes
 class CryticCompile:
-    """
-    Main class.
-    """
 
     # pylint: disable=too-many-branches
     def __init__(self, target: Union[str, Solc], **kwargs: str) -> None:
-        """See https://github.com/crytic/crytic-compile/wiki/Configuration
-        Target is usually a file or a project directory. It can be an Solc
-        for custom setup
-
-        Args:
-            target (Union[str, Solc]): Target
-            **kwargs: additional arguments
-        """
-
-        # dependencies is needed for platform conversion
-        self._dependencies: Set = set()
 
         self._src_content: Dict = {}
 
-        # Mapping each file to
-        #  offset -> line, column
-        # This is not memory optimized, but allow an offset lookup in O(1)
-        # Because we frequently do this lookup in Slither during the AST parsing
-        # We decided to favor the running time versus memory
         self._cached_offset_to_line: Dict[Filename, Dict[int, Tuple[int, int]]] = {}
         # Lines are indexed from 1
         self._cached_line_to_offset: Dict[Filename, Dict[int, int]] = defaultdict(dict)
@@ -55,15 +36,10 @@ class CryticCompile:
         # Return the line from the line number
         # Note: line 1 is at index 0
         self._cached_line_to_code: Dict[Filename, List[bytes]] = {}
-
         self._working_dir = Path.cwd()
-
         self._platform = Solc(target)
-
         self._compilation_units: Dict[str, CompilationUnit] = {}
-
         self._bytecode_only = False
-
         self._platform.compile(self, **kwargs)
 
     @property
@@ -138,25 +114,6 @@ class CryticCompile:
 
         raise ValueError(f"{filename} does not exist")
 
-    @property
-    def dependencies(self) -> Set[str]:
-        """Return the dependencies files
-
-        Returns:
-            Set[str]: Dependencies files
-        """
-        return self._dependencies
-
-    # def is_dependency(self, filename: str) -> bool:
-    #     """Check if the filename is a dependency
-
-    #     Args:
-    #         filename (str): filename
-
-    #     Returns:
-    #         bool: True if the filename is a dependency
-    #     """
-    #     return filename in self._dependencies or self.platform.is_dependency(filename)
 
     def _get_cached_offset_to_line(self, file: Filename) -> None:
         """Compute the cached offsets to lines
@@ -200,24 +157,6 @@ class CryticCompile:
         lines_delimiters = self._cached_offset_to_line[file]
         return lines_delimiters[offset]
 
-    # def get_global_offset_from_line(self, filename: Union[Filename, str], line: int) -> int:
-    #     """Return the global offset from a given line
-
-    #     Args:
-    #         filename (Union[Filename, str]): filename
-    #         line (int): line
-
-    #     Returns:
-    #         int: global offset
-    #     """
-    #     if isinstance(filename, str):
-    #         file = self.filename_lookup(filename)
-    #     else:
-    #         file = filename
-    #     if file not in self._cached_line_to_offset:
-    #         self._get_cached_offset_to_line(file)
-
-    #     return self._cached_line_to_offset[file][line]
 
     def _get_cached_line_to_code(self, file: Filename) -> None:
         """Compute the cached lines
@@ -293,23 +232,7 @@ class CryticCompile:
     # endregion
     ###################################################################################
     ###################################################################################
-    # region Type
-    ###################################################################################
-    ###################################################################################
-
-    @property
-    def platform(self) -> Solc:
-        """Return the underlying platform
-
-        Returns:
-            Solc: Underlying platform
-        """
-        assert self._platform
-        return self._platform
-
-    # endregion
-    ###################################################################################
-    ###################################################################################
+   
     # region Compiler information
     ###################################################################################
     ###################################################################################
