@@ -308,8 +308,43 @@ def get_highest_version(self, version_list, target_version, target_index):
 
   ![Alt text](image-1.png)
 
-# 2023.10.29 (일)
+<br></br>
 
+# 2023.10.29 (일)
+### 버전 매칭 관련 버그 해결
+- 0.8, 0.7 버전은 잘돌아갔으나, 0.5 버전에 대해 제대로 out of index 에러 발생
+- target_index 값이 matching_versions 인덱스로 받아와야 하나, 전체 버전 리스트에서의 인덱스를 받아와서 부버전이 일치하는 버전 리스트에서 해당 인덱스에 접근하고자 하여 에러가 발생했음
+- 기존 코드
+  ```python
+    def get_highest_version(self, version_list, target_version, target_index):
+        matching_versions = []
+        target_major_minor = '.'.join(target_version.split('.')[:2])
+        for v in version_list:
+            if v.startswith(target_major_minor):
+                matching_versions.append(v)
+        if target_version == matching_versions[0]:
+            return version_list[target_index]
+        else:
+            return matching_versions[target_index -1]
+  ```
+
+- Solution
+  ```python
+    def get_highest_version(self, version_list, target_version, target_index):
+        matching_versions = []
+        target_major_minor = '.'.join(target_version.split('.')[:2])
+        for v in version_list:
+            if v.startswith(target_major_minor):
+                matching_versions.append(v)
+        target_index = matching_versions.index(target_version)
+        
+        if target_version == matching_versions[0]:
+            return matching_versions[target_index]
+        else:
+            return matching_versions[target_index -1]
+  ```
+  - matching_versions 내에서 target_version의 인덱스를 구하고, 해당 리스트 내에서 적절한 버전을 선택하도록 로직 변경
+  - 그전에는 부버전 중 가장 최신일 경우 다음 부버전으로 넘어간다고 생각해서 version_list에서 인덱스를 검색했으나, 부버전 내에서만 선택해야 하므로 matching_versions만 고려하면 됨
 
 
 # TODOs
