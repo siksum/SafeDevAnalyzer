@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
 from Crytic_compile.compilation_unit import CompilationUnit
-#from solc_compile.compiler import CompilerVersion
 from Crytic_compile.exceptions import InvalidCompilation
 from Crytic_compile.naming import (
     combine_filename_name,
@@ -21,106 +20,12 @@ from Crytic_compile.naming import (
 )
 
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
-# Cycle dependency
-#from Crytic_compile.utils.natspec import Natspec
 
+# Cycle dependency
 if TYPE_CHECKING:
     from Crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
-
-
-def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
-    contracts = {}
-
-    libraries_to_update = compilation_unit.crytic_compile.libraries
-
-    for filename, source_unit in compilation_unit.source_units.items():
-        for contract_name in source_unit.contracts_names:
-            libraries = source_unit.libraries_names_and_patterns(contract_name)
-            abi = str(source_unit.abi(contract_name))
-            abi = abi.replace("'", '"')
-            abi = abi.replace("True", "true")
-            abi = abi.replace("False", "false")
-            abi = abi.replace(" ", "")
-            exported_name = combine_filename_name(filename.absolute, contract_name)
-            contracts[exported_name] = {
-                "srcmap": ";".join(source_unit.srcmap_init(contract_name)),
-                "srcmap-runtime": ";".join(source_unit.srcmap_runtime(contract_name)),
-                "abi": abi,
-                "bin": source_unit.bytecode_init(contract_name, libraries_to_update),
-                "bin-runtime": source_unit.bytecode_runtime(contract_name, libraries_to_update),
-                "userdoc": source_unit.natspec[contract_name].userdoc.export(),
-                "devdoc": source_unit.natspec[contract_name].devdoc.export(),
-                "libraries": dict(libraries) if libraries else {},
-            }
-    return contracts
-
-
-def export_to_solc_from_compilation_unit(
-    compilation_unit: "CompilationUnit", key: str, export_dir: str
-) -> Optional[str]:
-    """Export the compilation unit to the standard solc output format.
-    The exported file will be $key.json
-
-    Args:
-        compilation_unit (CompilationUnit): Compilation unit to export
-        key (str): Filename Id
-        export_dir (str): Export directory
-
-    Returns:
-        Optional[str]: path to the file generated
-    """
-    contracts = _build_contract_data(compilation_unit)
-
-    # Create additional informational objects.
-    sources = {filename: {"AST": ast} for (filename, ast) in compilation_unit.asts.items()}
-    source_list = [x.absolute for x in compilation_unit.filenames]
-
-    # Create our root object to contain the contracts and other information.
-    output = {"sources": sources, "sourceList": source_list, "contracts": contracts}
-
-    # If we have an export directory specified, we output the JSON.
-    if export_dir:
-        if not os.path.exists(export_dir):
-            os.makedirs(export_dir)
-        path = os.path.join(export_dir, f"{key}.json")
-
-        with open(path, "w", encoding="utf8") as file_desc:
-            json.dump(output, file_desc)
-        return path
-    return None
-
-
-def export_to_solc(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
-    """Export all the compilation units to the standard solc output format.
-    The files generated will be either
-    - combined_solc.json, if there is one compilation unit (echidna legacy)
-    - $key.json, where $key is the compilation unit identifiant
-
-    Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
-        **kwargs: optional arguments. Used: "export_dir"
-
-    Returns:
-        List[str]: List of filenames generated
-    """
-    # Obtain objects to represent each contract
-    export_dir = kwargs.get("export_dir", "crytic-export")
-
-    if len(crytic_compile.compilation_units) == 1:
-        compilation_unit = list(crytic_compile.compilation_units.values())[0]
-        path = export_to_solc_from_compilation_unit(compilation_unit, "combined_solc", export_dir)
-        if path:
-            return [path]
-        return []
-
-    paths = []
-    for key, compilation_unit in crytic_compile.compilation_units.items():
-        path = export_to_solc_from_compilation_unit(compilation_unit, key, export_dir)
-        if path:
-            paths.append(path)
-    return paths
 
 
 class Solc():
@@ -155,28 +60,28 @@ class Solc():
         if force_legacy_json and _is_at_or_above_minor_version(compilation_unit, 8):
             raise InvalidCompilation("legacy JSON not supported from 0.8.x onwards")
 
-        skip_filename = compilation_unit.compiler_version.version in [
-            f"0.4.{x}" for x in range(0, 10)
-        ]
+        # skip_filename = compilation_unit.compiler_version.version in [
+        #     f"0.4.{x}" for x in range(0, 10)
+        # ]
 
         if "sources" in targets_json:
             for path, info in targets_json["sources"].items():
-                if skip_filename:
-                    path = convert_filename(
-                        self._target,
-                        relative_to_short,
-                        crytic_compile,
-                        working_dir=solc_working_dir,
-                    )
-                else:
-                    path = convert_filename(
-                        path, relative_to_short, crytic_compile, working_dir=solc_working_dir
-                    )
+                # if skip_filename:
+                #     path = convert_filename(
+                #         self._target,
+                #         relative_to_short,
+                #         crytic_compile,
+                #         working_dir=solc_working_dir,
+                #     )
+                # else:
+                path = convert_filename(
+                    path, relative_to_short, crytic_compile, working_dir=solc_working_dir
+                )
                 source_unit = compilation_unit.create_source_unit(path)
                 source_unit.ast = info["AST"]
 
         solc_handle_contracts(
-            targets_json, skip_filename, compilation_unit, self.target, solc_working_dir
+            targets_json, compilation_unit, self.target, solc_working_dir
         )
 
     def clean(self, **_kwargs: str) -> None:
@@ -292,7 +197,7 @@ def _get_targets_json(compilation_unit: "CompilationUnit", target: str, **kwargs
 
 def solc_handle_contracts(
     targets_json: Dict,
-    skip_filename: bool,
+    # skip_filename: bool,
     compilation_unit: "CompilationUnit",
     target: str,
     solc_working_dir: Optional[str],
@@ -306,27 +211,27 @@ def solc_handle_contracts(
         target (str): Path to the target
         solc_working_dir (Optional[str]): Working directory for running solc
     """
-    is_above_0_8 = _is_at_or_above_minor_version(compilation_unit, 8)
+    #is_above_0_8 = _is_at_or_above_minor_version(compilation_unit, 8)
 
     if "contracts" in targets_json:
 
         for original_contract_name, info in targets_json["contracts"].items():
             contract_name = extract_name(original_contract_name)
             # for solc < 0.4.10 we cant retrieve the filename from the ast
-            if skip_filename:
-                filename = convert_filename(
-                    target,
-                    relative_to_short,
-                    compilation_unit.crytic_compile,
-                    working_dir=solc_working_dir,
-                )
-            else:
-                filename = convert_filename(
-                    extract_filename(original_contract_name),
-                    relative_to_short,
-                    compilation_unit.crytic_compile,
-                    working_dir=solc_working_dir,
-                )
+            # if skip_filename:
+            #     filename = convert_filename(
+            #         target,
+            #         relative_to_short,
+            #         compilation_unit.crytic_compile,
+            #         working_dir=solc_working_dir,
+            #     )
+            # else:
+            filename = convert_filename(
+                extract_filename(original_contract_name),
+                relative_to_short,
+                compilation_unit.crytic_compile,
+                working_dir=solc_working_dir,
+            )
 
             source_unit = compilation_unit.create_source_unit(filename)
 
@@ -339,26 +244,26 @@ def solc_handle_contracts(
             source_unit.bytecodes_runtime[contract_name] = info["bin-runtime"]
             source_unit.srcmaps_init[contract_name] = info["srcmap"].split(";")
             source_unit.srcmaps_runtime[contract_name] = info["srcmap-runtime"].split(";")
-            userdoc = json.loads(info.get("userdoc", "{}")) if not is_above_0_8 else info["userdoc"]
-            devdoc = json.loads(info.get("devdoc", "{}")) if not is_above_0_8 else info["devdoc"]
+            # userdoc = json.loads(info.get("userdoc", "{}")) if not is_above_0_8 else info["userdoc"]
+            # devdoc = json.loads(info.get("devdoc", "{}")) if not is_above_0_8 else info["devdoc"]
             #natspec = Natspec(userdoc, devdoc)
             #source_unit.natspec[contract_name] = natspec
 
 
-def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: int) -> bool:
-    """Checks if the solc version is at or above(=newer) a given minor (0.x.0) version
+# def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: int) -> bool:
+#     """Checks if the solc version is at or above(=newer) a given minor (0.x.0) version
 
-    Args:
-        compilation_unit (CompilationUnit): Associated compilation unit
-        version (int): version to check
+#     Args:
+#         compilation_unit (CompilationUnit): Associated compilation unit
+#         version (int): version to check
 
-    Returns:
-        bool: True if the compilation unit version is above or equal to the provided version
-    """
+#     Returns:
+#         bool: True if the compilation unit version is above or equal to the provided version
+#     """
 
-    assert compilation_unit.compiler_version.version
+#     assert compilation_unit.compiler_version.version
 
-    return int(compilation_unit.compiler_version.version[0].split(".")[1]) >= version
+#     return int(compilation_unit.compiler_version.version[0].split(".")[1]) >= version
 
 
 def get_version(solc: str, env: Optional[Dict[str, str]]) -> str:

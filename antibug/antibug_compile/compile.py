@@ -97,7 +97,7 @@ def relative_to_short(relative: Path) -> Path:
 # print("compilation units")
 # print(instance.crytic_compile[0])
 
-####### test directory #######  -> done
+# ###### test directory #######  -> done
 # instance1 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
 # print(instance1.compilation_units)
 
@@ -105,7 +105,7 @@ def relative_to_short(relative: Path) -> Path:
 # instance2 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test.zip')
 # print(instance2.compilation_units)
 
-####### test import #########
+# ###### test import #########
 # instance3 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import/var.sol')
 # print(instance3.compilation_units)
 
