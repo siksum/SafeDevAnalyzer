@@ -437,6 +437,102 @@ def get_highest_version(self, version_list, target_version, target_index):
 
 <br></br>
 
+# 2023.10.30 (월)
+### json result convert logic refactoring
+- `__main__.py`에 정의 되어 있던 json output 뽑는 로직을 `convert_to_json.py`로 따로 빼두는 작업 진행
+- 기존 코드
+  ```python
+    def get_root_dir():
+      current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+      return current_path
+
+    def convert_to_deploy_info_json(abi_list, bytecode_list,   analyzer:SafeDevAnalyzer):
+      combined_data = {}
+
+      output_dir = os.path.join(get_root_dir(), "result/deploy_info_json_results")
+      print(f"Output directory: {output_dir}")
+
+      # Delete all files inside the output directory
+      files = glob.glob(os.path.join(output_dir, "*"))
+      for f in files:
+          try:
+              os.remove(f)
+          except Exception as e:
+              print(f"Failed to delete {f}. Reason: {e}")
+
+      if not os.path.exists(output_dir):
+          os.makedirs(output_dir)
+
+      combined_json = {}
+      for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
+          combined_data[contract]= {
+              "abis": abi_data,
+              "bytecodes": "0x" + bytecode
+          }
+          combined_json=combined_data
+      result_json = json.dumps(combined_json, indent=2)   
+      filename=os.path.basename(analyzer.target_list[0])[:-4]
+      try:
+          output_path = os.path.join(output_dir+f"/{filename}.json")
+          with open(output_path, "w") as f:
+              f.write(result_json)
+      except Exception as e:
+          print(f"Failed to write to {output_path}. Reason: {e}") 
+  ```
+- Solution
+  ```python
+    def get_root_dir():
+        current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+        return current_path
+
+    def output_dir(filename):
+        output_dir = os.path.join(get_root_dir(), f"result/{filename}")
+        print(f"Output directory: {output_dir}")
+
+        files = glob.glob(os.path.join(output_dir, "*"))
+        for f in files:
+            try:
+                os.remove(f)
+            except Exception as e:
+                print(f"Failed to delete {f}. Reason: {e}")
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        return output_dir
+
+    def get_output_path(target, output_dir_path):
+        filename=os.path.basename(target)[:-4]
+        output_path = os.path.join(output_dir_path, f"{filename}.json")
+        return output_path
+
+    def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
+        if target is not None:      
+            output_path= get_output_path(target, output_dir_path)
+
+        try:
+            with open(output_path, "w") as f:
+                f.write(combined_json)
+        except Exception as e:
+            print(f"Failed to write to {output_path}. Reason: {e}")
+
+
+    def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
+        combined_data = {}
+        output_dir_path = output_dir("deploy_json_results")
+        combined_json = {}
+        for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
+            combined_data[contract]= {
+                "abis": abi_data,
+                "bytecodes": "0x" + bytecode
+            }
+            combined_json=combined_data
+        result_json = json.dumps(combined_json, indent=2)   
+
+        write_to_json(output_dir_path, result_json, analyzer.target_list[0])
+                      .....
+  ```
+
+
 # TODOs
 
 - [ ] openzepplin import 시 compile이 되지 않는 문제 -> flat으로 해결?

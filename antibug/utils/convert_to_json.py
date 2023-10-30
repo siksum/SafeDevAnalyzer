@@ -1,12 +1,15 @@
 import glob
 import json
 import os
-from antibug.antibug_compile.compile import SafeDevAnalyzer
+
 from typing import Optional
+
+from antibug.antibug_compile.compile import SafeDevAnalyzer
 
 def get_root_dir():
     current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
     return current_path
+
 
 def output_dir(filename):
     output_dir = os.path.join(get_root_dir(), f"result/{filename}")
@@ -24,10 +27,12 @@ def output_dir(filename):
 
     return output_dir
 
+
 def get_output_path(target, output_dir_path):
     filename=os.path.basename(target)[:-4]
     output_path = os.path.join(output_dir_path, f"{filename}.json")
     return output_path
+
 
 def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
     if target is not None:      
@@ -39,10 +44,10 @@ def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
     except Exception as e:
         print(f"Failed to write to {output_path}. Reason: {e}")
 
+
 def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
     combined_data = {}
     output_dir_path = output_dir("deploy_json_results")
-
     combined_json = {}
     for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
         combined_data[contract]= {
@@ -54,19 +59,19 @@ def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyze
 
     write_to_json(output_dir_path, result_json, analyzer.target_list[0])
 
+
 def convert_to_detect_result_json(result, target):
     output_dir_path = output_dir("basic_detector_json_results")
-
-    # for res in result:
     combined_json = json.dumps(result, indent=2)
+
     write_to_json(output_dir_path, combined_json, target)
 
-    
+
 def convert_to_blacklist_result_json(result, contract, function):
     output_dir_path = output_dir("blacklist_json_results")
-
     combined_json = json.dumps(result, indent=2)
     output_path = os.path.join(output_dir_path, f"{contract}_{function}.json")
+    
     write_to_json(output_path, combined_json)
 
 
