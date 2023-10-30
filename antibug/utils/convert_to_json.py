@@ -7,7 +7,7 @@ from typing import Optional
 from antibug.antibug_compile.compile import SafeDevAnalyzer
 
 def get_root_dir():
-    current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+    current_path = os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
     return current_path
 
 def output_dir(filename):
