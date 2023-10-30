@@ -1,0 +1,62 @@
+[
+  {
+    "file_name": "/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/test/reentrancy.sol",
+    "contract_name": "EtherStore",
+    "function_name": "withdraw",
+    "detect_line": [
+      15
+    ],
+    "node": "(sent) = msg.sender.call{value: bal}()",
+    "check": "low-level-calls",
+    "impact": "Informational",
+    "confidence": "High",
+    "description": [
+      "Low level call in EtherStore.withdraw() (test/reentrancy.sol#11-19):\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#15)\n"
+    ]
+  },
+  {
+    "file_name": "/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/test/reentrancy.sol",
+    "contract_name": "EtherStore",
+    "function_name": "withdraw",
+    "detect_line": [
+      15
+    ],
+    "node": "(sent) = msg.sender.call{value: bal}()",
+    "check": "unchecked-lowlevel",
+    "impact": "Medium",
+    "confidence": "Medium",
+    "description": [
+      "EtherStore.withdraw() (test/reentrancy.sol#11-19) ignores return value by (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#15)\n"
+    ]
+  },
+  {
+    "file_name": "/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/test/reentrancy.sol",
+    "contract_name": "EtherStore",
+    "function_name": "withdraw",
+    "detect_line": [
+      15
+    ],
+    "node": "(sent) = msg.sender.call{value: bal}()",
+    "check": "reentrancy-eth",
+    "impact": "High",
+    "confidence": "Medium",
+    "description": [
+      "Reentrancy in EtherStore.withdraw() (test/reentrancy.sol#11-19):\n\tExternal calls:\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#15)\n\tState variables written after the call(s):\n\t- balances[msg.sender] = 0 (test/reentrancy.sol#18)\n\tEtherStore.balances (test/reentrancy.sol#5) can be used in cross function reentrancies:\n\t- EtherStore.balances (test/reentrancy.sol#5)\n\t- EtherStore.deposit() (test/reentrancy.sol#7-9)\n\t- EtherStore.withdraw() (test/reentrancy.sol#11-19)\n"
+    ]
+  },
+  {
+    "file_name": "/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/test/reentrancy.sol",
+    "contract_name": "EtherStore",
+    "function_name": "withdraw",
+    "detect_line": [
+      13
+    ],
+    "node": "require(bool)(bal > 0)",
+    "check": "incorrect-extcodesize",
+    "impact": "Informational",
+    "confidence": "High",
+    "description": [
+      "EtherStore.withdraw() (test/reentrancy.sol#11-19) uses extcodesize for contract size check. Use extcodehash instead of extcodesize.\n\t- require(bool)(bal > 0) (test/reentrancy.sol#13)\n"
+    ]
+  }
+]

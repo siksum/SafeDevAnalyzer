@@ -1,14 +1,9 @@
 import argparse
 import sys
 from termcolor import colored
-import os
 import argparse
-import logging
-import json
-import glob
 
-#from Crytic_compile import cryticparser
-
+from antibug.utils.convert_to_json import convert_to_deploy_info_json, convert_to_detect_result_json, convert_to_blacklist_result_json
 from antibug.run_detectors.detectors import RunDetector
 from antibug.run_detectors.based_blacklist.test import test
 from antibug.run_detectors.based_blacklist.vuln import vuln
@@ -140,97 +135,6 @@ def detect_based_blacklist_action(target, fname, input, bin):
     }
     return result, contract, fname
 
-
-def get_root_dir():
-    current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-    return current_path
-
-def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
-    combined_data = {}
-
-    output_dir = os.path.join(get_root_dir(), "result/deploy_info_json_results")
-    print(f"Output directory: {output_dir}")
-
-    # Delete all files inside the output directory
-    files = glob.glob(os.path.join(output_dir, "*"))
-    for f in files:
-        try:
-            os.remove(f)
-        except Exception as e:
-            print(f"Failed to delete {f}. Reason: {e}")
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    combined_json = {}
-    for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
-        combined_data[contract]= {
-            "abis": abi_data,
-            "bytecodes": "0x" + bytecode
-        }
-        combined_json=combined_data
-    result_json = json.dumps(combined_json, indent=2)   
-    filename=os.path.basename(analyzer.target_list[0])[:-4]
-
-    try:
-        output_path = os.path.join(output_dir+f"/{filename}.json")
-        with open(output_path, "w") as f:
-            f.write(result_json)
-    except Exception as e:
-        print(f"Failed to write to {output_path}. Reason: {e}") 
-
-def convert_to_detect_result_json(result, target):
-    output_dir = os.path.join(get_root_dir(), "result/basic_detector_json_results")
-    print(f"Output directory: {output_dir}")
-
-    # Delete all files inside the output directory
-    files = glob.glob(os.path.join(output_dir, "*"))
-    for f in files:
-        try:
-            os.remove(f)
-        except Exception as e:
-            print(f"Failed to delete {f}. Reason: {e}")
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # for res in result:
-    combined_json = json.dumps(result, indent=2)
-    filename=os.path.basename(target)[:-4]
-    i=1
-    output_path = os.path.join(output_dir, f"{filename}.json")
-
-    try:
-        with open(output_path, "w") as f:
-            f.write(combined_json)
-        i+=1
-    except Exception as e:
-        print(f"Failed to write to {output_path}. Reason: {e}")
-    
-def convert_to_blacklist_result_json(result, contract, function):
-    output_dir = os.path.join(get_root_dir(), "result/blacklist_json_results")
-    print(f"Output directory: {output_dir}")
-
-    # Delete all files inside the output directory
-    files = glob.glob(os.path.join(output_dir, "*"))
-    for f in files:
-        try:
-            os.remove(f)
-        except Exception as e:
-            print(f"Failed to delete {f}. Reason: {e}")
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    # for res in result:
-    combined_json = json.dumps(result, indent=2)
-    output_path = os.path.join(output_dir, f"{contract}_{function}.json")
-
-    try:
-        with open(output_path, "w") as f:
-            f.write(combined_json)
-    except Exception as e:
-        print(f"Failed to write to {output_path}. Reason: {e}")
 
 def main():
     args = parse_arguments()
