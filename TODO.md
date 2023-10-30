@@ -456,7 +456,7 @@ def get_highest_version(self, version_list, target_version, target_index):
 
   - test/reentrancy.sol 기준으로 정해둔거라 일반화된 수정 필요함
 
-- [ ] sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결하기
+- [x] sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결하기
 
 - [ ] JSON output 뽑아내는 코드 `__main__.py`에서 분리하기
 
