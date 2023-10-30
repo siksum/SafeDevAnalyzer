@@ -10,7 +10,6 @@ def get_root_dir():
     current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
     return current_path
 
-
 def output_dir(filename):
     output_dir = os.path.join(get_root_dir(), f"result/{filename}")
     print(f"Output directory: {output_dir}")
@@ -27,12 +26,10 @@ def output_dir(filename):
 
     return output_dir
 
-
 def get_output_path(target, output_dir_path):
     filename=os.path.basename(target)[:-4]
     output_path = os.path.join(output_dir_path, f"{filename}.json")
     return output_path
-
 
 def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
     if target is not None:      
