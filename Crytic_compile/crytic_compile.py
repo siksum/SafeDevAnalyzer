@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
 from Crytic_compile.compilation_unit import CompilationUnit
 
-from solc import Solc
+from .solc import Solc
 from Crytic_compile.naming import Filename
 
 # Cycle dependency
