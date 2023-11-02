@@ -568,7 +568,45 @@ def get_highest_version(self, version_list, target_version, target_index):
 
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
   ```
-  - 테스트 해본 결과 0.7버전에서 compact-format이라는 옵션을 지원하지 않음 -> 옵션 처리 다시 구성해야 될 것 같음
+  - 조사해보니 이전에는 json에서 abi를 string으로 처리했으나, 0.8부터는 하위 객체로 인식한다고 함
+    ``` shell
+    Command Line Interface: JSON fields abi, devdoc, userdoc and storage-layout are now sub-objects rather than strings.
+    ``` 
+    [Solidity 0.8.0 Release Announcement | Solidity Programming Language](https://soliditylang.org/blog/2020/12/16/solidity-v0.8.0-release-announcement/)
+    
+    → 이전 버전의 string을 object 형태로 변환하는 과정 필요함
+
+  - Solution
+    ```python
+        def to_deploy(self): 
+            file_path = self.target_list
+            i = 0
+            for crytic_compile in self.crytic_compile:
+                filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
+      
+                _08_versions= [f"0.8.{x}" for x in range(0, 22)]
+                
+                if self.solc_parse.solc_version in _08_versions:
+                    self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
+                    
+                else:
+                    abi = crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis
+                    dict_keys_contract = abi.keys()
+                    dict_keys_list = list(dict_keys_contract)
+                    combined_data = {}  
+                    for contract in dict_keys_list:
+                        abi_objects=json.loads(abi[contract])
+                        combined_data[contract]= abi_objects
+                    
+                    self.abi_list.append(combined_data)
+                self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._runtime_bytecodes)
+                i += 1
+            
+            return self.abi_list, self.bytecode_list
+    ```
+      - 0.8 버전에 대해서는 기존의 방식 이용하고, 0.7이하 버전에서는 string을 json object로 변환 후 contract 이름과 매칭하여 새로운 json 생성
+      - 테스트 해보니 0.4.15까지 잘변환됨. 0.4.15버전 이하 코드는 아직 못찾았음 ㅜ
+    <br />
 
 # TODOs
 
@@ -591,6 +629,8 @@ def get_highest_version(self, version_list, target_version, target_index):
 
 - [x] sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결하기
 
-- [ ] JSON output 뽑아내는 코드 `__main__.py`에서 분리하기
+- [x] JSON output 뽑아내는 코드 `__main__.py`에서 분리하기
+  
+- [x] ABI 형태가 버전별로 다르게 출력되는 문제 해결하기 
 
 - [ ] mermaid 그래프 나란히 두는 방법 찾아보기

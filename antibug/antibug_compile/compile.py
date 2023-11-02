@@ -9,6 +9,8 @@ from Crytic_compile import CryticCompile, InvalidCompilation
 from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.naming import Filename
+
+import json
 class SafeDevAnalyzer():
     def __init__(self, target: str, **kwargs) -> None:
         self.target_path = os.path.abspath(target)
@@ -18,6 +20,7 @@ class SafeDevAnalyzer():
         self.target_list = []
         self.abi_list = []
         self.bytecode_list = []
+        
 
         try:
             if os.path.isdir(self.target_path):
@@ -43,7 +46,23 @@ class SafeDevAnalyzer():
         i = 0
         for crytic_compile in self.crytic_compile:
             filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
-            self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
+            
+            _08_versions= [f"0.8.{x}" for x in range(0, 22)]
+            
+            if self.solc_parse.solc_version in _08_versions:
+                self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
+                print(self.abi_list)
+                
+            else:
+                abi = crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis
+                dict_keys_contract = abi.keys()
+                dict_keys_list = list(dict_keys_contract)
+                combined_data = {}  
+                for contract in dict_keys_list:
+                    abi_objects=json.loads(abi[contract])
+                    combined_data[contract]= abi_objects
+                
+                self.abi_list.append(combined_data)
             self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._runtime_bytecodes)
             i += 1
         
@@ -78,10 +97,13 @@ def relative_to_short(relative: Path) -> Path:
 
 
 
-# instance = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
-# file= '/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol'
-# object=Filename(absolute='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', used='/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
-# abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis
+# instance = SafeDevAnalyzer('/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol')
+# file= '/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol'
+# object=Filename(absolute='/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol', used='/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
+
+# abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis.keys()
+# print(abis)
+# print(json.loads(abis['TimeLock']))
 # runtime_bytecodes = instance.crytic_compile[0]._compilation_units[file]._source_units[object]._runtime_bytecodes
 
 # combined_data = {

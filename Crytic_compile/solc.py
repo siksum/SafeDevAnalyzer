@@ -117,7 +117,7 @@ def _build_options(compiler_version: SolcParser) -> str:
     if compiler_version.version in old_04_versions or compiler_version.version[0].startswith("0.3"):
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
     if compiler_version.version in explicit_compact_format:
-        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"#,compact-format"
+        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
 
     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
 
