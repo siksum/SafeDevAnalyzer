@@ -532,6 +532,43 @@ def get_highest_version(self, version_list, target_version, target_index):
                       .....
   ```
 
+# 2023.11.1 (수)
+### setup dependencies 관련
+
+
+# 2023.11.2 (목)
+### 버전에 따른 abi 출력이 달라지는 문제
+- 0.8 이상 버전에서는 원하는 대로 잘 출력이 되지만, 0.7 이하에서는 "\"문자가 붙어버림
+  - v0.7.6
+  ```JSON
+    "abi":"[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+  ```
+  - v0.8.0
+    ```JSON
+      "abi":[{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balances","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}],
+    ```
+
+- `SafeDevAnalyzer/Crytic_compile/solc.py`에서 확인해보면 버전에 따라 다른 옵션을 주고 있음
+  ```python
+      def _build_options(compiler_version: SolcParser) -> str:
+        old_04_versions = [f"0.4.{x}" for x in range(0, 12)]
+        # compact-format was introduced in 0.4.12 and made the default in solc 0.8.10
+        explicit_compact_format = (
+            [f"0.4.{x}" for x in range(13, 27)]
+            + [f"0.5.{x}" for x in range(0, 18)]
+            + [f"0.6.{x}" for x in range(0, 13)]
+            + [f"0.7.{x}" for x in range(0, 7)]
+            + [f"0.8.{x}" for x in range(0, 10)]
+        )
+        assert compiler_version.version
+        if compiler_version.version in old_04_versions or compiler_version.version[0].startswith("0.3"):
+            return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
+        if compiler_version.version in explicit_compact_format:
+            return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
+
+        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
+  ```
+  - 테스트 해본 결과 0.7버전에서 compact-format이라는 옵션을 지원하지 않음 -> 옵션 처리 다시 구성해야 될 것 같음
 
 # TODOs
 
