@@ -50,8 +50,7 @@ def detect_state_variable_shadowing(
     inherited. The contracts are simply included to denote the immediate inheritance path from which the shadowed
     variable originates.
     """
-    results: Set[Tuple["Contract", "StateVariable",
-                       "Contract", "StateVariable"]] = set()
+    results: Set[Tuple["Contract", "StateVariable", "Contract", "StateVariable"]] = set()
     for contract in contracts:
         variables_declared: Dict[str, "StateVariable"] = {
             variable.name: variable for variable in contract.state_variables_declared

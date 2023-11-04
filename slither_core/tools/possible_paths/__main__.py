@@ -3,7 +3,7 @@ import sys
 import logging
 from argparse import ArgumentParser, Namespace
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 from slither_core import Slither
 from slither_core.core.declarations import FunctionContract
 from slither_core.utils.colors import red
@@ -68,8 +68,7 @@ def main() -> None:
 
     # Obtain all paths which reach the target functions.
     reaching_paths = find_target_paths(slither, targets)
-    reaching_functions = {
-        y for x in reaching_paths for y in x if y not in targets}
+    reaching_functions = {y for x in reaching_paths for y in x if y not in targets}
 
     # Print out all function names which can reach the targets.
     print("The following functions reach the specified targets:")

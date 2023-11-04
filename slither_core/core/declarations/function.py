@@ -90,8 +90,7 @@ class FunctionType(Enum):
     FALLBACK = 2
     RECEIVE = 3
     CONSTRUCTOR_VARIABLES = 10  # Fake function to hold variable declaration statements
-    # Fake function to hold variable declaration statements
-    CONSTRUCTOR_CONSTANT_VARIABLES = 11
+    CONSTRUCTOR_CONSTANT_VARIABLES = 11  # Fake function to hold variable declaration statements
 
 
 def _filter_state_variables_written(expressions: List["Expression"]):
@@ -138,6 +137,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._parameters: List["LocalVariable"] = []
         self._parameters_ssa: List["LocalIRVariable"] = []
         self._parameters_src: SourceMapping = SourceMapping()
+        # This is used for vyper calls with default arguments
+        self._default_args_as_expressions: List["Expression"] = []
         self._returns: List["LocalVariable"] = []
         self._returns_ssa: List["LocalIRVariable"] = []
         self._returns_src: SourceMapping = SourceMapping()
@@ -180,8 +181,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._all_slithir_variables: Optional[List["SlithIRVariable"]] = None
         self._all_nodes: Optional[List["Node"]] = None
         self._all_conditional_state_variables_read: Optional[List["StateVariable"]] = None
-        self._all_conditional_state_variables_read_with_loop: Optional[
-            List["StateVariable"]] = None
+        self._all_conditional_state_variables_read_with_loop: Optional[List["StateVariable"]] = None
         self._all_conditional_solidity_variables_read: Optional[List["SolidityVariable"]] = None
         self._all_conditional_solidity_variables_read_with_loop: Optional[
             List["SolidityVariable"]
@@ -219,9 +219,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         self.compilation_unit: "SlitherCompilationUnit" = compilation_unit
 
-        # Assume we are analyzing Solidity by default
-        self.function_language: FunctionLanguage = FunctionLanguage.Solidity
-
         self._id: Optional[str] = None
 
         # To be improved with a parsing of the documentation
@@ -240,7 +237,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._name == "" and self._function_type == FunctionType.CONSTRUCTOR:
             return "constructor"
-        if self._function_type == FunctionType.FALLBACK:
+        if self._name == "" and self._function_type == FunctionType.FALLBACK:
             return "fallback"
         if self._function_type == FunctionType.RECEIVE:
             return "receive"
@@ -278,8 +275,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._full_name is None:
             name, parameters, _ = self.signature
-            full_name = ".".join(self._internal_scope +
-                                 [name]) + "(" + ",".join(parameters) + ")"
+            full_name = ".".join(self._internal_scope + [name]) + "(" + ",".join(parameters) + ")"
             self._full_name = full_name
         return self._full_name
 
@@ -568,7 +564,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def nodes_ordered_dominators(self) -> List["Node"]:
         # TODO: does not work properly; most likely due to modifier call
         # This will not work for modifier call that lead to multiple nodes
-        # from slither_core.core.cfg.node import NodeType
+        # from slither.core.cfg.node import NodeType
         if self._nodes_ordered_dominators is None:
             self._nodes_ordered_dominators = []
             if self.entry_point:
@@ -901,8 +897,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                 for ir in node.irs
                 if isinstance(ir, Return)
             ]
-            self._return_values = list(
-                {x for x in return_values if not isinstance(x, Constant)})
+            self._return_values = list({x for x in return_values if not isinstance(x, Constant)})
         return self._return_values
 
     @property
@@ -942,8 +937,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._slithir_operations is None:
             operationss = [n.irs for n in self.nodes]
-            operations = [
-                item for sublist in operationss for item in sublist if item]
+            operations = [item for sublist in operationss for item in sublist if item]
             self._slithir_operations = operations
         return self._slithir_operations
 
@@ -954,8 +948,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._slithir_ssa_operations is None:
             operationss = [n.irs_ssa for n in self.nodes]
-            operations = [
-                item for sublist in operationss for item in sublist if item]
+            operations = [item for sublist in operationss for item in sublist if item]
             self._slithir_ssa_operations = operations
         return self._slithir_ssa_operations
 
@@ -982,8 +975,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             parameters = [
                 convert_type_for_solidity_signature_to_string(x.type) for x in self.parameters
             ]
-            self._solidity_signature = self.name + \
-                "(" + ",".join(parameters) + ")"
+            self._solidity_signature = self.name + "(" + ",".join(parameters) + ")"
         return self._solidity_signature
 
     @property
@@ -992,14 +984,15 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         (str, list(str), list(str)): Function signature as
         (name, list parameters type, list return values type)
         """
-        if self._signature is None:
-            signature = (
-                self.name,
-                [str(x.type) for x in self.parameters],
-                [str(x.type) for x in self.returns],
-            )
-            self._signature = signature
-        return self._signature
+        # FIXME memoizing this function is not working properly for vyper
+        # if self._signature is None:
+        return (
+            self.name,
+            [str(x.type) for x in self.parameters],
+            [str(x.type) for x in self.returns],
+        )
+        #     self._signature = signature
+        # return self._signature
 
     @property
     def signature_str(self) -> str:
@@ -1010,8 +1003,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         if self._signature_str is None:
             name, parameters, returnVars = self.signature
             self._signature_str = (
-                name + "(" + ",".join(parameters) +
-                ") returns(" + ",".join(returnVars) + ")"
+                name + "(" + ",".join(parameters) + ") returns(" + ",".join(returnVars) + ")"
             )
         return self._signature_str
 
@@ -1061,8 +1053,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                 # Use a temporary set, because we iterate over new_functions
                 new_functionss: Set["Function"] = set()
                 for f in new_functions:
-                    new_functionss = new_functionss.union(
-                        f.reachable_from_functions)
+                    new_functionss = new_functionss.union(f.reachable_from_functions)
                 new_functions = new_functionss - functions
 
             self._all_reachable_from_functions = functions
@@ -1132,8 +1123,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def all_slithir_variables(self) -> List["SlithIRVariable"]:
         """recursive version of slithir_variables"""
         if self._all_slithir_variables is None:
-            self._all_slithir_variables = self._explore_functions(
-                lambda x: x.slithir_variables)
+            self._all_slithir_variables = self._explore_functions(lambda x: x.slithir_variables)
         return self._all_slithir_variables
 
     def all_nodes(self) -> List["Node"]:
@@ -1145,14 +1135,12 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def all_expressions(self) -> List["Expression"]:
         """recursive version of variables_read"""
         if self._all_expressions is None:
-            self._all_expressions = self._explore_functions(
-                lambda x: x.expressions)
+            self._all_expressions = self._explore_functions(lambda x: x.expressions)
         return self._all_expressions
 
     def all_slithir_operations(self) -> List["Operation"]:
         if self._all_slithir_operations is None:
-            self._all_slithir_operations = self._explore_functions(
-                lambda x: x.slithir_operations)
+            self._all_slithir_operations = self._explore_functions(lambda x: x.slithir_operations)
         return self._all_slithir_operations
 
     def all_state_variables_written(self) -> List[StateVariable]:
@@ -1166,42 +1154,36 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def all_internal_calls(self) -> List["InternalCallType"]:
         """recursive version of internal_calls"""
         if self._all_internals_calls is None:
-            self._all_internals_calls = self._explore_functions(
-                lambda x: x.internal_calls)
+            self._all_internals_calls = self._explore_functions(lambda x: x.internal_calls)
         return self._all_internals_calls
 
     def all_low_level_calls(self) -> List["LowLevelCallType"]:
         """recursive version of low_level calls"""
         if self._all_low_level_calls is None:
-            self._all_low_level_calls = self._explore_functions(
-                lambda x: x.low_level_calls)
+            self._all_low_level_calls = self._explore_functions(lambda x: x.low_level_calls)
         return self._all_low_level_calls
 
     def all_high_level_calls(self) -> List["HighLevelCallType"]:
         """recursive version of high_level calls"""
         if self._all_high_level_calls is None:
-            self._all_high_level_calls = self._explore_functions(
-                lambda x: x.high_level_calls)
+            self._all_high_level_calls = self._explore_functions(lambda x: x.high_level_calls)
         return self._all_high_level_calls
 
     def all_library_calls(self) -> List["LibraryCallType"]:
         """recursive version of library calls"""
         if self._all_library_calls is None:
-            self._all_library_calls = self._explore_functions(
-                lambda x: x.library_calls)
+            self._all_library_calls = self._explore_functions(lambda x: x.library_calls)
         return self._all_library_calls
 
     def all_solidity_calls(self) -> List[SolidityFunction]:
         """recursive version of solidity calls"""
         if self._all_solidity_calls is None:
-            self._all_solidity_calls = self._explore_functions(
-                lambda x: x.solidity_calls)
+            self._all_solidity_calls = self._explore_functions(lambda x: x.solidity_calls)
         return self._all_solidity_calls
 
     @staticmethod
     def _explore_func_cond_read(func: "Function", include_loop: bool) -> List["StateVariable"]:
-        ret = [n.state_variables_read for n in func.nodes if n.is_conditional(
-            include_loop)]
+        ret = [n.state_variables_read for n in func.nodes if n.is_conditional(include_loop)]
         return [item for sublist in ret for item in sublist]
 
     def all_conditional_state_variables_read(self, include_loop=True) -> List["StateVariable"]:
@@ -1295,8 +1277,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
         if self._all_solidity_variables_used_as_args is None:
             self._all_solidity_variables_used_as_args = self._explore_functions(
-                lambda x: self._explore_func_nodes(
-                    x, self._solidity_variable_in_internal_calls)
+                lambda x: self._explore_func_nodes(x, self._solidity_variable_in_internal_calls)
             )
         return self._all_solidity_variables_used_as_args
 
@@ -1311,7 +1292,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         """
             Apply a visitor to all the function expressions
         Args:
-            Visitor: slither_core.visitors
+            Visitor: slither.visitors
         Returns
             list(): results of the visit
         """
@@ -1378,8 +1359,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             for node in self.nodes:
                 f.write(f'{node.node_id}[label="{description(node)}"];\n')
                 if node.immediate_dominator:
-                    f.write(
-                        f"{node.immediate_dominator.node_id}->{node.node_id};\n")
+                    f.write(f"{node.immediate_dominator.node_id}->{node.node_id};\n")
 
             f.write("}\n")
 
@@ -1449,10 +1429,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         Returns:
             bool: True if the variable is read
         """
-        variables_reads = [
-            n.variables_read for n in self.nodes if n.contains_if()]
-        variables_read = [
-            item for sublist in variables_reads for item in sublist]
+        variables_reads = [n.variables_read for n in self.nodes if n.contains_if()]
+        variables_read = [item for sublist in variables_reads for item in sublist]
         return variable in variables_read
 
     def is_reading_in_require_or_assert(self, variable: "Variable") -> bool:
@@ -1463,10 +1441,8 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         Returns:
             bool: True if the variable is read
         """
-        variables_reads = [
-            n.variables_read for n in self.nodes if n.contains_require_or_assert()]
-        variables_read = [
-            item for sublist in variables_reads for item in sublist]
+        variables_reads = [n.variables_read for n in self.nodes if n.contains_require_or_assert()]
+        variables_read = [item for sublist in variables_reads for item in sublist]
         return variable in variables_read
 
     def is_writing(self, variable: "Variable") -> bool:
@@ -1508,12 +1484,10 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             if "onlyOwner" in [m.name for m in self.modifiers]:
                 self._is_protected = True
                 return True
-            conditional_vars = self.all_conditional_solidity_variables_read(
-                include_loop=False)
+            conditional_vars = self.all_conditional_solidity_variables_read(include_loop=False)
             args_vars = self.all_solidity_variables_used_as_args()
             self._is_protected = (
-                SolidityVariableComposed(
-                    "msg.sender") in conditional_vars + args_vars
+                SolidityVariableComposed("msg.sender") in conditional_vars + args_vars
             )
         return self._is_protected
 
@@ -1523,7 +1497,9 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         Determine if the function can be re-entered
         """
         # TODO: compare with hash of known nonReentrant modifier instead of the name
-        if "nonReentrant" in [m.name for m in self.modifiers]:
+        if "nonReentrant" in [m.name for m in self.modifiers] or "nonreentrant(lock)" in [
+            m.name for m in self.modifiers
+        ]:
             return False
 
         if self.visibility in ["public", "external"]:
@@ -1591,8 +1567,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         self._state_vars_written = [
             x for x in self.variables_written if isinstance(x, StateVariable)
         ]
-        self._state_vars_read = [
-            x for x in self.variables_read if isinstance(x, StateVariable)]
+        self._state_vars_read = [x for x in self.variables_read if isinstance(x, StateVariable)]
         self._solidity_vars_read = [
             x for x in self.variables_read if isinstance(x, SolidityVariable)
         ]
@@ -1601,8 +1576,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         slithir_variables = [x.slithir_variables for x in self.nodes]
         slithir_variables = [x for x in slithir_variables if x]
-        self._slithir_variables = [
-            item for sublist in slithir_variables for item in sublist]
+        self._slithir_variables = [item for sublist in slithir_variables for item in sublist]
 
     def _analyze_calls(self) -> None:
         calls = [x.calls_as_expression for x in self.nodes]
@@ -1612,23 +1586,19 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
 
         internal_calls = [x.internal_calls for x in self.nodes]
         internal_calls = [x for x in internal_calls if x]
-        internal_calls = [
-            item for sublist in internal_calls for item in sublist]
+        internal_calls = [item for sublist in internal_calls for item in sublist]
         self._internal_calls = list(set(internal_calls))
 
-        self._solidity_calls = [
-            c for c in internal_calls if isinstance(c, SolidityFunction)]
+        self._solidity_calls = [c for c in internal_calls if isinstance(c, SolidityFunction)]
 
         low_level_calls = [x.low_level_calls for x in self.nodes]
         low_level_calls = [x for x in low_level_calls if x]
-        low_level_calls = [
-            item for sublist in low_level_calls for item in sublist]
+        low_level_calls = [item for sublist in low_level_calls for item in sublist]
         self._low_level_calls = list(set(low_level_calls))
 
         high_level_calls = [x.high_level_calls for x in self.nodes]
         high_level_calls = [x for x in high_level_calls if x]
-        high_level_calls = [
-            item for sublist in high_level_calls for item in sublist]
+        high_level_calls = [item for sublist in high_level_calls for item in sublist]
         self._high_level_calls = list(set(high_level_calls))
 
         library_calls = [x.library_calls for x in self.nodes]
@@ -1636,15 +1606,12 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         library_calls = [item for sublist in library_calls for item in sublist]
         self._library_calls = list(set(library_calls))
 
-        external_calls_as_expressions = [
-            x.external_calls_as_expressions for x in self.nodes]
-        external_calls_as_expressions = [
-            x for x in external_calls_as_expressions if x]
+        external_calls_as_expressions = [x.external_calls_as_expressions for x in self.nodes]
+        external_calls_as_expressions = [x for x in external_calls_as_expressions if x]
         external_calls_as_expressions = [
             item for sublist in external_calls_as_expressions for item in sublist
         ]
-        self._external_calls_as_expressions = list(
-            set(external_calls_as_expressions))
+        self._external_calls_as_expressions = list(set(external_calls_as_expressions))
 
     # endregion
     ###################################################################################
@@ -1764,8 +1731,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             for ir in node.irs_ssa:
                 if node == self.entry_point:
                     if isinstance(ir.lvalue, StateIRVariable):
-                        additional = [
-                            initial_state_variables_instances[ir.lvalue.canonical_name]]
+                        additional = [initial_state_variables_instances[ir.lvalue.canonical_name]]
                         additional += last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
                     # function parameter
@@ -1773,29 +1739,26 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
                         # find index of the parameter
                         idx = self.parameters.index(ir.lvalue.non_ssa_version)
                         # find non ssa version of that index
-                        additional = [n.ir.arguments[idx]
-                                      for n in self.reachable_from_nodes]
+                        additional = [n.ir.arguments[idx] for n in self.reachable_from_nodes]
                         additional = unroll(additional)
-                        additional = [
-                            a for a in additional if not isinstance(a, Constant)]
+                        additional = [a for a in additional if not isinstance(a, Constant)]
                         ir.rvalues = list(set(additional + ir.rvalues))
                 if isinstance(ir, PhiCallback):
                     callee_ir = ir.callee_ir
                     if isinstance(callee_ir, InternalCall):
                         last_ssa = callee_ir.function.get_last_ssa_state_variables_instances()
                         if ir.lvalue.canonical_name in last_ssa:
-                            ir.rvalues = list(
-                                last_ssa[ir.lvalue.canonical_name])
+                            ir.rvalues = list(last_ssa[ir.lvalue.canonical_name])
                         else:
                             ir.rvalues = [ir.lvalue]
                     else:
                         additional = last_state_variables_instances[ir.lvalue.canonical_name]
                         ir.rvalues = list(set(additional + ir.rvalues))
 
-            node.irs_ssa = [
-                ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
+            node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
+
         for node in self.nodes:
             node.slithir_generation()
 

@@ -43,8 +43,7 @@ class SolidityCall(Call, OperationWithLValue):
             and isinstance(self.arguments[1], list)
         ):
             args = (
-                str(self.arguments[0]) + "(" + ",".join([str(a)
-                                                         for a in self.arguments[1]]) + ")"
+                str(self.arguments[0]) + "(" + ",".join([str(a) for a in self.arguments[1]]) + ")"
             )
         else:
             args = ",".join([str(a) for a in self.arguments])

@@ -363,15 +363,12 @@ def compute_dependency_contract(
         compute_dependency_function(function)
 
         propagate_function(contract, function, KEY_SSA, KEY_NON_SSA)
-        propagate_function(contract, function,
-                           KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
+        propagate_function(contract, function, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
 
         # pylint: disable=expression-not-assigned
         if function.visibility in ["public", "external"]:
-            [compilation_unit.context[KEY_INPUT].add(
-                p) for p in function.parameters]
-            [compilation_unit.context[KEY_INPUT_SSA].add(
-                p) for p in function.parameters_ssa]
+            [compilation_unit.context[KEY_INPUT].add(p) for p in function.parameters]
+            [compilation_unit.context[KEY_INPUT_SSA].add(p) for p in function.parameters_ssa]
 
     propagate_contract(contract, KEY_SSA, KEY_NON_SSA)
     propagate_contract(contract, KEY_SSA_UNPROTECTED, KEY_NON_SSA_UNPROTECTED)
@@ -401,16 +398,14 @@ def transitive_close_dependencies(
         to_add = defaultdict(set)
         for key, items in context.context[context_key].items():
             for item in items & keys:
-                to_add[key].update(
-                    context.context[context_key][item] - {key} - items)
+                to_add[key].update(context.context[context_key][item] - {key} - items)
         for k, v in to_add.items():
             # Because we dont have any check on the update operation
             # We might update an empty set with an empty set
             if v:
                 changed = True
                 context.context[context_key][k] |= v
-    context.context[context_key_non_ssa] = convert_to_non_ssa(
-        context.context[context_key])
+    context.context[context_key_non_ssa] = convert_to_non_ssa(context.context[context_key])
 
 
 def propagate_contract(contract: Contract, context_key: str, context_key_non_ssa: str) -> None:
@@ -422,8 +417,7 @@ def add_dependency(lvalue: Variable, function: Function, ir: Operation, is_prote
         function.context[KEY_SSA][lvalue] = set()
         if not is_protected:
             function.context[KEY_SSA_UNPROTECTED][lvalue] = set()
-    read: Union[List[Union[LVALUE, SolidityVariableComposed]],
-                List[SlithIRVariable]]
+    read: Union[List[Union[LVALUE, SolidityVariableComposed]], List[SlithIRVariable]]
     if isinstance(ir, Index):
         read = [ir.variable_left]
     elif isinstance(ir, InternalCall) and ir.function:
@@ -458,8 +452,7 @@ def compute_dependency_function(function: Function) -> None:
                         add_dependency(lvalue, function, ir, is_protected)
                 add_dependency(ir.lvalue, function, ir, is_protected)
 
-    function.context[KEY_NON_SSA] = convert_to_non_ssa(
-        function.context[KEY_SSA])
+    function.context[KEY_NON_SSA] = convert_to_non_ssa(function.context[KEY_SSA])
     function.context[KEY_NON_SSA_UNPROTECTED] = convert_to_non_ssa(
         function.context[KEY_SSA_UNPROTECTED]
     )
@@ -504,7 +497,6 @@ def convert_to_non_ssa(
         var = convert_variable_to_non_ssa(k)
         if not var in ret:
             ret[var] = set()
-        ret[var] = ret[var].union(
-            {convert_variable_to_non_ssa(v) for v in values})
+        ret[var] = ret[var].union({convert_variable_to_non_ssa(v) for v in values})
 
     return ret

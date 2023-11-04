@@ -10,8 +10,8 @@ import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
-from Crytic_compile import CryticCompile
-from Crytic_compile.naming import Filename
+from crytic_compile import CryticCompile
+from crytic_compile.utils.naming import Filename
 
 from slither_core.core.declarations.contract_level import ContractLevel
 from slither_core.core.compilation_unit import SlitherCompilationUnit
@@ -21,6 +21,7 @@ from slither_core.core.declarations.top_level import TopLevel
 from slither_core.core.source_mapping.source_mapping import SourceMapping, Source
 from slither_core.slithir.variables import Constant
 from slither_core.utils.colors import red
+from slither_core.utils.sarif import read_triage_info
 from slither_core.utils.source_mapping import get_definition, get_references, get_implementation
 
 logger = logging.getLogger("Slither")
@@ -48,6 +49,10 @@ class SlitherCore(Context):
         self._source_code_to_line: Optional[Dict[str, List[str]]] = None
 
         self._previous_results_filename: str = "slither.db.json"
+
+        # TODO: add cli flag to set these variables
+        self.sarif_input: str = "export.sarif"
+        self.sarif_triage: str = "export.sarif.sarifexplorer"
         self._results_to_hide: List = []
         self._previous_results: List = []
         # From triaged result
@@ -82,14 +87,10 @@ class SlitherCore(Context):
         self._contracts: List[Contract] = []
         self._contracts_derived: List[Contract] = []
 
-        self._offset_to_objects: Optional[Dict[Filename,
-                                               Dict[int, Set[SourceMapping]]]] = None
-        self._offset_to_references: Optional[Dict[Filename,
-                                                  Dict[int, Set[Source]]]] = None
-        self._offset_to_implementations: Optional[Dict[Filename,
-                                                       Dict[int, Set[Source]]]] = None
-        self._offset_to_definitions: Optional[Dict[Filename,
-                                                   Dict[int, Set[Source]]]] = None
+        self._offset_to_objects: Optional[Dict[Filename, Dict[int, Set[SourceMapping]]]] = None
+        self._offset_to_references: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_implementations: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
+        self._offset_to_definitions: Optional[Dict[Filename, Dict[int, Set[Source]]]] = None
 
         # Line prefix is used during the source mapping generation
         # By default we generate file.sol#1
@@ -100,6 +101,8 @@ class SlitherCore(Context):
         # If true, partial analysis is allowed
         self.no_fail = False
 
+        self.skip_data_dependency = False
+
     @property
     def compilation_units(self) -> List[SlitherCompilationUnit]:
         return list(self._compilation_units)
@@ -107,6 +110,9 @@ class SlitherCore(Context):
     def add_compilation_unit(self, compilation_unit: SlitherCompilationUnit):
         self._compilation_units.append(compilation_unit)
 
+    # endregion
+    ###################################################################################
+    ###################################################################################
     # region Contracts
     ###################################################################################
     ###################################################################################
@@ -117,8 +123,7 @@ class SlitherCore(Context):
             all_contracts = [
                 compilation_unit.contracts for compilation_unit in self._compilation_units
             ]
-            self._contracts = [
-                item for sublist in all_contracts for item in sublist]            
+            self._contracts = [item for sublist in all_contracts for item in sublist]
         return self._contracts
 
     @property
@@ -127,8 +132,7 @@ class SlitherCore(Context):
             all_contracts = [
                 compilation_unit.contracts_derived for compilation_unit in self._compilation_units
             ]
-            self._contracts_derived = [
-                item for sublist in all_contracts for item in sublist]
+            self._contracts_derived = [item for sublist in all_contracts for item in sublist]
         return self._contracts_derived
 
     def get_contract_from_name(self, contract_name: Union[str, Constant]) -> List[Contract]:
@@ -143,7 +147,7 @@ class SlitherCore(Context):
         for compilation_unit in self._compilation_units:
             contracts += compilation_unit.get_contract_from_name(contract_name)
         return contracts
-    # endregion
+
     ###################################################################################
     ###################################################################################
     # region Source code
@@ -213,12 +217,9 @@ class SlitherCore(Context):
             ):
                 self._offset_to_objects[definition.filename][offset].add(thing)
 
-            self._offset_to_definitions[definition.filename][offset].add(
-                definition)
-            self._offset_to_implementations[definition.filename][offset].add(
-                implementation)
-            self._offset_to_references[definition.filename][offset] |= set(
-                references)
+            self._offset_to_definitions[definition.filename][offset].add(definition)
+            self._offset_to_implementations[definition.filename][offset].add(implementation)
+            self._offset_to_references[definition.filename][offset] |= set(references)
 
         for ref in references:
             for offset in range(ref.start, ref.end + 1):
@@ -230,29 +231,20 @@ class SlitherCore(Context):
                         and thing.contract_declarer == thing.contract
                     )
                     or (
-                        isinstance(thing, ContractLevel) and not isinstance(
-                            thing, FunctionContract)
+                        isinstance(thing, ContractLevel) and not isinstance(thing, FunctionContract)
                     )
                 ):
-                    self._offset_to_objects[definition.filename][offset].add(
-                        thing)
+                    self._offset_to_objects[definition.filename][offset].add(thing)
 
-                self._offset_to_definitions[ref.filename][offset].add(
-                    definition)
-                self._offset_to_implementations[ref.filename][offset].add(
-                    implementation)
-                self._offset_to_references[ref.filename][offset] |= set(
-                    references)
+                self._offset_to_definitions[ref.filename][offset].add(definition)
+                self._offset_to_implementations[ref.filename][offset].add(implementation)
+                self._offset_to_references[ref.filename][offset] |= set(references)
 
     def _compute_offsets_to_ref_impl_decl(self):  # pylint: disable=too-many-branches
-        self._offset_to_references = defaultdict(
-            lambda: defaultdict(lambda: set()))
-        self._offset_to_definitions = defaultdict(
-            lambda: defaultdict(lambda: set()))
-        self._offset_to_implementations = defaultdict(
-            lambda: defaultdict(lambda: set()))
-        self._offset_to_objects = defaultdict(
-            lambda: defaultdict(lambda: set()))
+        self._offset_to_references = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_definitions = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_implementations = defaultdict(lambda: defaultdict(lambda: set()))
+        self._offset_to_objects = defaultdict(lambda: defaultdict(lambda: set()))
 
         for compilation_unit in self._compilation_units:
             for contract in compilation_unit.contracts:
@@ -316,8 +308,7 @@ class SlitherCore(Context):
         line_number = 1
         while True:
 
-            line_text = self.crytic_compile.get_code_from_line(
-                file, line_number)
+            line_text = self.crytic_compile.get_code_from_line(file, line_number)
             if line_text is None:
                 break
 
@@ -333,8 +324,7 @@ class SlitherCore(Context):
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
                             # First item in the array, or the prior item is fully populated.
-                            self._ignore_ranges[file][check].append(
-                                (line_number, float("inf")))
+                            self._ignore_ranges[file][check].append((line_number, float("inf")))
                         else:
                             logger.error(
                                 f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"
@@ -351,8 +341,7 @@ class SlitherCore(Context):
                                 f"slither-disable-end without slither-disable-start in {file}#{line_number}"
                             )
                             return
-                        self._ignore_ranges[file][check][-1] = (
-                            vals[-1][0], line_number)
+                        self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
 
             line_number += 1
 
@@ -365,8 +354,7 @@ class SlitherCore(Context):
             return False
         mapping_elements_with_lines = (
             (
-                posixpath.normpath(elem["source_mapping"]
-                                   ["filename_absolute"]),
+                posixpath.normpath(elem["source_mapping"]["filename_absolute"]),
                 elem["source_mapping"]["lines"],
             )
             for elem in r["elements"]
@@ -379,8 +367,7 @@ class SlitherCore(Context):
         for file, lines in mapping_elements_with_lines:
 
             # Check if result is within an ignored range.
-            ignore_ranges = self._ignore_ranges[file][r["check"]
-                                                      ] + self._ignore_ranges[file]["all"]
+            ignore_ranges = self._ignore_ranges[file][r["check"]] + self._ignore_ranges[file]["all"]
             for start, end in ignore_ranges:
                 # The full check must be within the ignore range to be ignored.
                 if start < lines[0] and end > lines[-1]:
@@ -388,8 +375,7 @@ class SlitherCore(Context):
 
             # Check for next-line matchers.
             ignore_line_index = min(lines) - 1
-            ignore_line_text = self.crytic_compile.get_code_from_line(
-                file, ignore_line_index)
+            ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
             if ignore_line_text:
                 match = re.findall(
                     r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)",
@@ -427,8 +413,7 @@ class SlitherCore(Context):
         # OSes. Convert to a list so elements don't get consumed and are lost
         # while evaluating the first pattern
         source_mapping_elements = list(
-            map(lambda x: pathlib.Path(x).resolve().as_posix()
-                if x else x, source_mapping_elements)
+            map(lambda x: pathlib.Path(x).resolve().as_posix() if x else x, source_mapping_elements)
         )
         matching = False
 
@@ -466,6 +451,8 @@ class SlitherCore(Context):
         return True
 
     def load_previous_results(self) -> None:
+        self.load_previous_results_from_sarif()
+
         filename = self._previous_results_filename
         try:
             if os.path.isfile(filename):
@@ -475,9 +462,23 @@ class SlitherCore(Context):
                         for r in self._previous_results:
                             if "id" in r:
                                 self._previous_results_ids.add(r["id"])
+
         except json.decoder.JSONDecodeError:
-            logger.error(
-                red(f"Impossible to decode {filename}. Consider removing the file"))
+            logger.error(red(f"Impossible to decode {filename}. Consider removing the file"))
+
+    def load_previous_results_from_sarif(self) -> None:
+        sarif = pathlib.Path(self.sarif_input)
+        triage = pathlib.Path(self.sarif_triage)
+
+        if not sarif.exists():
+            return
+        if not triage.exists():
+            return
+
+        triaged = read_triage_info(sarif, triage)
+
+        for id_triaged in triaged:
+            self._previous_results_ids.add(id_triaged)
 
     def write_results_to_hide(self) -> None:
         if not self._results_to_hide:

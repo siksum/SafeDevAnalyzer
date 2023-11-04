@@ -24,8 +24,6 @@ from slither_core.core.expressions.type_conversion import TypeConversion
 from slither_core.core.expressions.new_elementary_type import NewElementaryType
 
 # pylint: disable=protected-access
-
-
 def f_expressions(
     e: Union[AssignmentOperation, BinaryOperation, TupleExpression],
     x: Union[Identifier, Literal, MemberAccess, IndexAccess],
@@ -64,8 +62,7 @@ class SplitTernaryExpression:
             self.true_expression = copy.copy(expression)
             self.false_expression = copy.copy(expression)
             self.condition = None
-            self.copy_expression(
-                expression, self.true_expression, self.false_expression)
+            self.copy_expression(expression, self.true_expression, self.false_expression)
 
     def conditional_not_ahead(
         self,
@@ -115,18 +112,15 @@ class SplitTernaryExpression:
             return
 
         if isinstance(
-            expression, (AssignmentOperation, BinaryOperation,
-                         TupleExpression, IndexAccess)
+            expression, (AssignmentOperation, BinaryOperation, TupleExpression, IndexAccess)
         ):
             true_expression._expressions = []
             false_expression._expressions = []
-            self.convert_expressions(
-                expression, true_expression, false_expression)
+            self.convert_expressions(expression, true_expression, false_expression)
 
         elif isinstance(expression, CallExpression):
             next_expr = expression.called
-            self.convert_call_expression(
-                expression, next_expr, true_expression, false_expression)
+            self.convert_call_expression(expression, next_expr, true_expression, false_expression)
 
         elif isinstance(expression, (TypeConversion, UnaryOperation, MemberAccess)):
             next_expr = expression.expression
@@ -153,7 +147,7 @@ class SplitTernaryExpression:
         for next_expr in expression.expressions:
             # TODO: can we get rid of `NoneType` expressions in `TupleExpression`?
             # montyly: this might happen with unnamed tuple (ex: (,,,) = f()), but it needs to be checked
-            if next_expr:
+            if next_expr is not None:
 
                 if self.conditional_not_ahead(
                     next_expr, true_expression, false_expression, f_expressions
@@ -164,6 +158,9 @@ class SplitTernaryExpression:
                         true_expression.expressions[-1],
                         false_expression.expressions[-1],
                     )
+            else:
+                true_expression.expressions.append(None)
+                false_expression.expressions.append(None)
 
     def convert_index_access(
         self, next_expr: IndexAccess, true_expression: Expression, false_expression: Expression
@@ -188,8 +185,7 @@ class SplitTernaryExpression:
         # case of lib
         # (.. ? .. : ..).add
         if self.conditional_not_ahead(next_expr, true_expression, false_expression, f_called):
-            self.copy_expression(
-                next_expr, true_expression.called, false_expression.called)
+            self.copy_expression(next_expr, true_expression.called, false_expression.called)
 
         # In order to handle ternaries in both call options, gas and value, we return early if the
         # conditional is not ahead to rewrite both ternaries (see `_rewrite_ternary_as_if_else`).

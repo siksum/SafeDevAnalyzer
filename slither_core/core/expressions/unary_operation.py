@@ -46,8 +46,7 @@ class UnaryOperationType(Enum):
                 return UnaryOperationType.PLUSPLUS_POST
             if operation_type == "--":
                 return UnaryOperationType.MINUSMINUS_POST
-        raise SlitherCoreError(
-            f"get_type: Unknown operation type {operation_type}")
+        raise SlitherCoreError(f"get_type: Unknown operation type {operation_type}")
 
     def __str__(self) -> str:
         if self == UnaryOperationType.BANG:
@@ -88,8 +87,7 @@ class UnaryOperationType(Enum):
         ]:
             return False
 
-        raise SlitherCoreError(
-            f"is_prefix: Unknown operation type {operation_type}")
+        raise SlitherCoreError(f"is_prefix: Unknown operation type {operation_type}")
 
 
 class UnaryOperation(Expression):
@@ -108,8 +106,6 @@ class UnaryOperation(Expression):
             UnaryOperationType.MINUSMINUS_PRE,
             UnaryOperationType.PLUSPLUS_POST,
             UnaryOperationType.MINUSMINUS_POST,
-            UnaryOperationType.PLUS_PRE,
-            UnaryOperationType.MINUS_PRE,
         ]:
             expression.set_lvalue()
 

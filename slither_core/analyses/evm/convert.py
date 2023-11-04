@@ -20,8 +20,7 @@ def get_evm_instructions(obj):
         slither = obj.slither
 
         if not slither.crytic_compile:
-            raise SlitherError(
-                "EVM features require to compile with crytic-compile")
+            raise SlitherError("EVM features require to compile with crytic-compile")
 
         contract_info = {}
         function_info = {}
@@ -55,15 +54,13 @@ def get_evm_instructions(obj):
         # Get evm instructions
         if isinstance(obj, Contract):
             # Get evm instructions for contract
-            obj.context[KEY_EVM_INS] = _get_evm_instructions_contract(
-                contract_info)
+            obj.context[KEY_EVM_INS] = _get_evm_instructions_contract(contract_info)
 
         elif isinstance(obj, Function):
             # Get evm instructions for function
             function_info["function"] = obj
             function_info["contract_info"] = contract_info
-            obj.context[KEY_EVM_INS] = _get_evm_instructions_function(
-                function_info)
+            obj.context[KEY_EVM_INS] = _get_evm_instructions_function(function_info)
 
         else:
             # Get evm instructions for node
@@ -115,8 +112,7 @@ def _get_evm_instructions_function(function_info):
     if function_evm is None:
         to_log = "Function " + function.name + " not found in the EVM code"
         logger.error(to_log)
-        raise SlitherError("Function " + function.name +
-                           " not found in the EVM code")
+        raise SlitherError("Function " + function.name + " not found in the EVM code")
 
     function_ins = []
     for basic_block in sorted(function_evm.basic_blocks, key=lambda x: x.start.pc):
@@ -142,8 +138,7 @@ def _get_evm_instructions_node(node_info):
 
     # Get evm instructions corresponding to node's source line number
     node_source_line = (
-        contract_file[0: node_info["node"].source_mapping.start].count(
-            "\n".encode("utf-8")) + 1
+        contract_file[0 : node_info["node"].source_mapping.start].count("\n".encode("utf-8")) + 1
     )
     node_pcs = contract_pcs.get(node_source_line, [])
     node_ins = []
@@ -185,13 +180,13 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
         # If a : is missing, all following fields are considered empty.
 
         mapping_item = mapping.split(":")
-        mapping_item += prev_mapping[len(mapping_item):]
+        mapping_item += prev_mapping[len(mapping_item) :]
 
         for i, _ in enumerate(mapping_item):
             if mapping_item[i] == "":
                 mapping_item[i] = int(prev_mapping[i])
 
-        offset, _length, file_id, _ = mapping_item
+        offset, _length, file_id, *_ = mapping_item
         prev_mapping = mapping_item
 
         if file_id == "-1":
@@ -205,7 +200,6 @@ def generate_source_to_evm_ins_mapping(evm_instructions, srcmap_runtime, slither
         # Append evm instructions to the corresponding source line number
         # Note: Some evm instructions in mapping are not necessarily in program execution order
         # Note: The order depends on how solc creates the srcmap_runtime
-        source_to_evm_mapping.setdefault(
-            line_number, []).append(evm_instructions[idx].pc)
+        source_to_evm_mapping.setdefault(line_number, []).append(evm_instructions[idx].pc)
 
     return source_to_evm_mapping

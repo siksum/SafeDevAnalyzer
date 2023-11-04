@@ -60,8 +60,7 @@ Do not remove `constant` from a state variables during an update.
         state_variables_v1 = contract_v1.state_variables
         state_variables_v2 = contract_v2.state_variables
 
-        v2_additional_variables = len(
-            state_variables_v2) - len(state_variables_v1)
+        v2_additional_variables = len(state_variables_v2) - len(state_variables_v1)
         v2_additional_variables = max(v2_additional_variables, 0)
 
         # We keep two index, because we need to have them out of sync if v2
@@ -88,8 +87,7 @@ Do not remove `constant` from a state variables during an update.
                             v2_additional_variables -= 1
                             idx_v2 += 1
                             continue
-                        info: CHECK_INFO = [
-                            state_v1, " was constant, but ", state_v2, "is not.\n"]
+                        info: CHECK_INFO = [state_v1, " was constant, but ", state_v2, "is not.\n"]
                         json = self.generate_result(info)
                         results.append(json)
 
@@ -152,8 +150,7 @@ Do not make an existing state variable `constant`.
         state_variables_v1 = contract_v1.state_variables
         state_variables_v2 = contract_v2.state_variables
 
-        v2_additional_variables = len(
-            state_variables_v2) - len(state_variables_v1)
+        v2_additional_variables = len(state_variables_v2) - len(state_variables_v1)
         v2_additional_variables = max(v2_additional_variables, 0)
 
         # We keep two index, because we need to have them out of sync if v2
@@ -181,8 +178,7 @@ Do not make an existing state variable `constant`.
                             idx_v2 += 1
                             continue
                 elif state_v2.is_constant:
-                    info: CHECK_INFO = [
-                        state_v1, " was not constant but ", state_v2, " is.\n"]
+                    info: CHECK_INFO = [state_v1, " was not constant but ", state_v2, " is.\n"]
                     json = self.generate_result(info)
                     results.append(json)
 

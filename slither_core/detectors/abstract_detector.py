@@ -3,7 +3,7 @@ import re
 from logging import Logger
 from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
-from slither_core.core.compilation_unit import SlitherCompilationUnit
+from slither_core.core.compilation_unit import SlitherCompilationUnit, Language
 from slither_core.core.declarations import Contract
 from slither_core.formatters.exceptions import FormatImpossible
 from slither_core.formatters.utils.patches import apply_patch, create_diff
@@ -12,7 +12,7 @@ from slither_core.utils.comparable_enum import ComparableEnum
 from slither_core.utils.output import Output, SupportedOutput
 
 if TYPE_CHECKING:
-    from slither_core.slither import Slither
+    from slither_core import Slither
 
 
 class IncorrectDetectorInitialization(Exception):
@@ -80,6 +80,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     # list of vulnerable solc versions as strings (e.g. ["0.4.25", "0.5.0"])
     # If the detector is meant to run on all versions, use None
     VULNERABLE_SOLC_VERSIONS: Optional[List[str]] = None
+    # If the detector is meant to run on all languages, use None
+    # Otherwise, use `solidity` or `vyper`
+    LANGUAGE: Optional[str] = None
 
     def __init__(
         self, compilation_unit: SlitherCompilationUnit, slither: "Slither", logger: Logger
@@ -133,6 +136,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
             )
 
+        if self.LANGUAGE is not None and self.LANGUAGE not in [
+            Language.SOLIDITY.value,
+            Language.VYPER.value,
+        ]:
+            raise IncorrectDetectorInitialization(
+                f"LANGUAGE should not be either 'solidity' or 'vyper' {self.__class__.__name__}"
+            )
+
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization(
                 f"ARGUMENT has illegal character {self.__class__.__name__}"
@@ -164,9 +175,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.logger:
             self.logger.info(self.color(info))
 
-    def _uses_vulnerable_solc_version(self) -> bool:
+    def _is_applicable_detector(self) -> bool:
         if self.VULNERABLE_SOLC_VERSIONS:
-            return self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+            return (
+                self.compilation_unit.is_solidity
+                and self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+            )
+        if self.LANGUAGE:
+            return self.compilation_unit.language.value == self.LANGUAGE
         return True
 
     @abc.abstractmethod
@@ -179,8 +195,9 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         results: List[Dict] = []
 
         # check solc version
-        if not self._uses_vulnerable_solc_version():
+        if not self._is_applicable_detector():
             return results
+
         # only keep valid result, and remove duplicate
         # Keep only dictionaries
         for r in [output.data for output in self._detect()]:
@@ -196,8 +213,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                         continue
                     result["patches_diff"] = {}
                     for file in result["patches"]:
-                        original_txt = self.compilation_unit.core.source_code[file].encode(
-                            "utf8")
+                        original_txt = self.compilation_unit.core.source_code[file].encode("utf8")
                         patched_txt = original_txt
                         offset = 0
                         patches = result["patches"][file]
@@ -211,45 +227,40 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                             )
                             continue
                         for patch in patches:
-                            patched_txt, offset = apply_patch(
-                                patched_txt, patch, offset)
-                        diff = create_diff(
-                            self.compilation_unit, original_txt, patched_txt, file)
+                            patched_txt, offset = apply_patch(patched_txt, patch, offset)
+                        diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
                         if not diff:
-                            self._log(
-                                f"Impossible to generate patch; empty {result}")
+                            self._log(f"Impossible to generate patch; empty {result}")
                         else:
                             result["patches_diff"][file] = diff
 
                 except FormatImpossible as exception:
-                    self._log(
-                        f'\nImpossible to patch:\n\t{result["description"]}\t{exception}')
+                    self._log(f'\nImpossible to patch:\n\t{result["description"]}\t{exception}')
 
-        # if results and self.slither.triage_mode:
-        #     while True:
-        #         indexes = input(
-        #             f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results):\n'
-        #         )
-        #         if indexes == "All":
-        #             self.slither.save_results_to_hide(results)
-        #             return []
-        #         if indexes == "":
-        #             return results
-        #         if indexes.startswith("["):
-        #             indexes = indexes[1:]
-        #         if indexes.endswith("]"):
-        #             indexes = indexes[:-1]
-        #         try:
-        #             indexes_converted = [int(i) for i in indexes.split(",")]
-        #             self.slither.save_results_to_hide(
-        #                 [r for (idx, r) in enumerate(results)
-        #                  if idx in indexes_converted]
-        #             )
-        #             return [r for (idx, r) in enumerate(results) if idx not in indexes_converted]
-        #         except ValueError:
-        #             self.logger.error(
-        #                 yellow("Malformed input. Example of valid input: 0,1,2,3"))
+        if results and self.slither.triage_mode:
+            while True:
+                indexes = input(
+                    f'Results to hide during next runs: "0,1,...,{len(results)}" or "All" (enter to not hide results):\n'
+                )
+                if indexes == "All":
+                    self.slither.save_results_to_hide(results)
+                    return []
+                if indexes == "":
+                    return results
+                if indexes.startswith("["):
+                    indexes = indexes[1:]
+                if indexes.endswith("]"):
+                    indexes = indexes[:-1]
+                try:
+                    indexes_converted = [int(i) for i in indexes.split(",")]
+                    self.slither.save_results_to_hide(
+                        [r for (idx, r) in enumerate(results) if idx in indexes_converted]
+                    )
+                    return [r for (idx, r) in enumerate(results) if idx not in indexes_converted]
+                except ValueError:
+                    self.logger.error(yellow("Malformed input. Example of valid input: 0,1,2,3"))
         results = sorted(results, key=lambda x: x["id"])
+
         return results
 
     @property

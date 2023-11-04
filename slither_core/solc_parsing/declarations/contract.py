@@ -207,8 +207,7 @@ class ContractSolc(CallerContextExpression):
                     # (note: 'arguments' can be [], which is not the same as None. [] implies a constructor was
                     #  called with no arguments, while None implies no constructor was called).
                     if "arguments" in base_contract and base_contract["arguments"] is not None:
-                        self.baseConstructorContractsCalled.append(
-                            referencedDeclaration)
+                        self.baseConstructorContractsCalled.append(referencedDeclaration)
         else:
             # Parse base contracts + constructors in legacy-ast
             if "children" in self._data:
@@ -242,8 +241,7 @@ class ContractSolc(CallerContextExpression):
                         or "arguments" not in base_contract["attributes"]
                         or base_contract["attributes"]["arguments"] is not None
                     ):
-                        self.baseConstructorContractsCalled.append(
-                            referencedDeclaration)
+                        self.baseConstructorContractsCalled.append(referencedDeclaration)
 
     def _parse_contract_items(self) -> None:
         # pylint: disable=too-many-branches
@@ -273,8 +271,7 @@ class ContractSolc(CallerContextExpression):
             elif item[self.get_key()] == "UserDefinedValueTypeDefinition":
                 self._parse_type_alias(item)
             else:
-                raise ParsingError(
-                    "Unknown contract item: " + item[self.get_key()])
+                raise ParsingError("Unknown contract item: " + item[self.get_key()])
         return
 
     def _parse_type_alias(self, item: Dict) -> None:
@@ -294,11 +291,10 @@ class ContractSolc(CallerContextExpression):
         alias = item["name"]
         alias_canonical = self._contract.name + "." + item["name"]
 
-        user_defined_type = TypeAliasContract(
-            original_type, alias, self.underlying_contract)
-        user_defined_type.set_offset(item["src"], self.compilation_unit)
-        self._contract.file_scope.user_defined_types[alias] = user_defined_type
-        self._contract.file_scope.user_defined_types[alias_canonical] = user_defined_type
+        type_alias = TypeAliasContract(original_type, alias, self.underlying_contract)
+        type_alias.set_offset(item["src"], self.compilation_unit)
+        self._contract.type_aliases_as_dict[alias] = type_alias
+        self._contract.file_scope.type_aliases[alias_canonical] = type_alias
 
     def _parse_struct(self, struct: Dict) -> None:
 
@@ -323,14 +319,13 @@ class ContractSolc(CallerContextExpression):
         ce.set_contract(self._contract)
         ce.set_offset(custom_error["src"], self.compilation_unit)
 
-        ce_parser = CustomErrorSolc(ce, custom_error, self._slither_parser)
+        ce_parser = CustomErrorSolc(ce, custom_error, self, self._slither_parser)
         self._contract.custom_errors_as_dict[ce.name] = ce
         self._custom_errors_parser.append(ce_parser)
 
     def parse_custom_errors(self) -> None:
         for father in self._contract.inheritance_reverse:
-            self._contract.custom_errors_as_dict.update(
-                father.custom_errors_as_dict)
+            self._contract.custom_errors_as_dict.update(father.custom_errors_as_dict)
 
         for custom_error in self._customErrorParsed:
             self._parse_custom_error(custom_error)
@@ -355,14 +350,15 @@ class ContractSolc(CallerContextExpression):
 
         for varNotParsed in self._variablesNotParsed:
             var = StateVariable()
-            var.set_offset(varNotParsed["src"],
-                           self._contract.compilation_unit)
+            var.set_offset(varNotParsed["src"], self._contract.compilation_unit)
             var.set_contract(self._contract)
 
             var_parser = StateVariableSolc(var, varNotParsed)
             self._variables_parser.append(var_parser)
 
             assert var.name
+            if var_parser.reference_id is not None:
+                self._contract.state_variables_by_ref_id[var_parser.reference_id] = var
             self._contract.variables_as_dict[var.name] = var
             self._contract.add_variables_ordered([var])
 
@@ -372,8 +368,7 @@ class ContractSolc(CallerContextExpression):
         modif.set_contract(self._contract)
         modif.set_contract_declarer(self._contract)
 
-        modif_parser = ModifierSolc(
-            modif, modifier_data, self, self.slither_parser)  # type: ignore
+        modif_parser = ModifierSolc(modif, modifier_data, self, self.slither_parser)  # type: ignore
         self._contract.compilation_unit.add_modifier(modif)
         self._modifiers_no_params.append(modif_parser)
         self._modifiers_parser.append(modif_parser)
@@ -391,8 +386,7 @@ class ContractSolc(CallerContextExpression):
         func.set_contract(self._contract)
         func.set_contract_declarer(self._contract)
 
-        func_parser = FunctionSolc(
-            func, function_data, self, self._slither_parser)  # type: ignore
+        func_parser = FunctionSolc(func, function_data, self, self._slither_parser)  # type: ignore
         self._contract.compilation_unit.add_function(func)
         self._functions_no_params.append(func_parser)
         self._functions_parser.append(func_parser)
@@ -436,8 +430,8 @@ class ContractSolc(CallerContextExpression):
     def analyze_params_modifiers(self) -> None:
         try:
             elements_no_params = self._modifiers_no_params
-            def getter(c): return c.modifiers_parser
-            def getter_available(c): return c.modifiers_declared
+            getter = lambda c: c.modifiers_parser
+            getter_available = lambda c: c.modifiers_declared
             Cls = Modifier
             Cls_parser = ModifierSolc
             modifiers = self._analyze_params_elements(
@@ -457,8 +451,8 @@ class ContractSolc(CallerContextExpression):
     def analyze_params_functions(self) -> None:
         try:
             elements_no_params = self._functions_no_params
-            def getter(c): return c.functions_parser
-            def getter_available(c): return c.functions_declared
+            getter = lambda c: c.functions_parser
+            getter_available = lambda c: c.functions_declared
             Cls = FunctionContract
             Cls_parser = FunctionSolc
             functions = self._analyze_params_elements(
@@ -608,8 +602,7 @@ class ContractSolc(CallerContextExpression):
             if self.is_compact_ast:
                 for using_for in self._usingForNotParsed:
                     if "typeName" in using_for and using_for["typeName"]:
-                        type_name: USING_FOR_KEY = parse_type(
-                            using_for["typeName"], self)
+                        type_name: USING_FOR_KEY = parse_type(using_for["typeName"], self)
                     else:
                         type_name = "*"
                     if type_name not in self._contract.using_for:
@@ -621,8 +614,7 @@ class ContractSolc(CallerContextExpression):
                         )
                     else:
                         # We have a list of functions. A function can be topLevel or a library function
-                        self._analyze_function_list(
-                            using_for["functionList"], type_name)
+                        self._analyze_function_list(using_for["functionList"], type_name)
             else:
                 for using_for in self._usingForNotParsed:
                     children = using_for[self.get_children()]
@@ -652,14 +644,12 @@ class ContractSolc(CallerContextExpression):
                 # or a library function
                 first_part = full_name_split[0]
                 function_name = full_name_split[1]
-                self._check_aliased_import(
-                    first_part, function_name, type_name)
+                self._check_aliased_import(first_part, function_name, type_name)
             else:
                 # MyImport.MyLib.a we don't care of the alias
                 library_name = full_name_split[1]
                 function_name = full_name_split[2]
-                self._analyze_library_function(
-                    library_name, function_name, type_name)
+                self._analyze_library_function(library_name, function_name, type_name)
 
     def _check_aliased_import(
         self, first_part: str, function_name: str, type_name: USING_FOR_KEY
@@ -759,11 +749,9 @@ class ContractSolc(CallerContextExpression):
             for event_to_parse in self._eventsNotParsed:
                 event = Event()
                 event.set_contract(self._contract)
-                event.set_offset(
-                    event_to_parse["src"], self._contract.compilation_unit)
+                event.set_offset(event_to_parse["src"], self._contract.compilation_unit)
 
-                event_parser = EventSolc(
-                    event, event_to_parse, self)  # type: ignore
+                event_parser = EventSolc(event, event_to_parse, self)  # type: ignore
                 event_parser.analyze(self)  # type: ignore
                 self._contract.events_as_dict[event.full_name] = event
         except (VariableNotFound, KeyError) as e:
@@ -832,8 +820,7 @@ class ContractSolc(CallerContextExpression):
                 if "@custom:security isUpgradeable" in candidate:
                     self._contract.is_upgradeable = True
 
-                version_name = re.search(
-                    r"@custom:version name=([\w-]+)", candidate)
+                version_name = re.search(r"@custom:version name=([\w-]+)", candidate)
                 if version_name:
                     self._contract.upgradeable_version = version_name.group(1)
 

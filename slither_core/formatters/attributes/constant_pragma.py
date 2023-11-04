@@ -23,8 +23,7 @@ def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
     elements = result["elements"]
     versions_used: List[str] = []
     for element in elements:
-        versions_used.append(
-            "".join(element["type_specific_fields"]["directive"][1:]))
+        versions_used.append("".join(element["type_specific_fields"]["directive"][1:]))
     solc_version_replace = _analyse_versions(versions_used)
     for element in elements:
         _patch(
@@ -33,16 +32,14 @@ def custom_format(slither: SlitherCompilationUnit, result: Dict) -> None:
             element["source_mapping"]["filename_absolute"],
             solc_version_replace,
             element["source_mapping"]["start"],
-            element["source_mapping"]["start"] +
-            element["source_mapping"]["length"],
+            element["source_mapping"]["start"] + element["source_mapping"]["length"],
         )
 
 
 def _analyse_versions(used_solc_versions: List[str]) -> str:
     replace_solc_versions = []
     for version in used_solc_versions:
-        replace_solc_versions.append(
-            _determine_solc_version_replacement(version))
+        replace_solc_versions.append(_determine_solc_version_replacement(version))
     if not all(version == replace_solc_versions[0] for version in replace_solc_versions):
         raise FormatImpossible("Multiple incompatible versions!")
     return replace_solc_versions[0]

@@ -33,8 +33,7 @@ def _get_function_or_variable(contract, signature):
             if variable.name + "()" == signature:
                 return variable
 
-    raise SlitherError(
-        f"Function id checks: {signature} not found in {contract.name}")
+    raise SlitherError(f"Function id checks: {signature} not found in {contract.name}")
 
 
 class IDCollision(AbstractCheck):
@@ -84,10 +83,8 @@ Rename the function. Avoid public functions in the proxy.
         signatures_implem = get_signatures(self.contract)
         signatures_proxy = get_signatures(self.proxy)
 
-        signatures_ids_implem = {get_function_id(
-            s): s for s in signatures_implem}
-        signatures_ids_proxy = {get_function_id(
-            s): s for s in signatures_proxy}
+        signatures_ids_implem = {get_function_id(s): s for s in signatures_implem}
+        signatures_ids_proxy = {get_function_id(s): s for s in signatures_proxy}
 
         results = []
 
@@ -97,8 +94,7 @@ Rename the function. Avoid public functions in the proxy.
                     implem_function = _get_function_or_variable(
                         self.contract, signatures_ids_implem[k]
                     )
-                    proxy_function = _get_function_or_variable(
-                        self.proxy, signatures_ids_proxy[k])
+                    proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
                     info = [
                         "Function id collision found: ",
@@ -159,10 +155,8 @@ Rename the function. Avoid public functions in the proxy.
         signatures_implem = get_signatures(self.contract)
         signatures_proxy = get_signatures(self.proxy)
 
-        signatures_ids_implem = {get_function_id(
-            s): s for s in signatures_implem}
-        signatures_ids_proxy = {get_function_id(
-            s): s for s in signatures_proxy}
+        signatures_ids_implem = {get_function_id(s): s for s in signatures_implem}
+        signatures_ids_proxy = {get_function_id(s): s for s in signatures_proxy}
 
         results = []
 
@@ -172,8 +166,7 @@ Rename the function. Avoid public functions in the proxy.
                     implem_function = _get_function_or_variable(
                         self.contract, signatures_ids_implem[k]
                     )
-                    proxy_function = _get_function_or_variable(
-                        self.proxy, signatures_ids_proxy[k])
+                    proxy_function = _get_function_or_variable(self.proxy, signatures_ids_proxy[k])
 
                     info = [
                         "Function shadowing found: ",

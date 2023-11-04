@@ -262,8 +262,7 @@ class FunctionSolc(CallerContextExpression):
             # But from Solidity 0.6.3 to 0.6.10 (included)
             # Comment above a function might be added in the children
             child_iter = iter(
-                [child for child in children if child[self.get_key()] ==
-                 "ParameterList"]
+                [child for child in children if child[self.get_key()] == "ParameterList"]
             )
             params = next(child_iter)
             returns = next(child_iter)
@@ -316,6 +315,9 @@ class FunctionSolc(CallerContextExpression):
 
         self._remove_alone_endif()
 
+        if self._function.entry_point:
+            self._update_reachability(self._function.entry_point)
+
     # endregion
     ###################################################################################
     ###################################################################################
@@ -355,7 +357,7 @@ class FunctionSolc(CallerContextExpression):
     ###################################################################################
     ###################################################################################
 
-    def _parse_if(self, if_statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_if(self, if_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         # IfStatement = 'if' '(' Expression ')' Statement ( 'else' Statement )?
         falseStatement = None
 
@@ -363,21 +365,15 @@ class FunctionSolc(CallerContextExpression):
             condition = if_statement["condition"]
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(
-                NodeType.IF, condition["src"], node.underlying_node.scope
-            )
+            condition_node = self._new_node(NodeType.IF, condition["src"], scope)
             condition_node.add_unparsed_expression(condition)
             link_underlying_nodes(node, condition_node)
-            true_scope = Scope(
-                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-            )
+            true_scope = Scope(scope.is_checked, False, scope)
             trueStatement = self._parse_statement(
                 if_statement["trueBody"], condition_node, true_scope
             )
             if "falseBody" in if_statement and if_statement["falseBody"]:
-                false_scope = Scope(
-                    node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-                )
+                false_scope = Scope(scope.is_checked, False, scope)
                 falseStatement = self._parse_statement(
                     if_statement["falseBody"], condition_node, false_scope
                 )
@@ -386,25 +382,16 @@ class FunctionSolc(CallerContextExpression):
             condition = children[0]
             # Note: check if the expression could be directly
             # parsed here
-            condition_node = self._new_node(
-                NodeType.IF, condition["src"], node.underlying_node.scope
-            )
+            condition_node = self._new_node(NodeType.IF, condition["src"], scope)
             condition_node.add_unparsed_expression(condition)
             link_underlying_nodes(node, condition_node)
-            true_scope = Scope(
-                node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-            )
-            trueStatement = self._parse_statement(
-                children[1], condition_node, true_scope)
+            true_scope = Scope(scope.is_checked, False, scope)
+            trueStatement = self._parse_statement(children[1], condition_node, true_scope)
             if len(children) == 3:
-                false_scope = Scope(
-                    node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-                )
-                falseStatement = self._parse_statement(
-                    children[2], condition_node, false_scope)
+                false_scope = Scope(scope.is_checked, False, scope)
+                falseStatement = self._parse_statement(children[2], condition_node, false_scope)
 
-        endIf_node = self._new_node(
-            NodeType.ENDIF, if_statement["src"], node.underlying_node.scope)
+        endIf_node = self._new_node(NodeType.ENDIF, if_statement["src"], scope)
         link_underlying_nodes(trueStatement, endIf_node)
 
         if falseStatement:
@@ -413,36 +400,26 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(condition_node, endIf_node)
         return endIf_node
 
-    def _parse_while(self, whilte_statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_while(self, whilte_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         # WhileStatement = 'while' '(' Expression ')' Statement
 
-        node_startWhile = self._new_node(
-            NodeType.STARTLOOP, whilte_statement["src"], node.underlying_node.scope
-        )
+        node_startWhile = self._new_node(NodeType.STARTLOOP, whilte_statement["src"], scope)
 
-        body_scope = Scope(node.underlying_node.scope.is_checked,
-                           False, node.underlying_node.scope)
+        body_scope = Scope(scope.is_checked, False, scope)
         if self.is_compact_ast:
             node_condition = self._new_node(
-                NodeType.IFLOOP, whilte_statement["condition"]["src"], node.underlying_node.scope
+                NodeType.IFLOOP, whilte_statement["condition"]["src"], scope
             )
-            node_condition.add_unparsed_expression(
-                whilte_statement["condition"])
-            statement = self._parse_statement(
-                whilte_statement["body"], node_condition, body_scope)
+            node_condition.add_unparsed_expression(whilte_statement["condition"])
+            statement = self._parse_statement(whilte_statement["body"], node_condition, body_scope)
         else:
             children = whilte_statement[self.get_children("children")]
             expression = children[0]
-            node_condition = self._new_node(
-                NodeType.IFLOOP, expression["src"], node.underlying_node.scope
-            )
+            node_condition = self._new_node(NodeType.IFLOOP, expression["src"], scope)
             node_condition.add_unparsed_expression(expression)
-            statement = self._parse_statement(
-                children[1], node_condition, body_scope)
+            statement = self._parse_statement(children[1], node_condition, body_scope)
 
-        node_endWhile = self._new_node(
-            NodeType.ENDLOOP, whilte_statement["src"], node.underlying_node.scope
-        )
+        node_endWhile = self._new_node(NodeType.ENDLOOP, whilte_statement["src"], scope)
 
         link_underlying_nodes(node, node_startWhile)
         link_underlying_nodes(node_startWhile, node_condition)
@@ -548,8 +525,7 @@ class FunctionSolc(CallerContextExpression):
                         node_start = int(children[0]["src"].split(":")[0])
                         node_end = node_start + node_len
 
-                        for_start = int(statement["src"].split(
-                            ":")[0]) + 3  # trim off the 'for'
+                        for_start = int(statement["src"].split(":")[0]) + 3  # trim off the 'for'
                         body_start = int(body["src"].split(":")[0])
 
                         dist_start = node_start - for_start
@@ -571,7 +547,7 @@ class FunctionSolc(CallerContextExpression):
 
         return pre, cond, post, body
 
-    def _parse_for(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_for(self, statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         # ForStatement = 'for' '(' (SimpleStatement)? ';' (Expression)? ';' (ExpressionStatement)? ')' Statement
 
         if self.is_compact_ast:
@@ -579,18 +555,13 @@ class FunctionSolc(CallerContextExpression):
         else:
             pre, cond, post, body = self._parse_for_legacy_ast(statement)
 
-        node_startLoop = self._new_node(
-            NodeType.STARTLOOP, statement["src"], node.underlying_node.scope
-        )
-        node_endLoop = self._new_node(
-            NodeType.ENDLOOP, statement["src"], node.underlying_node.scope
-        )
+        node_startLoop = self._new_node(NodeType.STARTLOOP, statement["src"], scope)
+        node_endLoop = self._new_node(NodeType.ENDLOOP, statement["src"], scope)
 
-        last_scope = node.underlying_node.scope
+        last_scope = scope
 
         if pre:
-            pre_scope = Scope(
-                node.underlying_node.scope.is_checked, False, last_scope)
+            pre_scope = Scope(scope.is_checked, False, last_scope)
             last_scope = pre_scope
             node_init_expression = self._parse_statement(pre, node, pre_scope)
             link_underlying_nodes(node_init_expression, node_startLoop)
@@ -598,11 +569,9 @@ class FunctionSolc(CallerContextExpression):
             link_underlying_nodes(node, node_startLoop)
 
         if cond:
-            cond_scope = Scope(
-                node.underlying_node.scope.is_checked, False, last_scope)
+            cond_scope = Scope(scope.is_checked, False, last_scope)
             last_scope = cond_scope
-            node_condition = self._new_node(
-                NodeType.IFLOOP, cond["src"], cond_scope)
+            node_condition = self._new_node(NodeType.IFLOOP, cond["src"], cond_scope)
             node_condition.add_unparsed_expression(cond)
             link_underlying_nodes(node_startLoop, node_condition)
 
@@ -611,14 +580,12 @@ class FunctionSolc(CallerContextExpression):
             node_condition = None
             node_beforeBody = node_startLoop
 
-        body_scope = Scope(
-            node.underlying_node.scope.is_checked, False, last_scope)
+        body_scope = Scope(scope.is_checked, False, last_scope)
         last_scope = body_scope
         node_body = self._parse_statement(body, node_beforeBody, body_scope)
 
         if post:
-            node_loopexpression = self._parse_statement(
-                post, node_body, last_scope)
+            node_loopexpression = self._parse_statement(post, node_body, last_scope)
             link_underlying_nodes(node_loopexpression, node_beforeBody)
         else:
             # node_loopexpression = None
@@ -633,21 +600,16 @@ class FunctionSolc(CallerContextExpression):
 
         return node_endLoop
 
-    def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_dowhile(self, do_while_statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
 
-        node_startDoWhile = self._new_node(
-            NodeType.STARTLOOP, do_while_statement["src"], node.underlying_node.scope
-        )
-        condition_scope = Scope(
-            node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-        )
+        node_startDoWhile = self._new_node(NodeType.STARTLOOP, do_while_statement["src"], scope)
+        condition_scope = Scope(scope.is_checked, False, scope)
 
         if self.is_compact_ast:
             node_condition = self._new_node(
                 NodeType.IFLOOP, do_while_statement["condition"]["src"], condition_scope
             )
-            node_condition.add_unparsed_expression(
-                do_while_statement["condition"])
+            node_condition.add_unparsed_expression(do_while_statement["condition"])
             statement = self._parse_statement(
                 do_while_statement["body"], node_condition, condition_scope
             )
@@ -655,16 +617,12 @@ class FunctionSolc(CallerContextExpression):
             children = do_while_statement[self.get_children("children")]
             # same order in the AST as while
             expression = children[0]
-            node_condition = self._new_node(
-                NodeType.IFLOOP, expression["src"], condition_scope)
+            node_condition = self._new_node(NodeType.IFLOOP, expression["src"], condition_scope)
             node_condition.add_unparsed_expression(expression)
-            statement = self._parse_statement(
-                children[1], node_condition, condition_scope)
+            statement = self._parse_statement(children[1], node_condition, condition_scope)
 
-        body_scope = Scope(
-            node.underlying_node.scope.is_checked, False, condition_scope)
-        node_endDoWhile = self._new_node(
-            NodeType.ENDLOOP, do_while_statement["src"], body_scope)
+        body_scope = Scope(scope.is_checked, False, condition_scope)
+        node_endDoWhile = self._new_node(NodeType.ENDLOOP, do_while_statement["src"], body_scope)
 
         link_underlying_nodes(node, node_startDoWhile)
         # empty block, loop from the start to the condition
@@ -679,62 +637,134 @@ class FunctionSolc(CallerContextExpression):
         link_underlying_nodes(node_condition, node_endDoWhile)
         return node_endDoWhile
 
-    def _parse_try_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    # pylint: disable=no-self-use
+    def _construct_try_expression(self, externalCall: Dict, parameters_list: Dict) -> Dict:
+        # if the parameters are more than 1 we make the leftHandSide of the Assignment node
+        # a TupleExpression otherwise an Identifier
+
+        # case when there isn't returns(...)
+        # e.g. external call that doesn't have any return variable
+        if not parameters_list:
+            return externalCall
+
+        ret: Dict = {"nodeType": "Assignment", "operator": "=", "src": parameters_list["src"]}
+
+        parameters = parameters_list.get("parameters", None)
+
+        # if the name is "" it means the return variable is not used
+        if len(parameters) == 1:
+            if parameters[0]["name"] != "":
+                self._add_param(parameters[0])
+                ret["typeDescriptions"] = {
+                    "typeString": parameters[0]["typeName"]["typeDescriptions"]["typeString"]
+                }
+                leftHandSide = {
+                    "name": parameters[0]["name"],
+                    "nodeType": "Identifier",
+                    "src": parameters[0]["src"],
+                    "referencedDeclaration": parameters[0]["id"],
+                    "typeDescriptions": parameters[0]["typeDescriptions"],
+                }
+            else:
+                # we don't need an Assignment so we return only the external call
+                return externalCall
+        else:
+            ret["typeDescriptions"] = {"typeString": "tuple()"}
+            leftHandSide = {
+                "components": [],
+                "nodeType": "TupleExpression",
+                "src": parameters_list["src"],
+            }
+
+            for i, p in enumerate(parameters):
+                if p["name"] == "":
+                    continue
+
+                new_statement = {
+                    "nodeType": "VariableDefinitionStatement",
+                    "src": p["src"],
+                    "declarations": [p],
+                }
+                self._add_param_init_tuple(new_statement, i)
+
+                ident = {
+                    "name": p["name"],
+                    "nodeType": "Identifier",
+                    "src": p["src"],
+                    "referencedDeclaration": p["id"],
+                    "typeDescriptions": p["typeDescriptions"],
+                }
+                leftHandSide["components"].append(ident)
+
+        ret["leftHandSide"] = leftHandSide
+        ret["rightHandSide"] = externalCall
+
+        return ret
+
+    def _parse_try_catch(self, statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         externalCall = statement.get("externalCall", None)
 
         if externalCall is None:
-            raise ParsingError(
-                f"Try/Catch not correctly parsed by Slither {statement}")
-        catch_scope = Scope(
-            node.underlying_node.scope.is_checked, False, node.underlying_node.scope
-        )
+            raise ParsingError(f"Try/Catch not correctly parsed by Slither {statement}")
+        catch_scope = Scope(scope.is_checked, False, scope)
         new_node = self._new_node(NodeType.TRY, statement["src"], catch_scope)
-        new_node.add_unparsed_expression(externalCall)
+        clauses = statement.get("clauses", [])
+        # the first clause is the try scope
+        returned_variables = clauses[0].get("parameters", None)
+        constructed_try_expression = self._construct_try_expression(
+            externalCall, returned_variables
+        )
+        new_node.add_unparsed_expression(constructed_try_expression)
         link_underlying_nodes(node, new_node)
         node = new_node
 
-        for clause in statement.get("clauses", []):
-            self._parse_catch(clause, node)
+        for index, clause in enumerate(clauses):
+            # clauses after the first one are related to catch cases
+            # we set the parameters (e.g. data in this case. catch(string memory data) ...)
+            # to be initialized so they are not reported by the uninitialized-local-variables detector
+            if index >= 1:
+                self._parse_catch(clause, node, catch_scope, True)
+            else:
+                # the parameters for the try scope were already added in _construct_try_expression
+                self._parse_catch(clause, node, catch_scope, False)
         return node
 
-    def _parse_catch(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_catch(
+        self, statement: Dict, node: NodeSolc, scope: Scope, add_param: bool
+    ) -> NodeSolc:
         block = statement.get("block", None)
 
         if block is None:
-            raise ParsingError(
-                f"Catch not correctly parsed by Slither {statement}")
-        try_scope = Scope(node.underlying_node.scope.is_checked,
-                          False, node.underlying_node.scope)
+            raise ParsingError(f"Catch not correctly parsed by Slither {statement}")
+        try_scope = Scope(scope.is_checked, False, scope)
 
         try_node = self._new_node(NodeType.CATCH, statement["src"], try_scope)
         link_underlying_nodes(node, try_node)
 
-        if self.is_compact_ast:
-            params = statement.get("parameters", None)
-        else:
-            params = statement[self.get_children("children")]
+        if add_param:
+            if self.is_compact_ast:
+                params = statement.get("parameters", None)
+            else:
+                params = statement[self.get_children("children")]
 
-        if params:
-            for param in params.get("parameters", []):
-                assert param[self.get_key()] == "VariableDeclaration"
-                self._add_param(param)
+            if params:
+                for param in params.get("parameters", []):
+                    assert param[self.get_key()] == "VariableDeclaration"
+                    self._add_param(param, True)
 
         return self._parse_statement(block, try_node, try_scope)
 
-    def _parse_variable_definition(self, statement: Dict, node: NodeSolc) -> NodeSolc:
+    def _parse_variable_definition(self, statement: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         try:
             local_var = LocalVariable()
             local_var.set_function(self._function)
-            local_var.set_offset(
-                statement["src"], self._function.compilation_unit)
+            local_var.set_offset(statement["src"], self._function.compilation_unit)
 
             local_var_parser = LocalVariableSolc(local_var, statement)
             self._add_local_variable(local_var_parser)
             # local_var.analyze(self)
 
-            new_node = self._new_node(
-                NodeType.VARIABLE, statement["src"], node.underlying_node.scope
-            )
+            new_node = self._new_node(NodeType.VARIABLE, statement["src"], scope)
             new_node.underlying_node.add_variable_declaration(local_var)
             link_underlying_nodes(node, new_node)
             return new_node
@@ -764,8 +794,7 @@ class FunctionSolc(CallerContextExpression):
                             "declarations": [variable],
                             "initialValue": init,
                         }
-                        new_node = self._parse_variable_definition(
-                            new_statement, new_node)
+                        new_node = self._parse_variable_definition(new_statement, new_node, scope)
 
                 else:
                     # If we have
@@ -787,7 +816,7 @@ class FunctionSolc(CallerContextExpression):
                             variables.append(variable)
 
                             new_node = self._parse_variable_definition_init_tuple(
-                                new_statement, i, new_node
+                                new_statement, i, new_node, scope
                             )
                         i = i + 1
 
@@ -819,9 +848,7 @@ class FunctionSolc(CallerContextExpression):
                         "typeDescriptions": {"typeString": "tuple()"},
                     }
                     node = new_node
-                    new_node = self._new_node(
-                        NodeType.EXPRESSION, statement["src"], node.underlying_node.scope
-                    )
+                    new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
                     new_node.add_unparsed_expression(expression)
                     link_underlying_nodes(node, new_node)
 
@@ -840,8 +867,7 @@ class FunctionSolc(CallerContextExpression):
                 i = 0
                 new_node = node
                 if tuple_vars[self.get_key()] == "TupleExpression":
-                    assert len(
-                        tuple_vars[self.get_children("children")]) == count
+                    assert len(tuple_vars[self.get_children("children")]) == count
                     for variable in variables_declaration:
                         init = tuple_vars[self.get_children("children")][i]
                         src = variable["src"]
@@ -853,15 +879,13 @@ class FunctionSolc(CallerContextExpression):
                             self.get_children("children"): [variable, init],
                         }
 
-                        new_node = self._parse_variable_definition(
-                            new_statement, new_node)
+                        new_node = self._parse_variable_definition(new_statement, new_node, scope)
                 else:
                     # If we have
                     # var (a, b) = f()
                     # we can split in multiple declarations, without init
                     # Then we craft one expression that does the assignment
-                    assert tuple_vars[self.get_key()] in [
-                        "FunctionCall", "Conditional"]
+                    assert tuple_vars[self.get_key()] in ["FunctionCall", "Conditional"]
                     variables = []
                     for variable in variables_declaration:
                         src = variable["src"]
@@ -874,7 +898,7 @@ class FunctionSolc(CallerContextExpression):
                         variables.append(variable)
 
                         new_node = self._parse_variable_definition_init_tuple(
-                            new_statement, i, new_node
+                            new_statement, i, new_node, scope
                         )
                         i = i + 1
                     var_identifiers = []
@@ -904,28 +928,24 @@ class FunctionSolc(CallerContextExpression):
                         ],
                     }
                     node = new_node
-                    new_node = self._new_node(
-                        NodeType.EXPRESSION, statement["src"], node.underlying_node.scope
-                    )
+                    new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
                     new_node.add_unparsed_expression(expression)
                     link_underlying_nodes(node, new_node)
 
             return new_node
 
     def _parse_variable_definition_init_tuple(
-        self, statement: Dict, index: int, node: NodeSolc
+        self, statement: Dict, index: int, node: NodeSolc, scope
     ) -> NodeSolc:
         local_var = LocalVariableInitFromTuple()
         local_var.set_function(self._function)
         local_var.set_offset(statement["src"], self._function.compilation_unit)
 
-        local_var_parser = LocalVariableInitFromTupleSolc(
-            local_var, statement, index)
+        local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
 
         self._add_local_variable(local_var_parser)
 
-        new_node = self._new_node(
-            NodeType.VARIABLE, statement["src"], node.underlying_node.scope)
+        new_node = self._new_node(NodeType.VARIABLE, statement["src"], scope)
         new_node.underlying_node.add_variable_declaration(local_var)
         link_underlying_nodes(node, new_node)
         return new_node
@@ -946,15 +966,15 @@ class FunctionSolc(CallerContextExpression):
         name = statement[self.get_key()]
         # SimpleStatement = VariableDefinition | ExpressionStatement
         if name == "IfStatement":
-            node = self._parse_if(statement, node)
+            node = self._parse_if(statement, node, scope)
         elif name == "WhileStatement":
-            node = self._parse_while(statement, node)
+            node = self._parse_while(statement, node, scope)
         elif name == "ForStatement":
-            node = self._parse_for(statement, node)
+            node = self._parse_for(statement, node, scope)
         elif name == "Block":
-            node = self._parse_block(statement, node)
+            node = self._parse_block(statement, node, scope)
         elif name == "UncheckedBlock":
-            node = self._parse_unchecked_block(statement, node)
+            node = self._parse_unchecked_block(statement, node, scope)
         elif name == "InlineAssembly":
             # Added with solc 0.6 - the yul code is an AST
             if "AST" in statement and not self.compilation_unit.core.skip_assembly:
@@ -966,39 +986,35 @@ class FunctionSolc(CallerContextExpression):
                 # technically, entrypoint and exitpoint are YulNodes and we should be returning a NodeSolc here
                 # but they both expose an underlying_node so oh well
                 link_underlying_nodes(node, entrypoint)
-                node = exitpoint
+                end_assembly = self._new_node(NodeType.ENDASSEMBLY, statement["src"], scope)
+                link_underlying_nodes(exitpoint, end_assembly)
+                node = end_assembly
             else:
-                asm_node = self._new_node(
-                    NodeType.ASSEMBLY, statement["src"], scope)
+                asm_node = self._new_node(NodeType.ASSEMBLY, statement["src"], scope)
                 self._function.contains_assembly = True
                 # Added with solc 0.4.12
                 if "operations" in statement:
-                    asm_node.underlying_node.add_inline_asm(
-                        statement["operations"])
+                    asm_node.underlying_node.add_inline_asm(statement["operations"])
                 link_underlying_nodes(node, asm_node)
                 node = asm_node
         elif name == "DoWhileStatement":
-            node = self._parse_dowhile(statement, node)
+            node = self._parse_dowhile(statement, node, scope)
         # For Continue / Break / Return / Throw
         # The is fixed later
         elif name == "Continue":
-            continue_node = self._new_node(
-                NodeType.CONTINUE, statement["src"], scope)
+            continue_node = self._new_node(NodeType.CONTINUE, statement["src"], scope)
             link_underlying_nodes(node, continue_node)
             node = continue_node
         elif name == "Break":
-            break_node = self._new_node(
-                NodeType.BREAK, statement["src"], scope)
+            break_node = self._new_node(NodeType.BREAK, statement["src"], scope)
             link_underlying_nodes(node, break_node)
             node = break_node
         elif name == "Return":
-            return_node = self._new_node(
-                NodeType.RETURN, statement["src"], scope)
+            return_node = self._new_node(NodeType.RETURN, statement["src"], scope)
             link_underlying_nodes(node, return_node)
             if self.is_compact_ast:
                 if statement.get("expression", None):
-                    return_node.add_unparsed_expression(
-                        statement["expression"])
+                    return_node.add_unparsed_expression(statement["expression"])
             else:
                 if (
                     self.get_children("children") in statement
@@ -1009,8 +1025,7 @@ class FunctionSolc(CallerContextExpression):
                     return_node.add_unparsed_expression(expression)
             node = return_node
         elif name == "Throw":
-            throw_node = self._new_node(
-                NodeType.THROW, statement["src"], scope)
+            throw_node = self._new_node(NodeType.THROW, statement["src"], scope)
             link_underlying_nodes(node, throw_node)
             node = throw_node
         elif name == "EmitStatement":
@@ -1019,13 +1034,12 @@ class FunctionSolc(CallerContextExpression):
                 expression = statement["eventCall"]
             else:
                 expression = statement[self.get_children("children")][0]
-            new_node = self._new_node(
-                NodeType.EXPRESSION, statement["src"], scope)
+            new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
             new_node.add_unparsed_expression(expression)
             link_underlying_nodes(node, new_node)
             node = new_node
         elif name in ["VariableDefinitionStatement", "VariableDeclarationStatement"]:
-            node = self._parse_variable_definition(statement, node)
+            node = self._parse_variable_definition(statement, node, scope)
         elif name == "ExpressionStatement":
             # assert len(statement[self.get_children('expression')]) == 1
             # assert not 'attributes' in statement
@@ -1034,13 +1048,12 @@ class FunctionSolc(CallerContextExpression):
                 expression = statement[self.get_children("expression")]
             else:
                 expression = statement[self.get_children("expression")][0]
-            new_node = self._new_node(
-                NodeType.EXPRESSION, statement["src"], scope)
+            new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
             new_node.add_unparsed_expression(expression)
             link_underlying_nodes(node, new_node)
             node = new_node
         elif name == "TryStatement":
-            node = self._parse_try_catch(statement, node)
+            node = self._parse_try_catch(statement, node, scope)
         # elif name == 'TryCatchClause':
         #     self._parse_catch(statement, node)
         elif name == "RevertStatement":
@@ -1048,8 +1061,7 @@ class FunctionSolc(CallerContextExpression):
                 expression = statement[self.get_children("errorCall")]
             else:
                 expression = statement[self.get_children("errorCall")][0]
-            new_node = self._new_node(
-                NodeType.EXPRESSION, statement["src"], scope)
+            new_node = self._new_node(NodeType.EXPRESSION, statement["src"], scope)
             new_node.add_unparsed_expression(expression)
             link_underlying_nodes(node, new_node)
             node = new_node
@@ -1058,7 +1070,7 @@ class FunctionSolc(CallerContextExpression):
 
         return node
 
-    def _parse_block(self, block: Dict, node: NodeSolc, check_arithmetic: bool = False) -> NodeSolc:
+    def _parse_block(self, block: Dict, node: NodeSolc, scope: Scope) -> NodeSolc:
         """
         Return:
             Node
@@ -1070,13 +1082,12 @@ class FunctionSolc(CallerContextExpression):
         else:
             statements = block[self.get_children("children")]
 
-        check_arithmetic = check_arithmetic | node.underlying_node.scope.is_checked
-        new_scope = Scope(check_arithmetic, False, node.underlying_node.scope)
+        new_scope = Scope(scope.is_checked, False, scope)
         for statement in statements:
             node = self._parse_statement(statement, node, new_scope)
         return node
 
-    def _parse_unchecked_block(self, block: Dict, node: NodeSolc):
+    def _parse_unchecked_block(self, block: Dict, node: NodeSolc, scope):
         """
         Return:
             Node
@@ -1088,17 +1099,24 @@ class FunctionSolc(CallerContextExpression):
         else:
             statements = block[self.get_children("children")]
 
-        new_scope = Scope(False, False, node.underlying_node.scope)
+        new_scope = Scope(False, False, scope)
+
         for statement in statements:
             node = self._parse_statement(statement, node, new_scope)
         return node
+
+    def _update_reachability(self, node: Node) -> None:
+        if node.is_reachable:
+            return
+        node.set_is_reachable(True)
+        for son in node.sons:
+            self._update_reachability(son)
 
     def _parse_cfg(self, cfg: Dict) -> None:
 
         assert cfg[self.get_key()] == "Block"
 
-        node = self._new_node(NodeType.ENTRYPOINT,
-                              cfg["src"], self.underlying_function)
+        node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
         self._function.entry_point = node.underlying_node
 
         if self.is_compact_ast:
@@ -1110,8 +1128,7 @@ class FunctionSolc(CallerContextExpression):
             self._function.is_empty = True
         else:
             self._function.is_empty = False
-            check_arithmetic = self.compilation_unit.solc_version[0] >= "0.8.0"
-            self._parse_block(cfg, node, check_arithmetic=check_arithmetic)
+            self._parse_block(cfg, node, self.underlying_function)
             self._remove_incorrect_edges()
             self._remove_alone_endif()
 
@@ -1187,8 +1204,7 @@ class FunctionSolc(CallerContextExpression):
         start_node.add_father(node)
 
     def _fix_try(self, node: Node) -> None:
-        end_node = next(
-            (son for son in node.sons if son.type != NodeType.CATCH), None)
+        end_node = next((son for son in node.sons if son.type != NodeType.CATCH), None)
         if end_node:
             for son in node.sons:
                 if son.type == NodeType.CATCH:
@@ -1203,7 +1219,7 @@ class FunctionSolc(CallerContextExpression):
                     visited.add(son)
                     self._fix_catch(son, end_node, visited)
 
-    def _add_param(self, param: Dict) -> LocalVariableSolc:
+    def _add_param(self, param: Dict, initialized: bool = False) -> LocalVariableSolc:
 
         local_var = LocalVariable()
         local_var.set_function(self._function)
@@ -1213,6 +1229,9 @@ class FunctionSolc(CallerContextExpression):
 
         local_var_parser.analyze(self)
 
+        if initialized:
+            local_var.initialized = True
+
         # see https://solidity.readthedocs.io/en/v0.4.24/types.html?highlight=storage%20location#data-location
         if local_var.location == "default":
             local_var.set_location("memory")
@@ -1220,11 +1239,21 @@ class FunctionSolc(CallerContextExpression):
         self._add_local_variable(local_var_parser)
         return local_var_parser
 
+    def _add_param_init_tuple(self, statement: Dict, index: int) -> LocalVariableInitFromTupleSolc:
+
+        local_var = LocalVariableInitFromTuple()
+        local_var.set_function(self._function)
+        local_var.set_offset(statement["src"], self._function.compilation_unit)
+
+        local_var_parser = LocalVariableInitFromTupleSolc(local_var, statement, index)
+
+        self._add_local_variable(local_var_parser)
+        return local_var_parser
+
     def _parse_params(self, params: Dict):
         assert params[self.get_key()] == "ParameterList"
 
-        self._function.parameters_src().set_offset(
-            params["src"], self._function.compilation_unit)
+        self._function.parameters_src().set_offset(params["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
             params = params["parameters"]
@@ -1240,8 +1269,7 @@ class FunctionSolc(CallerContextExpression):
 
         assert returns[self.get_key()] == "ParameterList"
 
-        self._function.returns_src().set_offset(
-            returns["src"], self._function.compilation_unit)
+        self._function.returns_src().set_offset(returns["src"], self._function.compilation_unit)
 
         if self.is_compact_ast:
             returns = returns["parameters"]
@@ -1277,8 +1305,7 @@ class FunctionSolc(CallerContextExpression):
                     ModifierStatements(
                         modifier=m,
                         entry_point=latest_entry_point,
-                        nodes=[latest_entry_point,
-                               node_parser.underlying_node],
+                        nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
 
@@ -1299,8 +1326,7 @@ class FunctionSolc(CallerContextExpression):
                     ModifierStatements(
                         modifier=m,
                         entry_point=latest_entry_point,
-                        nodes=[latest_entry_point,
-                               node_parser.underlying_node],
+                        nodes=[latest_entry_point, node_parser.underlying_node],
                     )
                 )
 
@@ -1331,8 +1357,7 @@ class FunctionSolc(CallerContextExpression):
             if node.type in [NodeType.STARTLOOP]:
                 # can we prune? only if after pruning, we have at least one son that isn't itself
                 if (
-                    len([son for son in node.sons if son.type !=
-                        NodeType.ENDLOOP and son != node])
+                    len([son for son in node.sons if son.type != NodeType.ENDLOOP and son != node])
                     == 0
                 ):
                     continue
@@ -1374,8 +1399,7 @@ class FunctionSolc(CallerContextExpression):
                         son.remove_father(node)
                     node.set_sons([])
                     to_remove.append(node)
-            self._function.nodes = [
-                n for n in self._function.nodes if n not in to_remove]
+            self._function.nodes = [n for n in self._function.nodes if n not in to_remove]
             for remove in to_remove:
                 if remove in self._node_to_nodesolc:
                     del self._node_to_nodesolc[remove]
@@ -1403,8 +1427,7 @@ class FunctionSolc(CallerContextExpression):
                         )
                     true_expr = st.true_expression
                     false_expr = st.false_expression
-                    self._split_ternary_node(
-                        node, condition, true_expr, false_expr)
+                    self._split_ternary_node(node, condition, true_expr, false_expr)
                     ternary_found = True
                     updated = True
                     break
@@ -1417,17 +1440,14 @@ class FunctionSolc(CallerContextExpression):
         true_expr: "Expression",
         false_expr: "Expression",
     ):
-        condition_node = self._new_node(
-            NodeType.IF, node.source_mapping, node.scope)
+        condition_node = self._new_node(NodeType.IF, node.source_mapping, node.scope)
         condition_node.underlying_node.add_expression(condition)
         condition_node.analyze_expressions(self)
 
         if node.type == NodeType.VARIABLE:
-            condition_node.underlying_node.add_variable_declaration(
-                node.variable_declaration)
+            condition_node.underlying_node.add_variable_declaration(node.variable_declaration)
 
-        true_node_parser = self._new_node(
-            NodeType.EXPRESSION, node.source_mapping, node.scope)
+        true_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping, node.scope)
         if node.type == NodeType.VARIABLE:
             assert isinstance(true_expr, AssignmentOperation)
             # true_expr = true_expr.expression_right
@@ -1436,8 +1456,7 @@ class FunctionSolc(CallerContextExpression):
         true_node_parser.underlying_node.add_expression(true_expr)
         true_node_parser.analyze_expressions(self)
 
-        false_node_parser = self._new_node(
-            NodeType.EXPRESSION, node.source_mapping, node.scope)
+        false_node_parser = self._new_node(NodeType.EXPRESSION, node.source_mapping, node.scope)
         if node.type == NodeType.VARIABLE:
             assert isinstance(false_expr, AssignmentOperation)
         elif node.type == NodeType.RETURN:
@@ -1446,8 +1465,7 @@ class FunctionSolc(CallerContextExpression):
         false_node_parser.underlying_node.add_expression(false_expr)
         false_node_parser.analyze_expressions(self)
 
-        endif_node = self._new_node(
-            NodeType.ENDIF, node.source_mapping, node.scope)
+        endif_node = self._new_node(NodeType.ENDIF, node.source_mapping, node.scope)
 
         for father in node.fathers:
             father.replace_son(node, condition_node.underlying_node)
@@ -1472,8 +1490,7 @@ class FunctionSolc(CallerContextExpression):
         ]:
             link_underlying_nodes(false_node_parser, endif_node)
 
-        self._function.nodes = [
-            n for n in self._function.nodes if n.node_id != node.node_id]
+        self._function.nodes = [n for n in self._function.nodes if n.node_id != node.node_id]
         del self._node_to_nodesolc[node]
 
     # endregion

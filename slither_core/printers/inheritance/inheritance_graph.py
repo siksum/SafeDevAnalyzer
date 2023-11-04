@@ -39,8 +39,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         super().__init__(slither, logger)
 
         inheritance = [x.inheritance for x in slither.contracts]
-        self.inheritance = {
-            item for sublist in inheritance for item in sublist}
+        self.inheritance = {item for sublist in inheritance for item in sublist}
 
         self.overshadowing_state_variables = {}
         shadows = detect_state_variable_shadowing(slither.contracts)
@@ -50,10 +49,8 @@ class PrinterInheritanceGraph(AbstractPrinter):
 
             # Add overshadowing variable entry.
             if overshadowing_state_var not in self.overshadowing_state_variables:
-                self.overshadowing_state_variables[overshadowing_state_var] = set(
-                )
-            self.overshadowing_state_variables[overshadowing_state_var].add(
-                overshadowed_state_var)
+                self.overshadowing_state_variables[overshadowing_state_var] = set()
+            self.overshadowing_state_variables[overshadowing_state_var].add(overshadowed_state_var)
 
     def _get_pattern_var(self, var):
         # Html pattern, each line is a row in a table
@@ -151,8 +148,7 @@ class PrinterInheritanceGraph(AbstractPrinter):
         private_variables = "".join(private_variables)
 
         # Obtain any indirect shadowing information for this node.
-        indirect_shadowing_information = self._get_indirect_shadowing_information(
-            contract)
+        indirect_shadowing_information = self._get_indirect_shadowing_information(contract)
 
         # Build the node label
         ret += f'{contract.name}[shape="box"'

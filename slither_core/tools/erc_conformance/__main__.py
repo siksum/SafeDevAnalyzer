@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 from typing import Any, Dict, List, Callable
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.core.declarations import Contract

@@ -29,8 +29,7 @@ def custom_format(slither, result):
             element["source_mapping"]["filename_absolute"],
             solc_version_replace,
             element["source_mapping"]["start"],
-            element["source_mapping"]["start"] +
-            element["source_mapping"]["length"],
+            element["source_mapping"]["start"] + element["source_mapping"]["length"],
         )
 
 

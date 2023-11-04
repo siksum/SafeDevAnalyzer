@@ -48,8 +48,7 @@ class FunctionContract(Function, ContractLevel):
         if self._canonical_name is None:
             name, parameters, _ = self.signature
             self._canonical_name = (
-                ".".join([self.contract_declarer.name] +
-                         self._internal_scope + [name])
+                ".".join([self.contract_declarer.name] + self._internal_scope + [name])
                 + "("
                 + ",".join(parameters)
                 + ")"
@@ -84,8 +83,7 @@ class FunctionContract(Function, ContractLevel):
 
         """
         candidates = [c.functions_declared for c in self.contract.inheritance]
-        candidates = [
-            candidate for sublist in candidates for candidate in sublist]
+        candidates = [candidate for sublist in candidates for candidate in sublist]
         return [f for f in candidates if f.full_name == self.full_name]
 
     # endregion
@@ -109,8 +107,7 @@ class FunctionContract(Function, ContractLevel):
             self.full_name,
             self.visibility,
             [str(x) for x in self.modifiers],
-            [str(x) for x in self.state_variables_read +
-             self.solidity_variables_read],
+            [str(x) for x in self.state_variables_read + self.solidity_variables_read],
             [str(x) for x in self.state_variables_written],
             [str(x) for x in self.internal_calls],
             [str(x) for x in self.external_calls_as_expressions],

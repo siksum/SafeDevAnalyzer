@@ -103,8 +103,7 @@ class PrinterEVM(AbstractPrinter):
                 for node in function.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0: node.source_mapping.start].count(
-                            "\n".encode("utf-8")) + 1
+                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
                     )
                     txt += green(
                         f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
@@ -112,16 +111,14 @@ class PrinterEVM(AbstractPrinter):
                     txt += magenta("\t\tEVM Instructions:\n")
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        txt += magenta(
-                            f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
+                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
 
             for modifier in contract.modifiers:
                 txt += blue(f"\tModifier {modifier.canonical_name}\n")
                 for node in modifier.nodes:
                     txt += green("\t\tNode: " + str(node) + "\n")
                     node_source_line = (
-                        contract_file[0: node.source_mapping.start].count(
-                            "\n".encode("utf-8")) + 1
+                        contract_file[0 : node.source_mapping.start].count("\n".encode("utf-8")) + 1
                     )
                     txt += green(
                         f"\t\tSource line {node_source_line}: {contract_file_lines[node_source_line - 1].rstrip()}\n"
@@ -129,8 +126,7 @@ class PrinterEVM(AbstractPrinter):
                     txt += magenta("\t\tEVM Instructions:\n")
                     node_pcs = contract_pcs.get(node_source_line, [])
                     for pc in node_pcs:
-                        txt += magenta(
-                            f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
+                        txt += magenta(f"\t\t\t{hex(pc)}: {contract_cfg.get_instruction_at(pc)}\n")
 
         self.info(txt)
         res = self.generate_output(txt)

@@ -3,7 +3,7 @@ from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
-from Crytic_compile.naming import Filename
+from crytic_compile.utils.naming import Filename
 from slither_core.core.context.context import Context
 
 if TYPE_CHECKING:
@@ -79,7 +79,7 @@ class Source:
         # If the compilation unit was not initialized, it means that the set_offset was never called
         # on the corresponding object, which should not happen
         assert self.compilation_unit
-        return self.compilation_unit.core.source_code[self.filename.absolute][self.start: self.end]
+        return self.compilation_unit.core.source_code[self.filename.absolute][self.start : self.end]
 
     @property
     def content_hash(self) -> str:
@@ -165,19 +165,16 @@ def _convert_source_mapping(
     # If possible, convert the filename to its absolute/relative version
     assert compilation_unit.core.crytic_compile
 
-    filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(
-        filename_used)
-    # is_dependency = compilation_unit.core.crytic_compile.is_dependency(
-    #     filename.absolute)
+    filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
+    # is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
 
-    (lines, starting_column, ending_column) = _compute_line(
-        compilation_unit, filename, s, l)
+    (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
 
     new_source = Source(compilation_unit)
     new_source.start = s
     new_source.length = l
     new_source.filename = filename
-    #new_source.is_dependency = is_dependency
+    # new_source.is_dependency = is_dependency
     new_source.lines = lines
     new_source.starting_column = starting_column
     new_source.ending_column = ending_column
@@ -199,8 +196,7 @@ class SourceMapping(Context, metaclass=ABCMeta):
         if isinstance(offset, Source):
             self.source_mapping = offset
         else:
-            self.source_mapping = _convert_source_mapping(
-                offset, compilation_unit)
+            self.source_mapping = _convert_source_mapping(offset, compilation_unit)
         self.source_mapping.compilation_unit = compilation_unit
 
     def add_reference_from_raw_source(

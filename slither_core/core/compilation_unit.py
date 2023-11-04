@@ -1,8 +1,10 @@
 import math
+from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from Crytic_compile import CompilationUnit, CryticCompile
-#from solc_compile.compiler import CompilerVersion
+# from Crytic_compile.compiler import CompilerVersion
+from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
 from Crytic_compile.naming import Filename
 
 from slither_core.core.context.context import Context
@@ -29,6 +31,20 @@ if TYPE_CHECKING:
     from slither_core.core.slither_core import SlitherCore
 
 
+class Language(Enum):
+    SOLIDITY = "solidity"
+    VYPER = "vyper"
+
+    @staticmethod
+    def from_str(label: str):
+        if label == "solc":
+            return Language.SOLIDITY
+        if label == "vyper":
+            return Language.VYPER
+
+        raise ValueError(f"Unknown language: {label}")
+
+
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class SlitherCompilationUnit(Context):
     def __init__(self, core: "SlitherCore", crytic_compilation_unit: CompilationUnit) -> None:
@@ -36,6 +52,7 @@ class SlitherCompilationUnit(Context):
 
         self._core = core
         self._crytic_compile_compilation_unit = crytic_compilation_unit
+        # self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
         self.contracts: List[Contract] = []
@@ -47,7 +64,7 @@ class SlitherCompilationUnit(Context):
         self._pragma_directives: List[Pragma] = []
         self._import_directives: List[Import] = []
         self._custom_errors: List[CustomErrorTopLevel] = []
-        self._user_defined_value_types: Dict[str, TypeAliasTopLevel] = {}
+        self._type_aliases: Dict[str, TypeAliasTopLevel] = {}
 
         self._all_functions: Set[Function] = set()
         self._all_modifiers: Set[Modifier] = set()
@@ -81,7 +98,6 @@ class SlitherCompilationUnit(Context):
     # region Compiler
     ###################################################################################
     ###################################################################################
-
     # @property
     # def compiler_version(self) -> CompilerVersion:
     #     return self._crytic_compile_compilation_unit.compiler_version
@@ -166,6 +182,10 @@ class SlitherCompilationUnit(Context):
         return self.functions + list(self.modifiers)
 
     def propagate_function_calls(self) -> None:
+        """This info is used to compute the rvalues of Phi operations in `fix_phi` and ultimately
+        is responsible for the `read` property of Phi operations which is vital to
+        propagating taints inter-procedurally
+        """
         for f in self.functions_and_modifiers:
             for node in f.nodes:
                 for ir in node.irs_ssa:
@@ -184,8 +204,7 @@ class SlitherCompilationUnit(Context):
     def state_variables(self) -> List[StateVariable]:
         if self._all_state_variables is None:
             state_variabless = [c.state_variables for c in self.contracts]
-            state_variables = [
-                item for sublist in state_variabless for item in sublist]
+            state_variables = [item for sublist in state_variabless for item in sublist]
             self._all_state_variables = set(state_variables)
         return list(self._all_state_variables)
 
@@ -221,8 +240,8 @@ class SlitherCompilationUnit(Context):
         return self._custom_errors
 
     @property
-    def user_defined_value_types(self) -> Dict[str, TypeAliasTopLevel]:
-        return self._user_defined_value_types
+    def type_aliases(self) -> Dict[str, TypeAliasTopLevel]:
+        return self._type_aliases
 
     # endregion
     ###################################################################################
@@ -260,6 +279,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def compute_storage_layout(self) -> None:
+        # assert self.is_solidity
         for contract in self.contracts_derived:
             self._storage_layouts[contract.name] = {}
 

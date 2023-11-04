@@ -1,6 +1,6 @@
 import argparse
 import logging
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 from slither_core import Slither
 
 logging.basicConfig()
@@ -14,8 +14,7 @@ def parse_args() -> argparse.Namespace:
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(
-        description="Demo", usage="slither-demo filename")
+    parser = argparse.ArgumentParser(description="Demo", usage="slither-demo filename")
 
     parser.add_argument(
         "filename", help="The filename of the contract or truffle directory to analyze."

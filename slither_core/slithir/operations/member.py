@@ -33,8 +33,7 @@ class Member(OperationWithLValue):
         # Can be an ElementaryType because of bytes.concat, string.concat
         assert is_valid_rvalue(variable_left) or isinstance(
             variable_left,
-            (Contract, Enum, Function, CustomError,
-             SolidityImportPlaceHolder, ElementaryType),
+            (Contract, Enum, Function, CustomError, SolidityImportPlaceHolder, ElementaryType),
         )
 
         assert isinstance(variable_right, Constant)

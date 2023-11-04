@@ -60,8 +60,7 @@ Do not change the order of the state variables in the updated contract.
 
         results = []
         for variable1 in missing:
-            info: CHECK_INFO = ["Variable missing in ",
-                                contract2, ": ", variable1, "\n"]
+            info: CHECK_INFO = ["Variable missing in ", contract2, ": ", variable1, "\n"]
             json = self.generate_result(info)
             results.append(json)
 
@@ -265,8 +264,7 @@ Avoid variables in the proxy. If a variable is in the proxy, ensure it has the s
 
         while idx < len(order2):
             variable2 = order2[idx]
-            info: CHECK_INFO = ["Extra variables in ",
-                                contract2, ": ", variable2, "\n"]
+            info: CHECK_INFO = ["Extra variables in ", contract2, ": ", variable2, "\n"]
             json = self.generate_result(info)
             results.append(json)
             idx = idx + 1

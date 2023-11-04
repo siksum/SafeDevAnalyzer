@@ -42,7 +42,7 @@ class BinaryOperationType(Enum):
     # pylint: disable=too-many-branches
     @staticmethod
     def get_type(
-        operation_type: "BinaryOperation",
+        operation_type: "str",
     ) -> "BinaryOperationType":
         if operation_type == "**":
             return BinaryOperationType.POWER
@@ -93,8 +93,7 @@ class BinaryOperationType(Enum):
         if operation_type == ">>'":
             return BinaryOperationType.RIGHT_SHIFT_ARITHMETIC
 
-        raise SlitherCoreError(
-            f"get_type: Unknown operation type {operation_type})")
+        raise SlitherCoreError(f"get_type: Unknown operation type {operation_type})")
 
     def __str__(self) -> str:  # pylint: disable=too-many-branches
         if self == BinaryOperationType.POWER:

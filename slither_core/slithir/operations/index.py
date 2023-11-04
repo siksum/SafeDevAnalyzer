@@ -3,6 +3,7 @@ from typing import List, Union
 from slither_core.core.declarations import SolidityVariableComposed
 from slither_core.core.source_mapping.source_mapping import SourceMapping
 from slither_core.core.variables.variable import Variable
+from slither_core.core.variables.top_level_variable import TopLevelVariable
 from slither_core.slithir.operations.lvalue import OperationWithLValue
 from slither_core.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue, RVALUE, LVALUE
 from slither_core.slithir.variables.reference import ReferenceVariable
@@ -13,8 +14,10 @@ class Index(OperationWithLValue):
         self, result: ReferenceVariable, left_variable: Variable, right_variable: RVALUE
     ) -> None:
         super().__init__()
-        assert is_valid_lvalue(left_variable) or left_variable == SolidityVariableComposed(
-            "msg.data"
+        assert (
+            is_valid_lvalue(left_variable)
+            or left_variable == SolidityVariableComposed("msg.data")
+            or isinstance(left_variable, TopLevelVariable)
         )
         assert is_valid_rvalue(right_variable)
         assert isinstance(result, ReferenceVariable)

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     )
     from slither_core.core.variables.variable import Variable
 
-# core.declaration
+### core.declaration
 # pylint: disable=used-before-assignment
 InternalCallType = Union["Function", "SolidityFunction"]
 HighLevelCallType = Tuple["Contract", Union["Function", "Variable"]]

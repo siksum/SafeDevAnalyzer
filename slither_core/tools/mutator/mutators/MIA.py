@@ -34,7 +34,6 @@ class MIA(AbstractMutator):  # pylint: disable=too-few-public-methods
                         # Replace the expression with true
                         new_str = "true"
 
-                        create_patch(result, in_file, start,
-                                     stop, old_str, new_str)
+                        create_patch(result, in_file, start, stop, old_str, new_str)
 
         return result

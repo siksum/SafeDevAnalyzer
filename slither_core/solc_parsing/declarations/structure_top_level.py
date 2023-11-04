@@ -38,8 +38,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
         else:
             canonicalName = name
 
-        children = struct["members"] if "members" in struct else struct.get(
-            "children", [])
+        children = struct["members"] if "members" in struct else struct.get("children", [])
 
         self._structure = st
         st.name = name
@@ -52,8 +51,7 @@ class StructureTopLevelSolc(CallerContextExpression):  # pylint: disable=too-few
         for elem_to_parse in self._elemsNotParsed:
             elem = StructureVariable()
             elem.set_structure(self._structure)
-            elem.set_offset(elem_to_parse["src"],
-                            self._slither_parser.compilation_unit)
+            elem.set_offset(elem_to_parse["src"], self._slither_parser.compilation_unit)
 
             elem_parser = StructureVariableSolc(elem, elem_to_parse)
             elem_parser.analyze(self)

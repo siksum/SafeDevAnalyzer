@@ -33,6 +33,10 @@ logger = logging.getLogger("SlitherSolcParsing")
 logger.setLevel(logging.INFO)
 
 
+class InheritanceResolutionError(SlitherException):
+    pass
+
+
 def _handle_import_aliases(
     symbol_aliases: Dict, import_directive: Import, scope: FileScope
 ) -> None:
@@ -71,9 +75,12 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def __init__(self, compilation_unit: SlitherCompilationUnit) -> None:
         super().__init__()
 
+        self._compilation_unit: SlitherCompilationUnit = compilation_unit
+
         self._contracts_by_id: Dict[int, ContractSolc] = {}
         self._parsed = False
         self._analyzed = False
+        self._is_compact_ast = False
 
         self._underlying_contract_to_parser: Dict[Contract, ContractSolc] = {}
         self._structures_top_level_parser: List[StructureTopLevelSolc] = []
@@ -81,11 +88,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._variables_top_level_parser: List[TopLevelVariableSolc] = []
         self._functions_top_level_parser: List[FunctionSolc] = []
         self._using_for_top_level_parser: List[UsingForTopLevelSolc] = []
-
-        self._is_compact_ast = False
-        # self._core: SlitherCore = core
-        self._compilation_unit = compilation_unit
-
         self._all_functions_and_modifier_parser: List[FunctionSolc] = []
 
         self._top_level_contracts_counter = 0
@@ -141,15 +143,14 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             data_loaded = json.loads(json_data)
             # Truffle AST
             if "ast" in data_loaded:
-                self.parse_top_level_from_loaded_json(
-                    data_loaded["ast"], data_loaded["sourcePath"])
+                self.parse_top_level_items(data_loaded["ast"], data_loaded["sourcePath"])
                 return True
             # solc AST, where the non-json text was removed
             if "attributes" in data_loaded:
                 filename = data_loaded["attributes"]["absolutePath"]
             else:
                 filename = data_loaded["absolutePath"]
-            self.parse_top_level_from_loaded_json(data_loaded, filename)
+            self.parse_top_level_items(data_loaded, filename)
             return True
         except ValueError:
 
@@ -160,7 +161,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 json_data = json_data[first:last]
 
                 data_loaded = json.loads(json_data)
-                self.parse_top_level_from_loaded_json(data_loaded, filename)
+                self.parse_top_level_items(data_loaded, filename)
                 return True
             return False
 
@@ -194,7 +195,14 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         self._compilation_unit.enums_top_level.append(enum)
 
     # pylint: disable=too-many-branches,too-many-statements,too-many-locals
-    def parse_top_level_from_loaded_json(self, data_loaded: Dict, filename: str) -> None:
+    def parse_top_level_items(self, data_loaded: Dict, filename: str) -> None:
+        if not data_loaded or data_loaded is None:
+            logger.error(
+                "crytic-compile returned an empty AST. "
+                "If you are trying to analyze a contract from etherscan or similar make sure it has source code available."
+            )
+            return
+
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
 
@@ -222,8 +230,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 contract_parser = ContractSolc(self, contract, top_level_data)
                 scope.contracts[contract.name] = contract
                 if "src" in top_level_data:
-                    contract.set_offset(
-                        top_level_data["src"], self._compilation_unit)
+                    contract.set_offset(top_level_data["src"], self._compilation_unit)
 
                 self._underlying_contract_to_parser[contract] = contract_parser
 
@@ -232,20 +239,16 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                     pragma = Pragma(top_level_data["literals"], scope)
                     scope.pragmas.add(pragma)
                 else:
-                    pragma = Pragma(
-                        top_level_data["attributes"]["literals"], scope)
+                    pragma = Pragma(top_level_data["attributes"]["literals"], scope)
                     scope.pragmas.add(pragma)
-                pragma.set_offset(
-                    top_level_data["src"], self._compilation_unit)
+                pragma.set_offset(top_level_data["src"], self._compilation_unit)
                 self._compilation_unit.pragma_directives.append(pragma)
 
             elif top_level_data[self.get_key()] == "UsingForDirective":
                 scope = self.compilation_unit.get_scope(filename)
                 usingFor = UsingForTopLevel(scope)
-                usingFor_parser = UsingForTopLevelSolc(
-                    usingFor, top_level_data, self)
-                usingFor.set_offset(
-                    top_level_data["src"], self._compilation_unit)
+                usingFor_parser = UsingForTopLevelSolc(usingFor, top_level_data, self)
+                usingFor.set_offset(top_level_data["src"], self._compilation_unit)
                 scope.using_for_directives.add(usingFor)
 
                 self._compilation_unit.using_for_top_level.append(usingFor)
@@ -265,13 +268,11 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         import_directive.alias = top_level_data["unitAlias"]
                     if "symbolAliases" in top_level_data:
                         symbol_aliases = top_level_data["symbolAliases"]
-                        _handle_import_aliases(
-                            symbol_aliases, import_directive, scope)
+                        _handle_import_aliases(symbol_aliases, import_directive, scope)
                 else:
                     import_directive = Import(
                         Path(
-                            top_level_data["attributes"].get(
-                                "absolutePath", ""),
+                            top_level_data["attributes"].get("absolutePath", ""),
                         ),
                         scope,
                     )
@@ -282,13 +283,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                         and "unitAlias" in top_level_data["attributes"]
                     ):
                         import_directive.alias = top_level_data["attributes"]["unitAlias"]
-                import_directive.set_offset(
-                    top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.import_directives.append(
-                    import_directive)
+                import_directive.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.import_directives.append(import_directive)
 
-                get_imported_scope = self.compilation_unit.get_scope(
-                    import_directive.filename)
+                get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
                 scope.accessible_scopes.append(get_imported_scope)
 
             elif top_level_data[self.get_key()] == "StructDefinition":
@@ -323,13 +321,10 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 self.add_function_or_modifier_parser(func_parser)
 
             elif top_level_data[self.get_key()] == "ErrorDefinition":
-                custom_error = CustomErrorTopLevel(
-                    self._compilation_unit, scope)
-                custom_error.set_offset(
-                    top_level_data["src"], self._compilation_unit)
+                custom_error = CustomErrorTopLevel(self._compilation_unit, scope)
+                custom_error.set_offset(top_level_data["src"], self._compilation_unit)
 
-                custom_error_parser = CustomErrorSolc(
-                    custom_error, top_level_data, self)
+                custom_error_parser = CustomErrorSolc(custom_error, top_level_data, None, self)
                 scope.custom_errors.add(custom_error)
                 self._compilation_unit.custom_errors.append(custom_error)
                 self._custom_error_parser.append(custom_error_parser)
@@ -347,16 +342,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
                 original_type = ElementaryType(underlying_type["name"])
 
-                user_defined_type = TypeAliasTopLevel(
-                    original_type, alias, scope)
-                user_defined_type.set_offset(
-                    top_level_data["src"], self._compilation_unit)
-                self._compilation_unit.user_defined_value_types[alias] = user_defined_type
-                scope.user_defined_types[alias] = user_defined_type
+                type_alias = TypeAliasTopLevel(original_type, alias, scope)
+                type_alias.set_offset(top_level_data["src"], self._compilation_unit)
+                self._compilation_unit.type_aliases[alias] = type_alias
+                scope.type_aliases[alias] = type_alias
 
             else:
-                raise SlitherException(
-                    f"Top level {top_level_data[self.get_key()]} not supported")
+                raise SlitherException(f"Top level {top_level_data[self.get_key()]} not supported")
 
     def _parse_source_unit(self, data: Dict, filename: str) -> None:
         if data[self.get_key()] != "SourceUnit":
@@ -373,8 +365,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         sourceUnit = -1  # handle old solc, or error
         if "src" in data:
-            sourceUnit_candidates = re.findall(
-                "[0-9]*:[0-9]*:([0-9]*)", data["src"])
+            sourceUnit_candidates = re.findall("[0-9]*:[0-9]*:([0-9]*)", data["src"])
             if len(sourceUnit_candidates) == 1:
                 sourceUnit = int(sourceUnit_candidates[0])
         if sourceUnit == -1:
@@ -387,7 +378,6 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
                 sourceUnit = len(self._compilation_unit.core.source_code)
 
         self._compilation_unit.source_units[sourceUnit] = name
-
         if os.path.isfile(name) and not name in self._compilation_unit.core.source_code:
             self._compilation_unit.core.add_source_code(name)
         else:
@@ -413,7 +403,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
     def parse_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._underlying_contract_to_parser:
             logger.info(
-                f"No contract were found in {self._compilation_unit.core.filename}, check the correct compilation"
+                f"No contracts were found in {self._compilation_unit.core.filename}, check the correct compilation"
             )
         if self._parsed:
             raise Exception("Contract analysis can be run only once!")
@@ -451,7 +441,12 @@ Please rename it, this name is reserved for Slither's internals"""
                     target = contract_parser.underlying_contract.file_scope.get_contract_from_name(
                         contract_name
                     )
-                    assert target
+                    if target == contract_parser.underlying_contract:
+                        raise InheritanceResolutionError(
+                            "Could not resolve contract inheritance. This is likely caused by an import renaming that collides with existing names (see https://github.com/crytic/slither/issues/1758)."
+                            f"\n Try changing `contract {target}` ({target.source_mapping}) to a unique name."
+                        )
+                    assert target, f"Contract {contract_name} not found"
                     ancestors.append(target)
                 elif i in self._contracts_by_id:
                     ancestors.append(self._contracts_by_id[i])
@@ -505,14 +500,12 @@ Please rename it, this name is reserved for Slither's internals"""
                 contract_parser.set_is_analyzed(True)
                 contract_parser.delete_content()
 
-        contracts_to_be_analyzed = list(
-            self._underlying_contract_to_parser.values())
+        contracts_to_be_analyzed = list(self._underlying_contract_to_parser.values())
 
         # Any contract can refer another contract enum without need for inheritance
         self._analyze_all_enums(contracts_to_be_analyzed)
         # pylint: disable=expression-not-assigned
-        [c.set_is_analyzed(False)
-         for c in self._underlying_contract_to_parser.values()]
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         libraries = [
             c for c in contracts_to_be_analyzed if c.underlying_contract.contract_kind == "library"
@@ -524,20 +517,17 @@ Please rename it, this name is reserved for Slither's internals"""
         # We first parse the struct/variables/functions/contract
         self._analyze_first_part(contracts_to_be_analyzed, libraries)
         # pylint: disable=expression-not-assigned
-        [c.set_is_analyzed(False)
-         for c in self._underlying_contract_to_parser.values()]
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         # We analyze the struct and parse and analyze the events
         # A contract can refer in the variables a struct or a event from any contract
         # (without inheritance link)
         self._analyze_second_part(contracts_to_be_analyzed, libraries)
-        [c.set_is_analyzed(False)
-         for c in self._underlying_contract_to_parser.values()]
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         # Then we analyse state variables, functions and modifiers
         self._analyze_third_part(contracts_to_be_analyzed, libraries)
-        [c.set_is_analyzed(False)
-         for c in self._underlying_contract_to_parser.values()]
+        [c.set_is_analyzed(False) for c in self._underlying_contract_to_parser.values()]
 
         self._analyze_using_for(contracts_to_be_analyzed, libraries)
 
@@ -545,11 +535,10 @@ Please rename it, this name is reserved for Slither's internals"""
 
     def analyze_contracts(self) -> None:  # pylint: disable=too-many-statements,too-many-branches
         if not self._parsed:
-            raise SlitherException(
-                "Parse the contract before running analyses")
+            raise SlitherException("Parse the contract before running analyses")
         self._convert_to_slithir()
-
-        compute_dependency(self._compilation_unit)
+        if not self._compilation_unit.core.skip_data_dependency:
+            compute_dependency(self._compilation_unit)
         self._compilation_unit.compute_storage_layout()
         self._analyzed = True
 
@@ -706,22 +695,19 @@ Please rename it, this name is reserved for Slither's internals"""
             for struct in self._structures_top_level_parser:
                 struct.analyze()
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(
-                f"Missing struct {e} during top level structure analyze") from e
+            raise SlitherException(f"Missing struct {e} during top level structure analyze") from e
 
     def _analyze_top_level_variables(self) -> None:
         try:
             for var in self._variables_top_level_parser:
                 var.analyze(var)
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(
-                f"Missing {e} during variable analyze") from e
+            raise SlitherException(f"Missing {e} during variable analyze") from e
 
     def _analyze_params_top_level_function(self) -> None:
         for func_parser in self._functions_top_level_parser:
             func_parser.analyze_params()
-            self._compilation_unit.add_function(
-                func_parser.underlying_function)
+            self._compilation_unit.add_function(func_parser.underlying_function)
 
     def _analyze_top_level_using_for(self) -> None:
         for using_for in self._using_for_top_level_parser:
@@ -736,8 +722,7 @@ Please rename it, this name is reserved for Slither's internals"""
             for func_parser in self._functions_top_level_parser:
                 func_parser.analyze_content()
         except (VariableNotFound, KeyError) as e:
-            raise SlitherException(
-                f"Missing {e} during top level function analyze") from e
+            raise SlitherException(f"Missing {e} during top level function analyze") from e
 
     def _analyze_variables_modifiers_functions(self, contract: ContractSolc) -> None:
         # State variables, modifiers and functions can refer to anything
@@ -771,12 +756,46 @@ Please rename it, this name is reserved for Slither's internals"""
                     self._underlying_contract_to_parser[contract].log_incorrect_parsing(
                         f"Impossible to generate IR for {contract.name}.{func.name} ({func.source_mapping}):\n {e}"
                     )
-
-            contract.convert_expression_to_slithir_ssa()
+                except Exception as e:
+                    func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                    logger.error(
+                        f"\nFailed to generate IR for {contract.name}.{func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{contract.name}.{func.name} ({func.source_mapping}):\n "
+                        f"{func_expressions}"
+                    )
+                    raise e
+            try:
+                contract.convert_expression_to_slithir_ssa()
+            except Exception as e:
+                logger.error(
+                    f"\nFailed to convert IR to SSA for {contract.name} contract. Please open an issue https://github.com/crytic/slither/issues.\n "
+                )
+                raise e
 
         for func in self._compilation_unit.functions_top_level:
-            func.generate_slithir_and_analyze()
-            func.generate_slithir_ssa({})
+            try:
+                func.generate_slithir_and_analyze()
+            except AttributeError as e:
+                logger.error(
+                    f"Impossible to generate IR for top level function {func.name} ({func.source_mapping}):\n {e}"
+                )
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to generate IR for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
+            try:
+                func.generate_slithir_ssa({})
+            except Exception as e:
+                func_expressions = "\n".join([f"\t{ex}" for ex in func.expressions])
+                logger.error(
+                    f"\nFailed to convert IR to SSA for top level function {func.name}. Please open an issue https://github.com/crytic/slither/issues.\n{func.name} ({func.source_mapping}):\n "
+                    f"{func_expressions}"
+                )
+                raise e
+
         self._compilation_unit.propagate_function_calls()
         for contract in self._compilation_unit.contracts:
             contract.fix_phi()

@@ -59,8 +59,7 @@ class ContractSummary(AbstractPrinter):
                 for f in c.functions
                 if (not f.is_shadowed and not f.is_constructor_variables)
             ]
-            collect: Dict[str, List[FunctionContract]
-                          ] = collections.defaultdict(list)
+            collect: Dict[str, List[FunctionContract]] = collections.defaultdict(list)
             for a, b in public_function:
                 collect[a].append(b)
 
@@ -73,8 +72,7 @@ class ContractSummary(AbstractPrinter):
                     if function.visibility in ["external", "public"]:
                         txt += green(f"    - {function.full_name} ({function.visibility})\n")
                     if function.visibility in ["internal", "private"]:
-                        txt += magenta(
-                            f"    - {function.full_name} ({function.visibility})\n")
+                        txt += magenta(f"    - {function.full_name} ({function.visibility})\n")
                     if function.visibility not in [
                         "external",
                         "public",
@@ -84,8 +82,7 @@ class ContractSummary(AbstractPrinter):
                         txt += f"    - {function.full_name}  ({function.visibility})\n"
 
                     additional_fields.add(
-                        function, additional_fields={
-                            "visibility": function.visibility}
+                        function, additional_fields={"visibility": function.visibility}
                     )
 
             all_contracts.append((c, additional_fields.data))

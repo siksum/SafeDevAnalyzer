@@ -86,13 +86,11 @@ class AbstractMutator(metaclass=abc.ABCMeta):  # pylint: disable=too-few-public-
             patches = all_patches["patches"][file]
             patches.sort(key=lambda x: x["start"])
             if not all(patches[i]["end"] <= patches[i + 1]["end"] for i in range(len(patches) - 1)):
-                logger.info(
-                    f"Impossible to generate patch; patches collisions: {patches}")
+                logger.info(f"Impossible to generate patch; patches collisions: {patches}")
                 continue
             for patch in patches:
                 patched_txt, offset = apply_patch(patched_txt, patch, offset)
-            diff = create_diff(self.compilation_unit,
-                               original_txt, patched_txt, file)
+            diff = create_diff(self.compilation_unit, original_txt, patched_txt, file)
             if not diff:
                 logger.info(f"Impossible to generate patch; empty {patches}")
             print(diff)

@@ -4,10 +4,10 @@ Tool to read on-chain storage from EVM
 import json
 import argparse
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 from slither_core import Slither
-from slither_core.tools.read_storage.read_storage import SlitherReadStorage
+from slither_core.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
 def parse_args() -> argparse.Namespace:
@@ -96,13 +96,18 @@ def parse_args() -> argparse.Namespace:
         help="Silence log outputs",
     )
 
-    parser.add_argument(
-        "--max-depth", help="Max depth to search in data structure.", default=20)
+    parser.add_argument("--max-depth", help="Max depth to search in data structure.", default=20)
 
     parser.add_argument(
         "--block",
         help="The block number to read storage from. Requires an archive node to be provided as the RPC url.",
         default="latest",
+    )
+
+    parser.add_argument(
+        "--unstructured",
+        action="store_true",
+        help="Include unstructured storage slots",
     )
 
     cryticparser.init(parser)
@@ -127,28 +132,25 @@ def main() -> None:
     else:
         contracts = slither.contracts
 
-    srs = SlitherReadStorage(contracts, args.max_depth)
-
-    try:
-        srs.block = int(args.block)
-    except ValueError:
-        srs.block = str(args.block or "latest")
-
+    rpc_info = None
     if args.rpc_url:
-        # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
-        address = target[target.find(":") + 1:]
-        # Default to implementation address unless a storage address is given.
-        if not args.storage_address:
-            args.storage_address = address
-        srs.storage_address = args.storage_address
+        valid = ["latest", "earliest", "pending", "safe", "finalized"]
+        block = args.block if args.block in valid else int(args.block)
+        rpc_info = RpcInfo(args.rpc_url, block)
 
-        srs.rpc = args.rpc_url
+    srs = SlitherReadStorage(contracts, args.max_depth, rpc_info)
+    srs.unstructured = bool(args.unstructured)
+    # Remove target prefix e.g. rinkeby:0x0 -> 0x0.
+    address = target[target.find(":") + 1 :]
+    # Default to implementation address unless a storage address is given.
+    if not args.storage_address:
+        args.storage_address = address
+    srs.storage_address = args.storage_address
 
     if args.variable_name:
         # Use a lambda func to only return variables that have same name as target.
         # x is a tuple (`Contract`, `StateVariable`).
-        srs.get_all_storage_variables(
-            lambda x: bool(x[1].name == args.variable_name))
+        srs.get_all_storage_variables(lambda x: bool(x[1].name == args.variable_name))
         srs.get_target_variables(**vars(args))
     else:
         srs.get_all_storage_variables()

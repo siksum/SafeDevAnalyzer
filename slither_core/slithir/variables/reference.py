@@ -2,6 +2,7 @@ from typing import Optional, TYPE_CHECKING
 
 from slither_core.core.declarations import Contract, Enum, SolidityVariable, Function
 from slither_core.core.variables.variable import Variable
+from slither_core.core.variables.top_level_variable import TopLevelVariable
 
 if TYPE_CHECKING:
     from slither_core.core.cfg.node import Node
@@ -46,7 +47,7 @@ class ReferenceVariable(Variable):
         from slither_core.slithir.utils.utils import is_valid_lvalue
 
         assert is_valid_lvalue(points_to) or isinstance(
-            points_to, (SolidityVariable, Contract, Enum)
+            points_to, (SolidityVariable, Contract, Enum, TopLevelVariable)
         )
 
         self._points_to = points_to

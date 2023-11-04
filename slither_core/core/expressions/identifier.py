@@ -26,7 +26,6 @@ class Identifier(Expression):
         ],
     ) -> None:
         super().__init__()
-
         # pylint: disable=import-outside-toplevel
         from slither_core.core.declarations import Contract, SolidityVariable, SolidityFunction
         from slither_core.solc_parsing.yul.evm_functions import YulBuiltin

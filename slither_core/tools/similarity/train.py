@@ -34,19 +34,16 @@ def train(args: argparse.Namespace) -> None:  # pylint: disable=too-many-locals
                     if ir != []:
                         x = " ".join(ir)
                         f.write(x + "\n")
-                        cache.append((os.path.split(filename_inner)
-                                     [-1], contract, function, x))
+                        cache.append((os.path.split(filename_inner)[-1], contract, function, x))
 
         logger.info("Starting training")
-        model = train_unsupervised(
-            input=last_data_train_filename, model="skipgram")
+        model = train_unsupervised(input=last_data_train_filename, model="skipgram")
         logger.info("Training complete")
         logger.info("Saving model")
         model.save_model(model_filename)
 
         for i, (filename, contract, function, irs) in enumerate(cache):
-            cache[i] = ((filename, contract, function),
-                        model.get_sentence_vector(irs))
+            cache[i] = ((filename, contract, function), model.get_sentence_vector(irs))
 
         logger.info("Saving cache in cache.npz")
         save_cache(cache, "cache.npz")

@@ -88,8 +88,7 @@ class BinaryType(Enum):
         if operation_type == "||":
             return BinaryType.OROR
 
-        raise SlithIRError(
-            f"get_type: Unknown operation type {operation_type})")
+        raise SlithIRError(f"get_type: Unknown operation type {operation_type})")
 
     def can_be_checked_for_overflow(self) -> bool:
         return self in [
@@ -109,10 +108,8 @@ class Binary(OperationWithLValue):
         right_variable: Union[RVALUE, Function],
         operation_type: BinaryType,
     ) -> None:
-        assert is_valid_rvalue(left_variable) or isinstance(
-            left_variable, Function)
-        assert is_valid_rvalue(right_variable) or isinstance(
-            right_variable, Function)
+        assert is_valid_rvalue(left_variable) or isinstance(left_variable, Function)
+        assert is_valid_rvalue(right_variable) or isinstance(right_variable, Function)
         assert is_valid_lvalue(result)
         assert isinstance(operation_type, BinaryType)
         super().__init__()

@@ -1,7 +1,7 @@
 import sys
 import logging
 import argparse
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 from slither_core.tools.kspec_coverage.kspec_coverage import kspec_coverage
 
 logging.basicConfig()

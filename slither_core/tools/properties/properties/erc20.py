@@ -3,8 +3,8 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Tuple, List
 
-from Crytic_compile.solc_compile.abstract_platform import AbstractPlatform
-from Crytic_compile.solc_compile import Type as PlatformType
+from crytic_compile.platform.abstract_platform import AbstractPlatform
+from crytic_compile.platform import Type as PlatformType
 
 from slither_core.core.declarations import Contract
 from slither_core.tools.properties.addresses.address import Addresses
@@ -36,8 +36,7 @@ from slither_core.utils.colors import red, green
 
 logger = logging.getLogger("Slither")
 
-PropertyDescription = namedtuple(
-    "PropertyDescription", ["properties", "description"])
+PropertyDescription = namedtuple("PropertyDescription", ["properties", "description"])
 
 ERC20_PROPERTIES = {
     "Transferable": PropertyDescription(ERC20_Transferable, "Test the correct tokens transfer"),
@@ -94,14 +93,12 @@ def generate_erc20(
 
     erc_properties = ERC20_PROPERTIES.get(type_property, None)
     if erc_properties is None:
-        logger.error(
-            f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
+        logger.error(f"{type_property} unknown. Types available {ERC20_PROPERTIES.keys()}")
         return
     properties = erc_properties.properties
 
     # Generate the output directory
-    output_dir = _platform_to_output_dir(
-        contract.compilation_unit.core.Crytic_compile.platforms)
+    output_dir = _platform_to_output_dir(contract.compilation_unit.core.crytic_compile.platform)
     output_dir.mkdir(exist_ok=True)
 
     # Get the properties
@@ -114,8 +111,7 @@ def generate_erc20(
     )
 
     # Generate the Test contract
-    initialization_recommendation = _initialization_recommendation(
-        type_property)
+    initialization_recommendation = _initialization_recommendation(type_property)
     contract_filename, contract_name = generate_test_contract(
         contract,
         type_property,
@@ -133,12 +129,10 @@ def generate_erc20(
 
     # If truffle, generate unit tests
     if contract.compilation_unit.core.crytic_compile.type == PlatformType.TRUFFLE:
-        unit_test_info = generate_truffle_test(
-            contract, type_property, unit_tests, addresses)
+        unit_test_info = generate_truffle_test(contract, type_property, unit_tests, addresses)
 
     logger.info("################################################")
-    logger.info(
-        green(f"Update the constructor in {Path(output_dir, contract_filename)}"))
+    logger.info(green(f"Update the constructor in {Path(output_dir, contract_filename)}"))
 
     if unit_test_info:
         logger.info(green(unit_test_info))
@@ -182,14 +176,12 @@ def _check_compatibility(contract):
         errors = f"{contract} is not ERC20 compliant. Consider checking the contract with slither-check-erc"
         return errors
 
-    transfer = contract.get_function_from_signature(
-        "transfer(address,uint256)")
+    transfer = contract.get_function_from_signature("transfer(address,uint256)")
 
     if transfer.visibility != "public":
         errors = f"slither-prop requires {transfer.canonical_name} to be public. Please change the visibility"
 
-    transfer_from = contract.get_function_from_signature(
-        "transferFrom(address,address,uint256)")
+    transfer_from = contract.get_function_from_signature("transferFrom(address,address,uint256)")
     if transfer_from.visibility != "public":
         if errors:
             errors += "\n"
@@ -208,11 +200,9 @@ def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Pro
     solidity_properties = ""
 
     if contract.compilation_unit.crytic_compile.type == PlatformType.TRUFFLE:
-        solidity_properties += "\n".join([property_to_solidity(p)
-                                         for p in ERC20_CONFIG])
+        solidity_properties += "\n".join([property_to_solidity(p) for p in ERC20_CONFIG])
 
-    solidity_properties += "\n".join([property_to_solidity(p)
-                                     for p in properties])
+    solidity_properties += "\n".join([property_to_solidity(p) for p in properties])
     unit_tests = [p for p in properties if p.is_unit_test]
 
     return solidity_properties, unit_tests

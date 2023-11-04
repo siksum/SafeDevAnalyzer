@@ -2,8 +2,8 @@ import argparse
 import logging
 import sys
 
-from Crytic_compile import cryticparser
-from Crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
+from crytic_compile import cryticparser
+from crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED
 
 from slither_core import Slither
 from slither_core.tools.flattening.flattening import (
@@ -28,11 +28,9 @@ def parse_args() -> argparse.Namespace:
         usage="slither-flat filename",
     )
 
-    parser.add_argument(
-        "filename", help="The filename of the contract or project to analyze.")
+    parser.add_argument("filename", help="The filename of the contract or project to analyze.")
 
-    parser.add_argument(
-        "--contract", help="Flatten one contract.", default=None)
+    parser.add_argument("--contract", help="Flatten one contract.", default=None)
 
     parser.add_argument(
         "--strategy",

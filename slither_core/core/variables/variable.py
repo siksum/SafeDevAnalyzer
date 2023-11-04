@@ -11,8 +11,6 @@ if TYPE_CHECKING:
     from slither_core.core.expressions.expression import Expression
 
 # pylint: disable=too-many-instance-attributes
-
-
 class Variable(SourceMapping):
     def __init__(self) -> None:
         super().__init__()
@@ -162,10 +160,8 @@ class Variable(SourceMapping):
 
         return (
             self.name,
-            # type: ignore
-            [str(x) for x in export_nested_types_from_variable(self)],
-            # type: ignore
-            [str(x) for x in export_return_type_from_variable(self)],
+            [str(x) for x in export_nested_types_from_variable(self)],  # type: ignore
+            [str(x) for x in export_return_type_from_variable(self)],  # type: ignore
         )
 
     @property
@@ -183,5 +179,6 @@ class Variable(SourceMapping):
         return f'{name}({",".join(parameters)})'
 
     def __str__(self) -> str:
-        assert self._name
+        if self._name is None:
+            return ""
         return self._name

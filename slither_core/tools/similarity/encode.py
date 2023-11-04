@@ -70,8 +70,7 @@ def parse_target(target: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
         return None, parts[0]
     if len(parts) == 2:
         return parts[0], parts[1]
-    simil_logger.error(
-        "Invalid target. It should be 'function' or 'Contract.function'")
+    simil_logger.error("Invalid target. It should be 'function' or 'Contract.function'")
     return None, None
 
 
@@ -229,8 +228,7 @@ def encode_contract(cfilename, **kwargs):
     try:
         slither = Slither(cfilename, **kwargs)
     except Exception:  # pylint: disable=broad-except
-        simil_logger.error("Compilation failed for %s using %s",
-                           cfilename, kwargs["solc"])
+        simil_logger.error("Compilation failed for %s using %s", cfilename, kwargs["solc"])
         return r
 
     # Iterate over all the contracts

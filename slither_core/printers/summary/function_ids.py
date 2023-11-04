@@ -30,8 +30,7 @@ class FunctionIds(AbstractPrinter):
                     continue
                 if function.visibility in ["public", "external"]:
                     function_id = get_function_id(function.solidity_signature)
-                    table.add_row([function.solidity_signature,
-                                  f"{function_id:#0{10}x}"])
+                    table.add_row([function.solidity_signature, f"{function_id:#0{10}x}"])
             for variable in contract.state_variables:
                 if variable.visibility in ["public"]:
                     sig = variable.solidity_signature

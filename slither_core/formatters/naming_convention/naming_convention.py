@@ -135,17 +135,13 @@ def _name_already_use(slither: SlitherCompilationUnit, name: str) -> bool:
     if not KEY in slither.context:
         all_names: Set[str] = set()
         for contract in slither.contracts_derived:
-            all_names = all_names.union(
-                {st.name for st in contract.structures})
-            all_names = all_names.union(
-                {f.name for f in contract.functions_and_modifiers})
+            all_names = all_names.union({st.name for st in contract.structures})
+            all_names = all_names.union({f.name for f in contract.functions_and_modifiers})
             all_names = all_names.union({e.name for e in contract.enums})
-            all_names = all_names.union(
-                {s.name for s in contract.state_variables if s.name})
+            all_names = all_names.union({s.name for s in contract.state_variables if s.name})
 
             for function in contract.functions:
-                all_names = all_names.union(
-                    {v.name for v in function.variables if v.name})
+                all_names = all_names.union({v.name for v in function.variables if v.name})
 
         slither.context[KEY] = all_names
     return name in slither.context[KEY]
@@ -157,16 +153,13 @@ def _convert_CapWords(original_name: str, slither: SlitherCompilationUnit) -> st
     while "_" in name:
         offset = name.find("_")
         if len(name) > offset:
-            name = name[0:offset] + name[offset + 1].upper() + \
-                name[offset + 1:]
+            name = name[0:offset] + name[offset + 1].upper() + name[offset + 1 :]
 
     if _name_already_use(slither, name):
-        raise FormatImpossible(
-            f"{original_name} cannot be converted to {name} (already used)")
+        raise FormatImpossible(f"{original_name} cannot be converted to {name} (already used)")
 
     if name in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(
-            f"{original_name} cannot be converted to {name} (Solidity keyword)")
+        raise FormatImpossible(f"{original_name} cannot be converted to {name} (Solidity keyword)")
     return name
 
 
@@ -181,16 +174,13 @@ def _convert_mixedCase(
     while "_" in name:
         offset = name.find("_")
         if len(name) > offset:
-            name = name[0:offset] + name[offset + 1].upper() + \
-                name[offset + 2:]
+            name = name[0:offset] + name[offset + 1].upper() + name[offset + 2 :]
 
     name = name[0].lower() + name[1:]
     if _name_already_use(compilation_unit, name):
-        raise FormatImpossible(
-            f"{original_name} cannot be converted to {name} (already used)")  # type: ignore
+        raise FormatImpossible(f"{original_name} cannot be converted to {name} (already used)")  # type: ignore
     if name in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(
-            f"{original_name} cannot be converted to {name} (Solidity keyword)")  # type: ignore
+        raise FormatImpossible(f"{original_name} cannot be converted to {name} (Solidity keyword)")  # type: ignore
     return name
 
 
@@ -198,11 +188,9 @@ def _convert_UPPER_CASE_WITH_UNDERSCORES(
     name: str, compilation_unit: SlitherCompilationUnit
 ) -> str:
     if _name_already_use(compilation_unit, name.upper()):
-        raise FormatImpossible(
-            f"{name} cannot be converted to {name.upper()} (already used)")
+        raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (already used)")
     if name.upper() in SOLIDITY_KEYWORDS:
-        raise FormatImpossible(
-            f"{name} cannot be converted to {name.upper()} (Solidity keyword)")
+        raise FormatImpossible(f"{name} cannot be converted to {name.upper()} (Solidity keyword)")
     return name.upper()
 
 
@@ -227,8 +215,7 @@ conventions: Dict[str, CONVENTION_F_TYPE] = {
 def _get_from_contract(
     compilation_unit: SlitherCompilationUnit, element: Dict, name: str, getter: str
 ) -> TARGET_TYPE:
-    scope = compilation_unit.get_scope(
-        element["source_mapping"]["filename_absolute"])
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
     contract_name = element["type_specific_fields"]["parent"]["name"]
     contract = scope.get_contract_from_name(contract_name)
     return getattr(contract, getter)(name)
@@ -245,8 +232,7 @@ def _get_from_contract(
 def _patch(
     compilation_unit: SlitherCompilationUnit, result: Dict, element: Dict, _target: str
 ) -> None:
-    scope = compilation_unit.get_scope(
-        element["source_mapping"]["filename_absolute"])
+    scope = compilation_unit.get_scope(element["source_mapping"]["filename_absolute"])
 
     target: Optional[TARGET_TYPE] = None
 
@@ -340,8 +326,7 @@ def _patch(
 RE_MAPPING_FROM = rb"([a-zA-Z0-9\._\[\]]*)"
 RE_MAPPING_TO = rb"([\=\>\(\) a-zA-Z0-9\._\[\]\   ]*)"
 RE_MAPPING = (
-    rb"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" +
-    b"=>" + b"[ ]*" + RE_MAPPING_TO + rb"\)"
+    rb"[ ]*mapping[ ]*\([ ]*" + RE_MAPPING_FROM + b"[ ]*" + b"=>" + b"[ ]*" + RE_MAPPING_TO + rb"\)"
 )
 
 
@@ -354,7 +339,7 @@ def _is_var_declaration(slither: SlitherCompilationUnit, filename: str, start: i
     :return:
     """
     v = "var "
-    return slither.core.source_code[filename][start: start + len(v)] == v
+    return slither.core.source_code[filename][start : start + len(v)] == v
 
 
 def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches
@@ -380,8 +365,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 else:
                     loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code,
-                             loc_start, loc_end, old_str, new_str)
+                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
         else:
             # Patch type based on structure
@@ -396,14 +380,12 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 else:
                     loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code,
-                             loc_start, loc_end, old_str, new_str)
+                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
             # Structure contain a list of elements, that might need patching
             # .elems return a list of VariableStructure
             _explore_variables_declaration(
-                slither, list(custom_type.type.elems.values()
-                              ), result, target, convert
+                slither, list(custom_type.type.elems.values()), result, target, convert
             )
 
     if isinstance(custom_type, MappingType):
@@ -435,8 +417,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 loc_start = start + re_match.start(1)
                 loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code,
-                             loc_start, loc_end, old_str, new_str)
+                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
             if custom_type.type_to == target:
                 old_str = custom_type.type_to.name
@@ -445,8 +426,7 @@ def _explore_type(  # pylint: disable=too-many-arguments,too-many-locals,too-man
                 loc_start = start + re_match.start(2)
                 loc_end = loc_start + len(old_str)
 
-                create_patch(result, filename_source_code,
-                             loc_start, loc_end, old_str, new_str)
+                create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
             if isinstance(custom_type.type_to, (UserDefinedType, MappingType)):
                 loc_start = start + re_match.start(2)
@@ -501,8 +481,7 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
             loc_start = full_txt_start + full_txt.find(old_str.encode("utf8"))
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code,
-                         loc_start, loc_end, old_str, new_str)
+            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
             # Patch comment only makes sense for local variable declaration in the parameter list
             if patch_comment and isinstance(variable, LocalVariable):
@@ -510,21 +489,19 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
                     func = variable.function
                     end_line = func.source_mapping.lines[0]
                     if variable in func.parameters:
-                        idx = len(func.parameters) - \
-                            func.parameters.index(variable) + 1
+                        idx = len(func.parameters) - func.parameters.index(variable) + 1
                         first_line = end_line - idx - 2
 
                         potential_comments_ = slither.core.source_code[filename_source_code].encode(
                             "utf8"
                         )
                         potential_comments = potential_comments_.splitlines(keepends=True)[
-                            first_line: end_line - 1
+                            first_line : end_line - 1
                         ]
 
                         idx_beginning = func.source_mapping.start
                         idx_beginning += -func.source_mapping.starting_column + 1
-                        idx_beginning += -sum([len(c)
-                                              for c in potential_comments])
+                        idx_beginning += -sum([len(c) for c in potential_comments])
 
                         old_comment = f"@param {old_str}".encode("utf8")
 
@@ -533,8 +510,7 @@ def _explore_variables_declaration(  # pylint: disable=too-many-arguments,too-ma
                             if idx >= 0:
                                 loc_start = idx + idx_beginning
                                 loc_end = loc_start + len(old_comment)
-                                new_comment = f"@param {new_str}".encode(
-                                    "utf8")
+                                new_comment = f"@param {new_str}".encode("utf8")
 
                                 create_patch(
                                     result,
@@ -558,8 +534,7 @@ def _explore_structures_declaration(
 ) -> None:
     for st in structures:
         # Explore the variable declared within the structure (VariableStructure)
-        _explore_variables_declaration(slither, list(
-            st.elems.values()), result, target, convert)
+        _explore_variables_declaration(slither, list(st.elems.values()), result, target, convert)
 
         # If the structure is the target
         if st == target:
@@ -576,12 +551,10 @@ def _explore_structures_declaration(
             # The name is after the space
             matches = re.finditer(b"struct[ ]*", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + \
-                max(matches, key=lambda x: len(x.group())).end()
+            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code,
-                         loc_start, loc_end, old_str, new_str)
+            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def _explore_events_declaration(
@@ -593,8 +566,7 @@ def _explore_events_declaration(
 ) -> None:
     for event in events:
         # Explore the parameters
-        _explore_variables_declaration(
-            slither, event.elems, result, target, convert)
+        _explore_variables_declaration(slither, event.elems, result, target, convert)
 
         # If the event is the target
         if event == target:
@@ -606,8 +578,7 @@ def _explore_events_declaration(
             loc_start = event.source_mapping.start
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code,
-                         loc_start, loc_end, old_str, new_str)
+            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def get_ir_variables(ir: Operation) -> List[Union[Variable, Function]]:
@@ -654,8 +625,7 @@ def _explore_irs(
                 ]
 
                 if not target.name.encode("utf8") in full_txt:
-                    raise FormatError(
-                        f"{target} not found in {full_txt} ({source_mapping}")
+                    raise FormatError(f"{target} not found in {full_txt} ({source_mapping}")
 
                 old_str = target.name.encode("utf8")
                 new_str = convert(old_str, slither)
@@ -666,7 +636,7 @@ def _explore_irs(
                 while old_str in full_txt:
                     target_found_at = full_txt.find((old_str))
 
-                    full_txt = full_txt[target_found_at + 1:]
+                    full_txt = full_txt[target_found_at + 1 :]
                     counter += target_found_at
 
                     loc_start = full_txt_start + counter
@@ -690,10 +660,8 @@ def _explore_functions(
     convert: CONVENTION_F_TYPE,
 ) -> None:
     for function in functions:
-        _explore_variables_declaration(
-            slither, function.variables, result, target, convert, True)
-        _explore_irs(slither, function.all_slithir_operations(),
-                     result, target, convert)
+        _explore_variables_declaration(slither, function.variables, result, target, convert, True)
+        _explore_irs(slither, function.all_slithir_operations(), result, target, convert)
 
         if isinstance(target, Function) and function.canonical_name == target.canonical_name:
             old_str = function.name
@@ -712,12 +680,10 @@ def _explore_functions(
             else:
                 matches = re.finditer(b"function([ ]*)", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + \
-                max(matches, key=lambda x: len(x.group())).end()
+            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code,
-                         loc_start, loc_end, old_str, new_str)
+            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def _explore_enums(
@@ -742,12 +708,10 @@ def _explore_enums(
             # The name is after the space
             matches = re.finditer(b"enum([ ]*)", full_txt)
             # Look for the end offset of the largest list of ' '
-            loc_start = full_txt_start + \
-                max(matches, key=lambda x: len(x.group())).end()
+            loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
             loc_end = loc_start + len(old_str)
 
-            create_patch(result, filename_source_code,
-                         loc_start, loc_end, old_str, new_str)
+            create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def _explore_contract(
@@ -757,12 +721,9 @@ def _explore_contract(
     target: TARGET_TYPE,
     convert: CONVENTION_F_TYPE,
 ) -> None:
-    _explore_variables_declaration(
-        slither, contract.state_variables, result, target, convert)
-    _explore_structures_declaration(
-        slither, contract.structures, result, target, convert)
-    _explore_functions(
-        slither, contract.functions_and_modifiers, result, target, convert)
+    _explore_variables_declaration(slither, contract.state_variables, result, target, convert)
+    _explore_structures_declaration(slither, contract.structures, result, target, convert)
+    _explore_functions(slither, contract.functions_and_modifiers, result, target, convert)
     _explore_enums(slither, contract.enums, result, target, convert)
 
     if contract == target:
@@ -779,13 +740,11 @@ def _explore_contract(
         # The name is after the space
         matches = re.finditer(b"contract[ ]*", full_txt)
         # Look for the end offset of the largest list of ' '
-        loc_start = full_txt_start + \
-            max(matches, key=lambda x: len(x.group())).end()
+        loc_start = full_txt_start + max(matches, key=lambda x: len(x.group())).end()
 
         loc_end = loc_start + len(old_str)
 
-        create_patch(result, filename_source_code,
-                     loc_start, loc_end, old_str, new_str)
+        create_patch(result, filename_source_code, loc_start, loc_end, old_str, new_str)
 
 
 def _explore(

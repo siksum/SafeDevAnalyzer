@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Union, Dict, TYPE_CHECKING
+from typing import Union, Dict, TYPE_CHECKING, List, Any
 
 import slither_core.core.expressions.type_conversion
 from slither_core.core.declarations.solidity_variables import (
@@ -160,8 +160,7 @@ def parse_call(
         if expression["expression"][caller_context.get_key()] == "FunctionCallOptions":
             call_with_options = expression["expression"]
             for idx, name in enumerate(call_with_options.get("names", [])):
-                option = parse_expression(
-                    call_with_options["options"][idx], caller_context)
+                option = parse_expression(call_with_options["options"][idx], caller_context)
                 if name == "value":
                     call_value = option
                 if name == "gas":
@@ -170,19 +169,18 @@ def parse_call(
                     call_salt = option
         arguments = []
         if expression["arguments"]:
-            arguments = [parse_expression(a, caller_context)
-                         for a in expression["arguments"]]
+            arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
     else:
         children = expression["children"]
         called = parse_expression(children[0], caller_context)
-        arguments = [parse_expression(a, caller_context)
-                     for a in children[1::]]
+        arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
-    if isinstance(called, SuperCallExpression):
+    if isinstance(called, SuperIdentifier):
         sp = SuperCallExpression(called, arguments, type_return)
         sp.set_offset(expression["src"], caller_context.compilation_unit)
         return sp
-    call_expression = CallExpression(called, arguments, type_return)
+    names = expression["names"] if "names" in expression and len(expression["names"]) > 0 else None
+    call_expression = CallExpression(called, arguments, type_return, names=names)
     call_expression.set_offset(src, caller_context.compilation_unit)
 
     # Only available if the syntax {gas:, value:} was used
@@ -205,7 +203,7 @@ def parse_super_name(expression: Dict, is_compact_ast: bool) -> str:
 
     assert arguments.startswith("function ")
     # remove function (...()
-    arguments = arguments[len("function "):]
+    arguments = arguments[len("function ") :]
 
     arguments = filter_name(arguments)
     if " " in arguments:
@@ -237,6 +235,24 @@ def _parse_elementary_type_name_expression(
 
 if TYPE_CHECKING:
     pass
+
+
+def _user_defined_op_call(
+    caller_context: CallerContextExpression, src, function_id: int, args: List[Any], type_call: str
+) -> CallExpression:
+    var, was_created = find_variable(None, caller_context, function_id)
+
+    if was_created:
+        var.set_offset(src, caller_context.compilation_unit)
+
+    identifier = Identifier(var)
+    identifier.set_offset(src, caller_context.compilation_unit)
+
+    var.references.append(identifier.source_mapping)
+
+    call = CallExpression(identifier, args, type_call)
+    call.set_offset(src, caller_context.compilation_unit)
+    return call
 
 
 def parse_expression(expression: Dict, caller_context: CallerContextExpression) -> "Expression":
@@ -277,19 +293,24 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
     if name == "UnaryOperation":
         if is_compact_ast:
             attributes = expression
+            expression = parse_expression(expression["subExpression"], caller_context)
         else:
             attributes = expression["attributes"]
-        assert "prefix" in attributes
-        operation_type = UnaryOperationType.get_type(
-            attributes["operator"], attributes["prefix"])
-
-        if is_compact_ast:
-            expression = parse_expression(
-                expression["subExpression"], caller_context)
-        else:
             assert len(expression["children"]) == 1
-            expression = parse_expression(
-                expression["children"][0], caller_context)
+            expression = parse_expression(expression["children"][0], caller_context)
+        assert "prefix" in attributes
+
+        # Use of user defined operation
+        if "function" in attributes:
+            return _user_defined_op_call(
+                caller_context,
+                src,
+                attributes["function"],
+                [expression],
+                attributes["typeDescriptions"]["typeString"],
+            )
+
+        operation_type = UnaryOperationType.get_type(attributes["operator"], attributes["prefix"])
         unary_op = UnaryOperation(expression, operation_type)
         unary_op.set_offset(src, caller_context.compilation_unit)
         return unary_op
@@ -297,23 +318,26 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
     if name == "BinaryOperation":
         if is_compact_ast:
             attributes = expression
-        else:
-            attributes = expression["attributes"]
-        operation_type = BinaryOperationType.get_type(attributes["operator"])
-
-        if is_compact_ast:
-            left_expression = parse_expression(
-                expression["leftExpression"], caller_context)
-            right_expression = parse_expression(
-                expression["rightExpression"], caller_context)
+            left_expression = parse_expression(expression["leftExpression"], caller_context)
+            right_expression = parse_expression(expression["rightExpression"], caller_context)
         else:
             assert len(expression["children"]) == 2
-            left_expression = parse_expression(
-                expression["children"][0], caller_context)
-            right_expression = parse_expression(
-                expression["children"][1], caller_context)
-        binary_op = BinaryOperation(
-            left_expression, right_expression, operation_type)
+            attributes = expression["attributes"]
+            left_expression = parse_expression(expression["children"][0], caller_context)
+            right_expression = parse_expression(expression["children"][1], caller_context)
+
+        # Use of user defined operation
+        if "function" in attributes:
+            return _user_defined_op_call(
+                caller_context,
+                src,
+                attributes["function"],
+                [left_expression, right_expression],
+                attributes["typeDescriptions"]["typeString"],
+            )
+
+        operation_type = BinaryOperationType.get_type(attributes["operator"])
+        binary_op = BinaryOperation(left_expression, right_expression, operation_type)
         binary_op.set_offset(src, caller_context.compilation_unit)
         return binary_op
 
@@ -325,10 +349,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
         if is_compact_ast:
             called = parse_expression(expression["expression"], caller_context)
         else:
-            called = parse_expression(
-                expression["children"][0], caller_context)
-        assert isinstance(called, (MemberAccess, NewContract,
-                          Identifier, TupleExpression))
+            called = parse_expression(expression["children"][0], caller_context)
+        assert isinstance(called, (MemberAccess, NewContract, Identifier, TupleExpression))
         return called
 
     if name == "TupleExpression":
@@ -353,14 +375,13 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                     parse_expression(c, caller_context) if c else None for c in components
                 ]
             else:
-                expressions = [parse_expression(
-                    e, caller_context) for e in expression["children"]]
+                expressions = [parse_expression(e, caller_context) for e in expression["children"]]
         # Add none for empty tuple items
         if "attributes" in expression:
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
                 if ",," in t or "(," in t or ",)" in t:
-                    t = t[len("tuple("): -1]
+                    t = t[len("tuple(") : -1]
                     elems = t.split(",")
                     for idx, _ in enumerate(elems):
                         if elems[idx] == "":
@@ -371,32 +392,25 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
     if name == "Conditional":
         if is_compact_ast:
-            if_expression = parse_expression(
-                expression["condition"], caller_context)
-            then_expression = parse_expression(
-                expression["trueExpression"], caller_context)
-            else_expression = parse_expression(
-                expression["falseExpression"], caller_context)
+            if_expression = parse_expression(expression["condition"], caller_context)
+            then_expression = parse_expression(expression["trueExpression"], caller_context)
+            else_expression = parse_expression(expression["falseExpression"], caller_context)
         else:
             children = expression["children"]
             assert len(children) == 3
             if_expression = parse_expression(children[0], caller_context)
             then_expression = parse_expression(children[1], caller_context)
             else_expression = parse_expression(children[2], caller_context)
-        conditional = ConditionalExpression(
-            if_expression, then_expression, else_expression)
+        conditional = ConditionalExpression(if_expression, then_expression, else_expression)
         conditional.set_offset(src, caller_context.compilation_unit)
         return conditional
 
     if name == "Assignment":
         if is_compact_ast:
-            left_expression = parse_expression(
-                expression["leftHandSide"], caller_context)
-            right_expression = parse_expression(
-                expression["rightHandSide"], caller_context)
+            left_expression = parse_expression(expression["leftHandSide"], caller_context)
+            right_expression = parse_expression(expression["rightHandSide"], caller_context)
 
-            operation_type = AssignmentOperationType.get_type(
-                expression["operator"])
+            operation_type = AssignmentOperationType.get_type(expression["operator"])
 
             operation_return_type = expression["typeDescriptions"]["typeString"]
         else:
@@ -406,8 +420,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             left_expression = parse_expression(children[0], caller_context)
             right_expression = parse_expression(children[1], caller_context)
 
-            operation_type = AssignmentOperationType.get_type(
-                attributes["operator"])
+            operation_type = AssignmentOperationType.get_type(attributes["operator"])
             operation_return_type = attributes["type"]
 
         assignement = AssignmentOperation(
@@ -455,6 +468,8 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
                 type_candidate = ElementaryType("uint256")
             else:
                 type_candidate = ElementaryType("string")
+        elif type_candidate.startswith("rational_const "):
+            type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("int_const "):
             type_candidate = ElementaryType("uint256")
         elif type_candidate.startswith("bool"):
@@ -472,28 +487,27 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
         t = None
 
+        referenced_declaration = None
         if caller_context.is_compact_ast:
             value = expression["name"]
             t = expression["typeDescriptions"]["typeString"]
+            if "referencedDeclaration" in expression:
+                referenced_declaration = expression["referencedDeclaration"]
         else:
             value = expression["attributes"]["value"]
             if "type" in expression["attributes"]:
                 t = expression["attributes"]["type"]
+            if "referencedDeclaration" in expression["attributes"]:
+                referenced_declaration = expression["attributes"]["referencedDeclaration"]
 
         if t:
-            found = re.findall(
-                r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
+            found = re.findall(r"[struct|enum|function|modifier] \(([\[\] ()a-zA-Z0-9\.,_]*)\)", t)
             assert len(found) <= 1
             if found:
                 value = value + "(" + found[0] + ")"
                 value = filter_name(value)
 
-        if "referencedDeclaration" in expression:
-            referenced_declaration = expression["referencedDeclaration"]
-        else:
-            referenced_declaration = None
-        var, was_created = find_variable(
-            value, caller_context, referenced_declaration)
+        var, was_created = find_variable(value, caller_context, referenced_declaration)
         if was_created:
             var.set_offset(src, caller_context.compilation_unit)
 
@@ -540,8 +554,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             # member_type = parse_type(
             #     UnknownType(expression["typeDescriptions"]["typeString"]), caller_context
             # )
-            member_expression = parse_expression(
-                expression["expression"], caller_context)
+            member_expression = parse_expression(expression["expression"], caller_context)
         else:
             member_name = expression["attributes"]["member_name"]
             member_type = expression["attributes"]["type"]
@@ -551,8 +564,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             member_expression = parse_expression(children[0], caller_context)
         if str(member_expression) == "super":
             super_name = parse_super_name(expression, is_compact_ast)
-            var, was_created = find_variable(
-                super_name, caller_context, is_super=True)
+            var, was_created = find_variable(super_name, caller_context, is_super=True)
             if var is None:
                 raise VariableNotFound(f"Variable not found: {super_name}")
             if was_created:
@@ -563,8 +575,7 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             var.references.append(sup.source_mapping)
 
             return sup
-        member_access = MemberAccess(
-            member_name, member_type, member_expression)
+        member_access = MemberAccess(member_name, member_type, member_expression)
         member_access.set_offset(src, caller_context.compilation_unit)
         if str(member_access) in SOLIDITY_VARIABLES_COMPOSED:
             id_idx = Identifier(SolidityVariableComposed(str(member_access)))
@@ -586,40 +597,9 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
             type_name = children[0]
 
         if type_name[caller_context.get_key()] == "ArrayTypeName":
-            depth = 0
-            while type_name[caller_context.get_key()] == "ArrayTypeName":
-                # Note: dont conserve the size of the array if provided
-                # We compute it directly
-                if is_compact_ast:
-                    type_name = type_name["baseType"]
-                else:
-                    type_name = type_name["children"][0]
-                depth += 1
-            if type_name[caller_context.get_key()] == "ElementaryTypeName":
-                if is_compact_ast:
-                    array_type = ElementaryType(type_name["name"])
-                else:
-                    array_type = ElementaryType(
-                        type_name["attributes"]["name"])
-            elif type_name[caller_context.get_key()] == "UserDefinedTypeName":
-                if is_compact_ast:
-                    if "name" not in type_name:
-                        name_type = type_name["pathNode"]["name"]
-                    else:
-                        name_type = type_name["name"]
-
-                    array_type = parse_type(
-                        UnknownType(name_type), caller_context)
-                else:
-                    array_type = parse_type(
-                        UnknownType(type_name["attributes"]
-                                    ["name"]), caller_context
-                    )
-            elif type_name[caller_context.get_key()] == "FunctionTypeName":
-                array_type = parse_type(type_name, caller_context)
-            else:
-                raise ParsingError(f"Incorrect type array {type_name}")
-            array = NewArray(depth, array_type)
+            array_type = parse_type(type_name, caller_context)
+            assert isinstance(array_type, ArrayType)
+            array = NewArray(array_type)
             array.set_offset(src, caller_context.compilation_unit)
             return array
 
@@ -654,17 +634,14 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
     if name == "ModifierInvocation":
 
         if is_compact_ast:
-            called = parse_expression(
-                expression["modifierName"], caller_context)
+            called = parse_expression(expression["modifierName"], caller_context)
             arguments = []
             if expression.get("arguments", None):
-                arguments = [parse_expression(a, caller_context)
-                             for a in expression["arguments"]]
+                arguments = [parse_expression(a, caller_context) for a in expression["arguments"]]
         else:
             children = expression["children"]
             called = parse_expression(children[0], caller_context)
-            arguments = [parse_expression(a, caller_context)
-                         for a in children[1::]]
+            arguments = [parse_expression(a, caller_context) for a in children[1::]]
 
         call = CallExpression(called, arguments, "Modifier")
         call.set_offset(src, caller_context.compilation_unit)
@@ -703,7 +680,6 @@ def parse_expression(expression: Dict, caller_context: CallerContextExpression) 
 
             return identifier
 
-        raise ParsingError(
-            "IdentifierPath not currently supported for the legacy ast")
+        raise ParsingError("IdentifierPath not currently supported for the legacy ast")
 
     raise ParsingError(f"Expression not parsed {name}")

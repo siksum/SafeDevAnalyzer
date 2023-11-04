@@ -4,7 +4,7 @@ import argparse
 import logging
 import sys
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 from slither_core.tools.similarity.info import info
 from slither_core.tools.similarity.test import test
@@ -26,14 +26,11 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("model", help="model.bin")
 
-    parser.add_argument("--filename", action="store",
-                        dest="filename", help="contract.sol")
+    parser.add_argument("--filename", action="store", dest="filename", help="contract.sol")
 
-    parser.add_argument("--fname", action="store",
-                        dest="fname", help="Target function")
+    parser.add_argument("--fname", action="store", dest="fname", help="Target function")
 
-    parser.add_argument("--ext", action="store", dest="ext",
-                        help="Extension to filter contracts")
+    parser.add_argument("--ext", action="store", dest="ext", help="Extension to filter contracts")
 
     parser.add_argument(
         "--nsamples",

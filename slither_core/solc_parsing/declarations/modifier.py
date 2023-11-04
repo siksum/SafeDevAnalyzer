@@ -50,8 +50,7 @@ class ModifierSolc(FunctionSolc):
             # params = children[0]
             # But from Solidity 0.6.3 to 0.6.10 (included)
             # Comment above a function might be added in the children
-            params = next(
-                child for child in children if child[self.get_key()] == "ParameterList")
+            params = next(child for child in children if child[self.get_key()] == "ParameterList")
 
         if params:
             self._parse_params(params)
@@ -78,8 +77,7 @@ class ModifierSolc(FunctionSolc):
                 # params = children[1]
                 # But from Solidity 0.6.3 to 0.6.10 (included)
                 # Comment above a function might be added in the children
-                block = next(
-                    child for child in children if child[self.get_key()] == "Block")
+                block = next(child for child in children if child[self.get_key()] == "Block")
                 self._function.is_implemented = True
                 self._parse_cfg(block)
 
@@ -103,8 +101,7 @@ class ModifierSolc(FunctionSolc):
     ) -> NodeSolc:
         name = statement[self.get_key()]
         if name == "PlaceholderStatement":
-            placeholder_node = self._new_node(
-                NodeType.PLACEHOLDER, statement["src"], scope)
+            placeholder_node = self._new_node(NodeType.PLACEHOLDER, statement["src"], scope)
             link_nodes(node.underlying_node, placeholder_node.underlying_node)
             return placeholder_node
         return super()._parse_statement(statement, node, scope)

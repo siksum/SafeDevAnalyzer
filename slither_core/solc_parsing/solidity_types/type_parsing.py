@@ -52,7 +52,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
 ) -> Type:
     name_elementary = name.split(" ")[0]
     if "[" in name_elementary:
-        name_elementary = name_elementary[0: name_elementary.find("[")]
+        name_elementary = name_elementary[0 : name_elementary.find("[")]
     if name_elementary in ElementaryTypeName:
         depth = name.count("[")
         if depth:
@@ -63,61 +63,52 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
     # Ex: a structure with the name of a contract
     name_contract = name
     if name_contract.startswith("contract "):
-        name_contract = name_contract[len("contract "):]
+        name_contract = name_contract[len("contract ") :]
     if name_contract.startswith("library "):
-        name_contract = name_contract[len("library "):]
-    var_type = next(
-        (c for c in contracts_direct_access if c.name == name_contract), None)
+        name_contract = name_contract[len("library ") :]
+    var_type = next((c for c in contracts_direct_access if c.name == name_contract), None)
 
     if not var_type:
-        var_type = next(
-            (st for st in structures_direct_access if st.name == name), None)
+        var_type = next((st for st in structures_direct_access if st.name == name), None)
     if not var_type:
-        var_type = next(
-            (e for e in enums_direct_access if e.name == name), None)
+        var_type = next((e for e in enums_direct_access if e.name == name), None)
     if not var_type:
         # any contract can refer to another contract's enum
         enum_name = name
         if enum_name.startswith("enum "):
-            enum_name = enum_name[len("enum "):]
+            enum_name = enum_name[len("enum ") :]
         elif enum_name.startswith("type(enum"):
-            enum_name = enum_name[len("type(enum "): -1]
+            enum_name = enum_name[len("type(enum ") : -1]
         # all_enums = [c.enums for c in contracts]
         # all_enums = [item for sublist in all_enums for item in sublist]
         # all_enums += contract.slither.enums_top_level
-        var_type = next((e for e in all_enums if e.name == enum_name), None)
+        var_type = next((e for e in all_enums if e.canonical_name == enum_name), None)
         if not var_type:
-            var_type = next(
-                (e for e in all_enums if e.canonical_name == enum_name), None)
+            var_type = next((e for e in all_enums if e.name == enum_name), None)
     if not var_type:
         # any contract can refer to another contract's structure
         name_struct = name
         if name_struct.startswith("struct "):
-            name_struct = name_struct[len("struct "):]
-            # remove stuff like storage pointer at the end
-            name_struct = name_struct.split(" ")[0]
+            name_struct = name_struct[len("struct ") :]
+            name_struct = name_struct.split(" ")[0]  # remove stuff like storage pointer at the end
         # all_structures = [c.structures for c in contracts]
         # all_structures = [item for sublist in all_structures for item in sublist]
         # all_structures += contract.slither.structures_top_level
-        var_type = next(
-            (st for st in all_structures if st.name == name_struct), None)
+        var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
         if not var_type:
-            var_type = next(
-                (st for st in all_structures if st.canonical_name == name_struct), None)
+            var_type = next((st for st in all_structures if st.name == name_struct), None)
         # case where struct xxx.xx[] where not well formed in the AST
         if not var_type:
             depth = 0
             while name_struct.endswith("[]"):
                 name_struct = name_struct[0:-2]
                 depth += 1
-            var_type = next(
-                (st for st in all_structures if st.canonical_name == name_struct), None)
+            var_type = next((st for st in all_structures if st.canonical_name == name_struct), None)
             if var_type:
                 return ArrayType(UserDefinedType(var_type), Literal(depth, "uint256"))
 
     if not var_type:
-        var_type = next(
-            (f for f in functions_direct_access if f.name == name), None)
+        var_type = next((f for f in functions_direct_access if f.name == name), None)
     if not var_type:
         if name.startswith("function "):
             found = re.findall(
@@ -127,8 +118,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
             assert len(found) == 1
             params = [v for v in found[0][0].split(",") if v != ""]
             return_values = (
-                [v for v in found[0][1].split(",") if v != ""] if len(
-                    found[0]) > 1 else []
+                [v for v in found[0][1].split(",") if v != ""] if len(found[0]) > 1 else []
             )
             params = [
                 _find_from_type_name(
@@ -169,8 +159,7 @@ def _find_from_type_name(  # pylint: disable=too-many-locals,too-many-branches,t
         if name.startswith("mapping("):
             # nested mapping declared with var
             if name.count("mapping(") == 1:
-                found = re.findall(
-                    r"mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
+                found = re.findall(r"mapping\(([a-zA-Z0-9\.]*) => ([ a-zA-Z0-9\.\[\]]*)\)", name)
             else:
                 found = re.findall(
                     r"mapping\(([a-zA-Z0-9\.]*) => (mapping\([=> a-zA-Z0-9\.\[\]]*\))\)",
@@ -246,30 +235,28 @@ def parse_type(
 
     sl: "SlitherCompilationUnit"
     renaming: Dict[str, str]
-    user_defined_types: Dict[str, TypeAlias]
+    type_aliases: Dict[str, TypeAlias]
     enums_direct_access: List["Enum"] = []
     # Note: for convenicence top level functions use the same parser than function in contract
     # but contract_parser is set to None
     if isinstance(caller_context, SlitherCompilationUnitSolc) or (
-        isinstance(caller_context,
-                   FunctionSolc) and caller_context.contract_parser is None
+        isinstance(caller_context, FunctionSolc) and caller_context.contract_parser is None
     ):
         structures_direct_access: List["Structure"]
         if isinstance(caller_context, SlitherCompilationUnitSolc):
             sl = caller_context.compilation_unit
             next_context = caller_context
             renaming = {}
-            user_defined_types = sl.user_defined_value_types
+            type_aliases = sl.type_aliases
         else:
             assert isinstance(caller_context, FunctionSolc)
             sl = caller_context.underlying_function.compilation_unit
             next_context = caller_context.slither_parser
             renaming = caller_context.underlying_function.file_scope.renaming
-            user_defined_types = caller_context.underlying_function.file_scope.user_defined_types
+            type_aliases = caller_context.underlying_function.file_scope.type_aliases
         structures_direct_access = sl.structures_top_level
         all_structuress = [c.structures for c in sl.contracts]
-        all_structures = [
-            item for sublist in all_structuress for item in sublist]
+        all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
         enums_direct_access += sl.enums_top_level
         all_enumss = [c.enums for c in sl.contracts]
@@ -279,8 +266,7 @@ def parse_type(
         functions = []
     elif isinstance(
         caller_context,
-        (StructureTopLevelSolc, CustomErrorSolc,
-         TopLevelVariableSolc, UsingForTopLevelSolc),
+        (StructureTopLevelSolc, CustomErrorSolc, TopLevelVariableSolc, UsingForTopLevelSolc),
     ):
         if isinstance(caller_context, StructureTopLevelSolc):
             scope = caller_context.underlying_structure.file_scope
@@ -301,8 +287,7 @@ def parse_type(
         next_context = caller_context.slither_parser
         structures_direct_access = list(scope.structures.values())
         all_structuress = [c.structures for c in scope.contracts.values()]
-        all_structures = [
-            item for sublist in all_structuress for item in sublist]
+        all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += structures_direct_access
 
         enums_direct_access = []
@@ -314,7 +299,7 @@ def parse_type(
         functions = list(scope.functions)
 
         renaming = scope.renaming
-        user_defined_types = scope.user_defined_types
+        type_aliases = scope.type_aliases
     elif isinstance(caller_context, (ContractSolc, FunctionSolc)):
         sl = caller_context.compilation_unit
         if isinstance(caller_context, FunctionSolc):
@@ -332,10 +317,8 @@ def parse_type(
 
         structures_direct_access = contract.structures
         structures_direct_access += contract.file_scope.structures.values()
-        all_structuress = [
-            c.structures for c in contract.file_scope.contracts.values()]
-        all_structures = [
-            item for sublist in all_structuress for item in sublist]
+        all_structuress = [c.structures for c in contract.file_scope.contracts.values()]
+        all_structures = [item for sublist in all_structuress for item in sublist]
         all_structures += contract.file_scope.structures.values()
         enums_direct_access += contract.enums
         enums_direct_access += contract.file_scope.enums.values()
@@ -346,7 +329,7 @@ def parse_type(
         functions = contract.functions + contract.modifiers
 
         renaming = scope.renaming
-        user_defined_types = scope.user_defined_types
+        type_aliases = scope.type_aliases
     else:
         raise ParsingError(f"Incorrect caller context: {type(caller_context)}")
 
@@ -360,8 +343,8 @@ def parse_type(
         name = t.name
         if name in renaming:
             name = renaming[name]
-        if name in user_defined_types:
-            return user_defined_types[name]
+        if name in type_aliases:
+            return type_aliases[name]
         return _find_from_type_name(
             name,
             functions,
@@ -382,9 +365,9 @@ def parse_type(
             name = t["typeDescriptions"]["typeString"]
             if name in renaming:
                 name = renaming[name]
-            if name in user_defined_types:
-                _add_type_references(user_defined_types[name], t["src"], sl)
-                return user_defined_types[name]
+            if name in type_aliases:
+                _add_type_references(type_aliases[name], t["src"], sl)
+                return type_aliases[name]
             type_found = _find_from_type_name(
                 name,
                 functions,
@@ -403,9 +386,9 @@ def parse_type(
         name = t["attributes"][type_name_key]
         if name in renaming:
             name = renaming[name]
-        if name in user_defined_types:
-            _add_type_references(user_defined_types[name], t["src"], sl)
-            return user_defined_types[name]
+        if name in type_aliases:
+            _add_type_references(type_aliases[name], t["src"], sl)
+            return type_aliases[name]
         type_found = _find_from_type_name(
             name,
             functions,
@@ -424,8 +407,8 @@ def parse_type(
             name = t["name"]
             if name in renaming:
                 name = renaming[name]
-            if name in user_defined_types:
-                return user_defined_types[name]
+            if name in type_aliases:
+                return type_aliases[name]
             type_found = _find_from_type_name(
                 name,
                 functions,

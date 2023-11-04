@@ -17,7 +17,7 @@ class FunctionSummary(AbstractPrinter):
     def _convert(l):
         if l:
             n = 2
-            l = [l[i: i + n] for i in range(0, len(l), n)]
+            l = [l[i : i + n] for i in range(0, len(l), n)]
             l = [str(x) for x in l]
             return "\n".join(l)
         return str(l)
@@ -33,8 +33,7 @@ class FunctionSummary(AbstractPrinter):
         all_txt = ""
 
         for c in self.contracts:
-            (name, inheritance, var, func_summaries,
-             modif_summaries) = c.get_summary()
+            (name, inheritance, var, func_summaries, modif_summaries) = c.get_summary()
             txt = f"\nContract {name}"
             txt += "\nContract vars: " + str(var)
             txt += "\nInheritance:: " + str(inheritance)

@@ -1,8 +1,8 @@
 from typing import List, Any, Dict, Optional, Union, Set, TypeVar, Callable
 
-from Crytic_compile import CompilationUnit
-from Crytic_compile.source_unit import SourceUnit
-from Crytic_compile.naming import Filename
+from crytic_compile import CompilationUnit
+from crytic_compile.source_unit import SourceUnit
+from crytic_compile.utils.naming import Filename
 
 from slither_core.core.declarations import Contract, Import, Pragma
 from slither_core.core.declarations.custom_error_top_level import CustomErrorTopLevel
@@ -52,7 +52,7 @@ class FileScope:
 
         # User defined types
         # Name -> type alias
-        self.user_defined_types: Dict[str, TypeAlias] = {}
+        self.type_aliases: Dict[str, TypeAlias] = {}
 
     def add_accesible_scopes(self) -> bool:
         """
@@ -95,8 +95,8 @@ class FileScope:
             if not _dict_contain(new_scope.renaming, self.renaming):
                 self.renaming.update(new_scope.renaming)
                 learn_something = True
-            if not _dict_contain(new_scope.user_defined_types, self.user_defined_types):
-                self.user_defined_types.update(new_scope.user_defined_types)
+            if not _dict_contain(new_scope.type_aliases, self.type_aliases):
+                self.type_aliases.update(new_scope.type_aliases)
                 learn_something = True
 
         return learn_something
@@ -117,15 +117,13 @@ class FileScope:
 
         assert self.filename in crytic_compile_compilation_unit.source_units
 
-        source_unit = crytic_compile_compilation_unit.source_unit(
-            self.filename)
+        source_unit = crytic_compile_compilation_unit.source_unit(self.filename)
 
         if name in getter(source_unit):
             return getter(source_unit)[name]
 
         for scope in self.accessible_scopes:
-            source_unit = crytic_compile_compilation_unit.source_unit(
-                scope.filename)
+            source_unit = crytic_compile_compilation_unit.source_unit(scope.filename)
             if name in getter(source_unit):
                 return getter(source_unit)[name]
 
@@ -144,8 +142,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]
-                         ] = lambda x: x.bytecodes_init
+        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_init
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -163,8 +160,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, str]
-                         ] = lambda x: x.bytecodes_runtime
+        getter: Callable[[SourceUnit], Dict[str, str]] = lambda x: x.bytecodes_runtime
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -182,8 +178,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]
-                         ] = lambda x: x.srcmaps_init
+        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_init
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )
@@ -201,8 +196,7 @@ class FileScope:
         Returns:
 
         """
-        getter: Callable[[SourceUnit], Dict[str, List[str]]
-                         ] = lambda x: x.srcmaps_runtime
+        getter: Callable[[SourceUnit], Dict[str, List[str]]] = lambda x: x.srcmaps_runtime
         return self._generic_source_unit_getter(
             crytic_compile_compilation_unit, contract_name, getter
         )

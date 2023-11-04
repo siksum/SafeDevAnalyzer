@@ -32,11 +32,9 @@ class NodeSolc:
 
     def analyze_expressions(self, caller_context: Union["FunctionSolc", "ModifierSolc"]) -> None:
         if self._node.type == NodeType.VARIABLE and not self._node.expression:
-            self._node.add_expression(
-                self._node.variable_declaration.expression)
+            self._node.add_expression(self._node.variable_declaration.expression)
         if self._unparsed_expression:
-            expression = parse_expression(
-                self._unparsed_expression, caller_context)
+            expression = parse_expression(self._unparsed_expression, caller_context)
             self._node.add_expression(expression)
             # self._unparsed_expression = None
 

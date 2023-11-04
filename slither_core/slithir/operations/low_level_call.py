@@ -70,11 +70,9 @@ class LowLevelCall(Call, OperationWithLValue):  # pylint: disable=too-many-insta
     def read(
         self,
     ) -> List[
-        Union[LocalIRVariable, Constant, LocalVariable,
-              TemporaryVariableSSA, TemporaryVariable]
+        Union[LocalIRVariable, Constant, LocalVariable, TemporaryVariableSSA, TemporaryVariable]
     ]:
-        all_read = [self.destination, self.call_gas,
-                    self.call_value] + self.arguments
+        all_read = [self.destination, self.call_gas, self.call_value] + self.arguments
         # remove None
         return self._unroll([x for x in all_read if x])
 

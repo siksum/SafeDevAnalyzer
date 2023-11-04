@@ -30,8 +30,7 @@ class Phi(OperationWithLValue):
     def read(
         self,
     ) -> List[
-        Union[SolidityVariableComposed, LocalIRVariable,
-              TemporaryVariableSSA, StateIRVariable]
+        Union[SolidityVariableComposed, LocalIRVariable, TemporaryVariableSSA, StateIRVariable]
     ]:
         return self.rvalues
 

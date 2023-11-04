@@ -30,10 +30,8 @@ class VariableOrder(AbstractPrinter):
             table = MyPrettyTable(["Name", "Type", "Slot", "Offset"])
             for variable in contract.state_variables_ordered:
                 if not variable.is_constant and not variable.is_immutable:
-                    slot, offset = contract.compilation_unit.storage_layout_of(
-                        contract, variable)
-                    table.add_row([variable.canonical_name,
-                                  str(variable.type), slot, offset])
+                    slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
+                    table.add_row([variable.canonical_name, str(variable.type), slot, offset])
 
             all_tables.append((contract.name, table))
             txt += str(table) + "\n"

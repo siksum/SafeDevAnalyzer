@@ -23,8 +23,7 @@ def _convert_type_for_solidity_signature_to_string(
         # Which is currently not supported. This comes down to (uint, uint)[] not being possible in Solidity
         # While having an array of a struct of two uint leads to a (uint, uint)[] signature
         if isinstance(types, ArrayType):
-            underlying_type = convert_type_for_solidity_signature(
-                types.type, seen)
+            underlying_type = convert_type_for_solidity_signature(types.type, seen)
             underlying_type_str = _convert_type_for_solidity_signature_to_string(
                 underlying_type, seen
             )
@@ -37,12 +36,9 @@ def _convert_type_for_solidity_signature_to_string(
     ret = "("
     for underlying_type in types:
         if first_item:
-            ret += _convert_type_for_solidity_signature_to_string(
-                underlying_type, seen)
+            ret += _convert_type_for_solidity_signature_to_string(underlying_type, seen)
         else:
-            ret += "," + \
-                _convert_type_for_solidity_signature_to_string(
-                    underlying_type, seen)
+            ret += "," + _convert_type_for_solidity_signature_to_string(underlying_type, seen)
         first_item = False
 
     ret += ")"
@@ -114,8 +110,7 @@ def _export_nested_types_from_variable(
     :return: list(Type)
     """
     if isinstance(current_type, MappingType):
-        underlying_type = convert_type_for_solidity_signature(
-            current_type.type_from, seen)
+        underlying_type = convert_type_for_solidity_signature(current_type.type_from, seen)
         if isinstance(underlying_type, list):
             ret.extend(underlying_type)
         else:

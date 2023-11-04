@@ -49,8 +49,7 @@ def _get_all_covered_kspec_functions(target: str) -> Set[Tuple[str, str]]:
                 function_arguments = [
                     _refactor_type(arg.strip().split(" ")[0]) for arg in function_arguments
                 ]
-                function_full_name = function_full_name[:start] + \
-                    ",".join(function_arguments) + ")"
+                function_full_name = function_full_name[:start] + ",".join(function_arguments) + ")"
                 covered_functions.add((contract_name, function_full_name))
                 i += 1
         i += 1
@@ -74,8 +73,7 @@ def _get_slither_functions(
     # Use list(set()) because same state variable instances can be shared accross contracts
     # TODO: integrate state variables
     all_functions_declared += list(
-        {s for s in slither.state_variables if s.visibility in [
-            "public", "external"]}
+        {s for s in slither.state_variables if s.visibility in ["public", "external"]}
     )
     slither_functions = {
         (function.contract.name, function.full_name): function
@@ -115,8 +113,7 @@ def _generate_output_unresolved(
         logger.info(color(info))
 
     if generate_json:
-        json_kspec_present = output.Output(
-            info, additional_fields={"signatures": kspec})
+        json_kspec_present = output.Output(info, additional_fields={"signatures": kspec})
         return json_kspec_present.data
     return None
 
@@ -130,8 +127,7 @@ def _run_coverage_analysis(
     # Determine which klab specs were not resolved.
     slither_functions_set = set(slither_functions)
     kspec_functions_resolved = kspec_functions & slither_functions_set
-    kspec_functions_unresolved: Set[Tuple[str, str]
-                                    ] = kspec_functions - kspec_functions_resolved
+    kspec_functions_unresolved: Set[Tuple[str, str]] = kspec_functions - kspec_functions_resolved
 
     kspec_missing: List[Union[FunctionContract, StateVariable]] = []
     kspec_present: List[Union[FunctionContract, StateVariable]] = []
@@ -145,8 +141,7 @@ def _run_coverage_analysis(
             kspec_missing.append(slither_func)
 
     logger.info("## Check for functions coverage")
-    json_kspec_present = _generate_output(
-        kspec_present, "[✓]", green, args.json)
+    json_kspec_present = _generate_output(kspec_present, "[✓]", green, args.json)
     json_kspec_missing_functions = _generate_output(
         [f for f in kspec_missing if isinstance(f, FunctionContract)],
         "[ ] (Missing function)",

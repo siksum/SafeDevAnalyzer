@@ -62,11 +62,14 @@ class RunDetector(SafeDevAnalyzer):
         else:
             for detector_result in results:
                 if detector_result:
+                    print(detector_result)
+                    print()
                     file_name = detector_result[0]['elements'][0]['source_mapping']['filename_absolute']
                     contract_name = detector_result[0]['elements'][0]['type_specific_fields']['parent']['name']
+                    # print(contract_name)
                     function_name = detector_result[0]['elements'][0]['name']
-                    detect_line = detector_result[0]['elements'][1]['source_mapping']['lines']
-                    node = detector_result[0]['elements'][1]['name']
+                    # detect_line = detector_result[0]['elements'][1]['source_mapping']['lines']
+                    # node = detector_result[0]['elements'][1]['name']
 
                     check = detector_result[0]['check']
 
@@ -74,8 +77,8 @@ class RunDetector(SafeDevAnalyzer):
                     confidence = detector_result[0]['confidence']
                     descriptions = [result['description']
                                     for result in detector_result]
-                    result_combined = {'file_name': file_name, 'contract_name': contract_name,
-                                        'function_name': function_name, 'detect_line': detect_line, 'node': node, 'check': check, 'impact': impact,
-                                       'confidence': confidence, 'description': descriptions}
-                    results_combined.append(result_combined)
-        return results_combined
+        #             result_combined = {'file_name': file_name, 'contract_name': contract_name,
+        #                                 'function_name': function_name, 'detect_line': detect_line, 'node': node, 'check': check, 'impact': impact,
+        #                                'confidence': confidence, 'description': descriptions}
+        #             results_combined.append(result_combined)
+        # return results_combined

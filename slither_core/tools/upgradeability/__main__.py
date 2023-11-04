@@ -5,7 +5,7 @@ import logging
 import sys
 from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 
 from slither_core import Slither
@@ -42,11 +42,9 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
     parser.add_argument("ContractName", help="Contract name (logic contract)")
 
     parser.add_argument("--proxy-name", help="Proxy name")
-    parser.add_argument("--proxy-filename",
-                        help="Proxy filename (if different)")
+    parser.add_argument("--proxy-filename", help="Proxy filename (if different)")
 
-    parser.add_argument("--new-contract-name",
-                        help="New contract name (if changed)")
+    parser.add_argument("--new-contract-name", help="New contract name (if changed)")
     parser.add_argument(
         "--new-contract-filename", help="New implementation filename (if different)"
     )
@@ -130,8 +128,7 @@ def parse_args(check_classes: List[Type[AbstractCheck]]) -> argparse.Namespace:
         default=False,
     )
 
-    parser.add_argument("--markdown", help=argparse.SUPPRESS,
-                        action=OutputMarkdown, default=False)
+    parser.add_argument("--markdown", help=argparse.SUPPRESS, action=OutputMarkdown, default=False)
 
     cryticparser.init(parser)
 
@@ -184,14 +181,11 @@ def choose_checks(
             d for d in detectors_to_run if d.IMPACT != CheckClassification.INFORMATIONAL
         ]
     if args.exclude_low:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.LOW]
     if args.exclude_medium:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.MEDIUM]
     if args.exclude_high:
-        detectors_to_run = [
-            d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
+        detectors_to_run = [d for d in detectors_to_run if d.IMPACT != CheckClassification.HIGH]
 
     # detectors_to_run = sorted(detectors_to_run, key=lambda x: x.IMPACT)
     return detectors_to_run
@@ -274,8 +268,7 @@ def _checks_on_contract_update(
 def _checks_on_contract_and_proxy(
     detectors: List[Type[AbstractCheck]], contract: Contract, proxy: Contract
 ) -> Tuple[List[Dict], int]:
-    detectors_ = [d(logger, contract, proxy=proxy)
-                  for d in detectors if d.REQUIRE_PROXY]
+    detectors_ = [d(logger, contract, proxy=proxy) for d in detectors if d.REQUIRE_PROXY]
     return _run_checks(detectors_), len(detectors_)
 
 
@@ -313,8 +306,7 @@ def main() -> None:
             return
         v1_contract = v1_contracts[0]
 
-        detectors_results, number_detectors = _checks_on_contract(
-            detectors_to_run, v1_contract)
+        detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v1_contract)
         json_results["detectors"] += detectors_results
         number_detectors_run += number_detectors
 
@@ -348,8 +340,7 @@ def main() -> None:
             else:
                 variable2 = variable1
 
-            v2_contracts = variable2.get_contract_from_name(
-                args.new_contract_name)
+            v2_contracts = variable2.get_contract_from_name(args.new_contract_name)
             if len(v2_contracts) != 1:
                 info = (
                     f"New logic contract {args.new_contract_name} not found in {variable2.filename}"
@@ -375,8 +366,7 @@ def main() -> None:
             number_detectors_run += number_detectors
 
             # If there is a V2, we run the contract-only check on the V2
-            detectors_results, number_detectors = _checks_on_contract(
-                detectors_to_run, v2_contract)
+            detectors_results, number_detectors = _checks_on_contract(detectors_to_run, v2_contract)
             json_results["detectors"] += detectors_results
             number_detectors_run += number_detectors
 

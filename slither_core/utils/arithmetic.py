@@ -8,8 +8,6 @@ if TYPE_CHECKING:
     from slither_core.core.declarations import Contract, Function
 
 # pylint: disable=too-many-branches
-
-
 def convert_subdenomination(
     value: str, sub: str
 ) -> int:  # pylint: disable=too-many-return-statements
@@ -38,8 +36,7 @@ def convert_subdenomination(
     if sub == "years":
         return int(decimal_value * 60 * 60 * 24 * 7 * 365)
 
-    raise SlitherException(
-        f"Subdemonination conversion impossible {decimal_value} {sub}")
+    raise SlitherException(f"Subdemonination conversion impossible {decimal_value} {sub}")
 
 
 # Number of unchecked arithmetic operation needed to be interesting

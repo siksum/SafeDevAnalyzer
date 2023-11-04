@@ -22,8 +22,7 @@ def test(args: Namespace) -> None:
         ntop = args.ntop
 
         if filename is None or contract is None or fname is None or infile is None:
-            logger.error(
-                "The test mode requires filename, contract, fname and input parameters.")
+            logger.error("The test mode requires filename, contract, fname and input parameters.")
             sys.exit(-1)
 
         irs = encode_contract(filename, **vars(args))
@@ -41,11 +40,9 @@ def test(args: Namespace) -> None:
             r[x] = similarity(fvector, y)
 
         r = sorted(r.items(), key=operator.itemgetter(1), reverse=True)
-        logger.info(
-            "Reviewed %d functions, listing the %d most similar ones:", len(r), ntop)
+        logger.info("Reviewed %d functions, listing the %d most similar ones:", len(r), ntop)
         format_table = "{: <65} {: <20} {: <20} {: <10}"
-        logger.info(format_table.format(
-            *["filename", "contract", "function", "score"]))
+        logger.info(format_table.format(*["filename", "contract", "function", "score"]))
         for x, score in r[:ntop]:
             score = str(round(score, 3))
             logger.info(format_table.format(*(list(x) + [score])))

@@ -180,8 +180,7 @@ def _process_functions(functions: Sequence[Function]) -> str:
     contract_functions: Dict[Contract, Set[str]] = defaultdict(
         set
     )  # contract -> contract functions nodes
-    contract_calls: Dict[Contract, Set[str]] = defaultdict(
-        set)  # contract -> contract calls edges
+    contract_calls: Dict[Contract, Set[str]] = defaultdict(set)  # contract -> contract calls edges
 
     solidity_functions: Set[str] = set()  # solidity function nodes
     solidity_calls: Set[str] = set()  # solidity calls edges
@@ -211,8 +210,7 @@ def _process_functions(functions: Sequence[Function]) -> str:
             contract, contract_functions, contract_calls
         )
 
-    render_solidity_calls = _render_solidity_calls(
-        solidity_functions, solidity_calls)
+    render_solidity_calls = _render_solidity_calls(solidity_functions, solidity_calls)
 
     render_external_calls = _render_external_calls(external_calls)
 
@@ -252,8 +250,7 @@ class PrinterCallGraph(AbstractPrinter):
             all_functionss = [
                 compilation_unit.functions for compilation_unit in self.slither.compilation_units
             ]
-            all_functions = [
-                item for sublist in all_functionss for item in sublist]
+            all_functions = [item for sublist in all_functionss for item in sublist]
             all_functions_as_dict = {
                 function.canonical_name: function for function in all_functions
             }
@@ -270,8 +267,7 @@ class PrinterCallGraph(AbstractPrinter):
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
-                    ["strict digraph {"] +
-                    [_process_functions(derived_contract.functions)] + ["}"]
+                    ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
                 )
                 f.write(content)
                 results.append((derived_output_filename, content))

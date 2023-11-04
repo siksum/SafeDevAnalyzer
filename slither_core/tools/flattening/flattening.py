@@ -68,8 +68,7 @@ class Flattening:
         self._private_to_internal = private_to_internal
         self._pragma_solidity = pragma_solidity
 
-        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(
-            export_path)
+        self._export_path: Path = DEFAULT_EXPORT_PATH if export_path is None else Path(export_path)
 
         self._check_abi_encoder_v2()
 
@@ -125,8 +124,7 @@ class Flattening:
                     )
                     attributes_end = f.returns_src().source_mapping.start
                     attributes = content[attributes_start:attributes_end]
-                    regex = re.search(
-                        r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
+                    regex = re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                     if regex:
                         to_patch.append(
                             Patch(
@@ -135,15 +133,13 @@ class Flattening:
                             )
                         )
                     else:
-                        raise SlitherException(
-                            f"External keyword not found {f.name} {attributes}")
+                        raise SlitherException(f"External keyword not found {f.name} {attributes}")
 
                     for var in f.parameters:
                         if var.location == "calldata":
                             calldata_start = var.source_mapping.start
                             calldata_end = calldata_start + var.source_mapping.length
-                            calldata_idx = content[calldata_start:calldata_end].find(
-                                " calldata ")
+                            calldata_idx = content[calldata_start:calldata_end].find(" calldata ")
                             to_patch.append(
                                 Patch(
                                     calldata_start + calldata_idx + 1,
@@ -163,8 +159,7 @@ class Flattening:
                     attributes_end = f.returns_src().source_mapping["start"]
                     attributes = content[attributes_start:attributes_end]
                     regex = (
-                        re.search(
-                            r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
+                        re.search(r"((\sexternal)\s+)|(\sexternal)$|(\)external)$", attributes)
                         if visibility == "external"
                         else re.search(r"((\spublic)\s+)|(\spublic)$|(\)public)$", attributes)
                     )
@@ -208,8 +203,7 @@ class Flattening:
                         if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
                             "assert(bool)"
                         ):
-                            to_patch.append(
-                                Patch(node.source_mapping.start, "line_removal"))
+                            to_patch.append(Patch(node.source_mapping.start, "line_removal"))
                             logger.info(
                                 f"Code commented: {node.expression} ({node.source_mapping})"
                             )
@@ -222,20 +216,15 @@ class Flattening:
             index = patch.index
             index = index - start
             if patch_type == "public_to_external":
-                content = content[:index] + "public" + \
-                    content[index + len("external"):]
+                content = content[:index] + "public" + content[index + len("external") :]
             elif patch_type == "external_to_internal":
-                content = content[:index] + "internal" + \
-                    content[index + len("external"):]
+                content = content[:index] + "internal" + content[index + len("external") :]
             elif patch_type == "public_to_internal":
-                content = content[:index] + "internal" + \
-                    content[index + len("public"):]
+                content = content[:index] + "internal" + content[index + len("public") :]
             elif patch_type == "private_to_internal":
-                content = content[:index] + "internal" + \
-                    content[index + len("private"):]
+                content = content[:index] + "internal" + content[index + len("private") :]
             elif patch_type == "calldata_to_memory":
-                content = content[:index] + "memory" + \
-                    content[index + len("calldata"):]
+                content = content[:index] + "memory" + content[index + len("calldata") :]
             else:
                 assert patch_type == "line_removal"
                 content = content[:index] + " // " + content[index:]
@@ -282,13 +271,10 @@ class Flattening:
                         t.type, exported, list_contract, list_top_level
                     )
         elif isinstance(t, MappingType):
-            self._export_from_type(t.type_from, contract,
-                                   exported, list_contract, list_top_level)
-            self._export_from_type(t.type_to, contract,
-                                   exported, list_contract, list_top_level)
+            self._export_from_type(t.type_from, contract, exported, list_contract, list_top_level)
+            self._export_from_type(t.type_to, contract, exported, list_contract, list_top_level)
         elif isinstance(t, ArrayType):
-            self._export_from_type(
-                t.type, contract, exported, list_contract, list_top_level)
+            self._export_from_type(t.type, contract, exported, list_contract, list_top_level)
 
     def _export_list_used_contracts(  # pylint: disable=too-many-branches
         self,
@@ -304,8 +290,7 @@ class Flattening:
             return
         exported.add(contract.name)
         for inherited in contract.inheritance:
-            self._export_list_used_contracts(
-                inherited, exported, list_contract, list_top_level)
+            self._export_list_used_contracts(inherited, exported, list_contract, list_top_level)
 
         # Find all the external contracts called
         externals = contract.all_library_calls + contract.all_high_level_calls
@@ -314,8 +299,7 @@ class Flattening:
         externals = list({e[0] for e in externals if e[0] != contract})
 
         for inherited in externals:
-            self._export_list_used_contracts(
-                inherited, exported, list_contract, list_top_level)
+            self._export_list_used_contracts(inherited, exported, list_contract, list_top_level)
 
         for list_libs in contract.using_for.values():
             for lib_candidate_type in list_libs:
@@ -332,13 +316,11 @@ class Flattening:
             local_vars += f.variables
 
         for v in contract.variables + local_vars:
-            self._export_from_type(
-                v.type, contract, exported, list_contract, list_top_level)
+            self._export_from_type(v.type, contract, exported, list_contract, list_top_level)
 
         for s in contract.structures:
             for elem in s.elems.values():
-                self._export_from_type(
-                    elem.type, contract, exported, list_contract, list_top_level)
+                self._export_from_type(elem.type, contract, exported, list_contract, list_top_level)
 
         # Find all convert and "new" operation that can lead to use an external contract
         for f in contract.functions_declared:
@@ -370,8 +352,7 @@ class Flattening:
     def _export_contract_with_inheritance(self, contract) -> Export:
         list_contracts: Set[Contract] = set()  # will contain contract itself
         list_top_level: Set[TopLevel] = set()
-        self._export_list_used_contracts(
-            contract, set(), list_contracts, list_top_level)
+        self._export_list_used_contracts(contract, set(), list_contracts, list_top_level)
         path = Path(self._export_path, f"{contract.name}_{uuid.uuid4()}.sol")
 
         content = ""
@@ -427,11 +408,9 @@ class Flattening:
     def _export_with_import(self) -> List[Export]:
         exports: List[Export] = []
         for contract in self._compilation_unit.contracts:
-            # will contain contract itself
-            list_contracts: Set[Contract] = set()
+            list_contracts: Set[Contract] = set()  # will contain contract itself
             list_top_level: Set[TopLevel] = set()
-            self._export_list_used_contracts(
-                contract, set(), list_contracts, list_top_level)
+            self._export_list_used_contracts(contract, set(), list_contracts, list_top_level)
 
             if list_top_level:
                 logger.info(
@@ -480,8 +459,7 @@ class Flattening:
                 return
             exports = []
             for contract in contracts:
-                exports.append(
-                    self._export_contract_with_inheritance(contract))
+                exports.append(self._export_contract_with_inheritance(contract))
 
         if json:
             export_as_json(exports, json)

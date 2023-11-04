@@ -38,8 +38,7 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable
     """
 
     detectors_to_run = choose_detectors(
-        kwargs.get("detectors_to_run", "all"), kwargs.get(
-            "detectors_to_exclude", "")
+        kwargs.get("detectors_to_run", "all"), kwargs.get("detectors_to_exclude", "")
     )
 
     for detector in detectors_to_run:
@@ -48,10 +47,8 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable
     slither.generate_patches = True
 
     detector_results = slither.run_detectors()
-    # remove empty results
-    detector_results = [x for x in detector_results if x]
-    detector_results = [
-        item for sublist in detector_results for item in sublist]  # flatten
+    detector_results = [x for x in detector_results if x]  # remove empty results
+    detector_results = [item for sublist in detector_results for item in sublist]  # flatten
 
     export = Path("crytic-export", "patches")
 
@@ -59,8 +56,7 @@ def slither_format(slither: Slither, **kwargs: Dict) -> None:  # pylint: disable
 
     counter_result = 0
 
-    logger.info(yellow(
-        "slither-format is in beta, carefully review each patch before merging it."))
+    logger.info(yellow("slither-format is in beta, carefully review each patch before merging it."))
 
     for result in detector_results:
         if not "patches" in result:
@@ -144,8 +140,7 @@ def print_patches(number_of_slither_results: int, patches: Dict) -> None:
 
 def print_patches_json(number_of_slither_results: int, patches: Dict) -> None:
     print("{", end="")
-    print('"Number of Slither results":' + '"' +
-          str(number_of_slither_results) + '",')
+    print('"Number of Slither results":' + '"' + str(number_of_slither_results) + '",')
     print('"Number of patchlets":' + '"' + str(len(patches)) + '"', ",")
     print('"Patchlets":' + "[")
     for index, file in enumerate(patches):
@@ -153,18 +148,15 @@ def print_patches_json(number_of_slither_results: int, patches: Dict) -> None:
             print(",")
         print("{", end="")
         print('"Patch file":' + '"' + file + '",')
-        print('"Number of patches":' + '"' +
-              str(len(patches[file])) + '"', ",")
+        print('"Number of patches":' + '"' + str(len(patches[file])) + '"', ",")
         print('"Patches":' + "[")
         for inner_index, patch in enumerate(patches[file]):
             if inner_index > 0:
                 print(",")
             print("{", end="")
             print('"Detector":' + '"' + patch["detector"] + '",')
-            print('"Old string":' + '"' +
-                  patch["old_string"].replace("\n", "") + '",')
-            print('"New string":' + '"' +
-                  patch["new_string"].replace("\n", "") + '",')
+            print('"Old string":' + '"' + patch["old_string"].replace("\n", "") + '",')
+            print('"New string":' + '"' + patch["new_string"].replace("\n", "") + '",')
             print('"Location start":' + '"' + str(patch["start"]) + '",')
             print('"Location end":' + '"' + str(patch["end"]) + '"')
             if "overlaps" in patch:

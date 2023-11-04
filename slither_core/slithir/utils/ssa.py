@@ -140,8 +140,7 @@ def add_ssa_ir(
     for (_, variable_instance) in all_state_variables_instances.items():
         if is_used_later(function.entry_point, variable_instance):
             # rvalues are fixed in solc_parsing.declaration.function
-            function.entry_point.add_ssa_ir(
-                Phi(StateIRVariable(variable_instance), set()))
+            function.entry_point.add_ssa_ir(Phi(StateIRVariable(variable_instance), set()))
 
     add_phi_origins(function.entry_point, init_definition, {})
 
@@ -576,8 +575,7 @@ def add_phi_origins(
     if not node.dominator_successors:
         return
     for succ in node.dominator_successors:
-        add_phi_origins(succ, local_variables_definition,
-                        state_variables_definition)
+        add_phi_origins(succ, local_variables_definition, state_variables_definition)
 
 
 # endregion
@@ -714,8 +712,7 @@ def copy_ir(ir: Operation, *instances) -> Operation:
     if isinstance(ir, Binary):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(
-            ir, lambda x: x.variable_right, *instances)
+        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         operation_type = ir.type
         return Binary(lvalue, variable_left, variable_right, operation_type)
     if isinstance(ir, CodeSize):
@@ -738,17 +735,19 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         destination = get_variable(ir, lambda x: x.destination, *instances)
         function_name = ir.function_name
         nbr_arguments = ir.nbr_arguments
+        names = ir.names
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
         if isinstance(ir, LibraryCall):
-            new_ir = LibraryCall(destination, function_name,
-                                 nbr_arguments, lvalue, type_call)
+            new_ir = LibraryCall(
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         else:
             new_ir = HighLevelCall(
-                destination, function_name, nbr_arguments, lvalue, type_call)
+                destination, function_name, nbr_arguments, lvalue, type_call, names=names
+            )
         new_ir.call_id = ir.call_id
-        new_ir.call_value = get_variable(
-            ir, lambda x: x.call_value, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
         new_ir.arguments = get_arguments(ir, *instances)
         new_ir.function = ir.function
@@ -756,8 +755,7 @@ def copy_ir(ir: Operation, *instances) -> Operation:
     if isinstance(ir, Index):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(
-            ir, lambda x: x.variable_right, *instances)
+        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Index(lvalue, variable_left, variable_right)
     if isinstance(ir, InitArray):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
@@ -768,7 +766,8 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call)
+        names = ir.names
+        new_ir = InternalCall(function, nbr_arguments, lvalue, type_call, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, InternalDynamicCall):
@@ -784,27 +783,22 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         nbr_arguments = ir.nbr_arguments
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         type_call = ir.type_call
-        new_ir = LowLevelCall(destination, function_name,
-                              nbr_arguments, lvalue, type_call)
+        new_ir = LowLevelCall(destination, function_name, nbr_arguments, lvalue, type_call)
         new_ir.call_id = ir.call_id
-        new_ir.call_value = get_variable(
-            ir, lambda x: x.call_value, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_gas = get_variable(ir, lambda x: x.call_gas, *instances)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, Member):
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         variable_left = get_variable(ir, lambda x: x.variable_left, *instances)
-        variable_right = get_variable(
-            ir, lambda x: x.variable_right, *instances)
+        variable_right = get_variable(ir, lambda x: x.variable_right, *instances)
         return Member(variable_left, variable_right, lvalue)
     if isinstance(ir, NewArray):
-        depth = ir.depth
         array_type = ir.array_type
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewArray(depth, array_type, lvalue)
-        new_ir.arguments = get_rec_values(
-            ir, lambda x: x.arguments, *instances)
+        new_ir = NewArray(array_type, lvalue)
+        new_ir.arguments = get_rec_values(ir, lambda x: x.arguments, *instances)
         return new_ir
     if isinstance(ir, NewElementaryType):
         new_type = ir.type
@@ -817,14 +811,14 @@ def copy_ir(ir: Operation, *instances) -> Operation:
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
         new_ir = NewContract(contract_name, lvalue)
         new_ir.arguments = get_arguments(ir, *instances)
-        new_ir.call_value = get_variable(
-            ir, lambda x: x.call_value, *instances)
+        new_ir.call_value = get_variable(ir, lambda x: x.call_value, *instances)
         new_ir.call_salt = get_variable(ir, lambda x: x.call_salt, *instances)
         return new_ir
     if isinstance(ir, NewStructure):
         structure = ir.structure
         lvalue = get_variable(ir, lambda x: x.lvalue, *instances)
-        new_ir = NewStructure(structure, lvalue)
+        names = ir.names
+        new_ir = NewStructure(structure, lvalue, names=names)
         new_ir.arguments = get_arguments(ir, *instances)
         return new_ir
     if isinstance(ir, Nop):

@@ -5,7 +5,6 @@ from enum import Enum
 from slither_core.slithir.operations.lvalue import OperationWithLValue
 from slither_core.slithir.utils.utils import is_valid_lvalue, is_valid_rvalue
 from slither_core.slithir.exceptions import SlithIRError
-from slither_core.core.expressions.unary_operation import UnaryOperationType
 from slither_core.core.variables.local_variable import LocalVariable
 from slither_core.slithir.variables.constant import Constant
 from slither_core.slithir.variables.local_variable import LocalIRVariable
@@ -27,8 +26,7 @@ class UnaryType(Enum):
                 return UnaryType.BANG
             if operation_type == "~":
                 return UnaryType.TILD
-        raise SlithIRError(
-            f"get_type: Unknown operation type {operation_type}")
+        raise SlithIRError(f"get_type: Unknown operation type {operation_type}")
 
 
 class Unary(OperationWithLValue):
@@ -36,7 +34,7 @@ class Unary(OperationWithLValue):
         self,
         result: Union[TemporaryVariableSSA, TemporaryVariable],
         variable: Union[Constant, LocalIRVariable, LocalVariable],
-        operation_type: UnaryOperationType,
+        operation_type: UnaryType,
     ) -> None:
         assert is_valid_rvalue(variable)
         assert is_valid_lvalue(result)
@@ -54,7 +52,7 @@ class Unary(OperationWithLValue):
         return self._variable
 
     @property
-    def type(self) -> UnaryOperationType:
+    def type(self) -> UnaryType:
         return self._type
 
     @property

@@ -28,14 +28,20 @@ class HighLevelCall(Call, OperationWithLValue):
         nbr_arguments: int,
         result: Optional[Union[TemporaryVariable, TupleVariable, TemporaryVariableSSA]],
         type_call: str,
+        names: Optional[List[str]] = None,
     ) -> None:
+        """
+        #### Parameters
+        names -
+            For calls of the form f({argName1 : arg1, ...}), the names of parameters listed in call order.
+            Otherwise, None.
+        """
         assert isinstance(function_name, Constant)
         assert is_valid_lvalue(result) or result is None
         self._check_destination(destination)
-        super().__init__()
+        super().__init__(names=names)
         # Contract is only possible for library call, which inherits from highlevelcall
-        self._destination: Union[Variable, SolidityVariable,
-                                 Contract] = destination  # type: ignore
+        self._destination: Union[Variable, SolidityVariable, Contract] = destination  # type: ignore
         self._function_name = function_name
         self._nbr_arguments = nbr_arguments
         self._type_call = type_call
@@ -78,8 +84,7 @@ class HighLevelCall(Call, OperationWithLValue):
 
     @property
     def read(self) -> List[SourceMapping]:
-        all_read = [self.destination, self.call_gas,
-                    self.call_value] + self._unroll(self.arguments)
+        all_read = [self.destination, self.call_gas, self.call_value] + self._unroll(self.arguments)
         # remove None
         return [x for x in all_read if x]
 

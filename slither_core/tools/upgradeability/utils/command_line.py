@@ -7,8 +7,7 @@ from slither_core.utils.myprettytable import MyPrettyTable
 def output_wiki(detector_classes: List[Type[AbstractCheck]], filter_wiki: str) -> None:
     # Sort by impact, confidence, and name
     detectors_list = sorted(
-        detector_classes, key=lambda element: (
-            element.IMPACT, element.ARGUMENT)
+        detector_classes, key=lambda element: (element.IMPACT, element.ARGUMENT)
     )
 
     for detector in detectors_list:
@@ -42,14 +41,11 @@ def output_detectors(detector_classes: List[Type[AbstractCheck]]) -> None:
         impact = detector.IMPACT
         require_proxy = detector.REQUIRE_PROXY
         require_v2 = detector.REQUIRE_CONTRACT_V2
-        detectors_list.append(
-            (argument, help_info, impact, require_proxy, require_v2))
-    table = MyPrettyTable(
-        ["Num", "Check", "What it Detects", "Impact", "Proxy", "Contract V2"])
+        detectors_list.append((argument, help_info, impact, require_proxy, require_v2))
+    table = MyPrettyTable(["Num", "Check", "What it Detects", "Impact", "Proxy", "Contract V2"])
 
     # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[0]))
+    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
         table.add_row(
@@ -79,12 +75,10 @@ def output_to_markdown(detector_classes: List[Type[AbstractCheck]], _filter_wiki
         impact = detector.IMPACT
         require_proxy = detector.REQUIRE_PROXY
         require_v2 = detector.REQUIRE_CONTRACT_V2
-        detectors_list.append(
-            (argument, help_info, impact, require_proxy, require_v2))
+        detectors_list.append((argument, help_info, impact, require_proxy, require_v2))
 
     # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[0]))
+    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     for (argument, help_info, impact, proxy, v2) in detectors_list:
         print(
@@ -118,8 +112,7 @@ def output_detectors_json(
         )
 
     # Sort by impact, confidence, and name
-    detectors_list = sorted(
-        detectors_list, key=lambda element: (element[2], element[0]))
+    detectors_list = sorted(detectors_list, key=lambda element: (element[2], element[0]))
     idx = 1
     table: List[Dict[str, Union[str, int]]] = []
     for (

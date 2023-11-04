@@ -70,12 +70,9 @@ class CustomError(SourceMapping):
 
         """
         parameters = [x.type for x in self.parameters if x.type]
-        self._full_name = self.name + \
-            "(" + ",".join(map(str, parameters)) + ")"
-        solidity_parameters = map(
-            self._convert_type_for_solidity_signature, parameters)
-        self._solidity_signature = self.name + \
-            "(" + ",".join(solidity_parameters) + ")"
+        self._full_name = self.name + "(" + ",".join(map(str, parameters)) + ")"
+        solidity_parameters = map(self._convert_type_for_solidity_signature, parameters)
+        self._solidity_signature = self.name + "(" + ",".join(solidity_parameters) + ")"
 
     @property
     def full_name(self) -> Optional[str]:

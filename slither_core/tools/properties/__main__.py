@@ -3,7 +3,7 @@ import logging
 import sys
 from typing import Any
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.tools.properties.properties.erc20 import generate_erc20, ERC20_PROPERTIES
@@ -145,8 +145,7 @@ def main() -> None:
     else:
         contract = contracts[0]
 
-    addresses = Addresses(args.address_owner,
-                          args.address_user, args.address_attacker)
+    addresses = Addresses(args.address_owner, args.address_user, args.address_attacker)
 
     generate_erc20(contract, args.scenario, addresses)
 

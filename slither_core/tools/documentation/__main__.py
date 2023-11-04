@@ -2,7 +2,7 @@ import argparse
 import logging
 import uuid
 from typing import Optional, Dict, List
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 from slither_core import Slither
 from slither_core.core.compilation_unit import SlitherCompilationUnit
 from slither_core.core.declarations import Function
@@ -21,8 +21,7 @@ def parse_args() -> argparse.Namespace:
     Parse the underlying arguments for the program.
     :return: Returns the arguments for the program.
     """
-    parser = argparse.ArgumentParser(
-        description="Demo", usage="slither-documentation filename")
+    parser = argparse.ArgumentParser(description="Demo", usage="slither-documentation filename")
 
     parser.add_argument("project", help="The target directory/Solidity file.")
 
@@ -100,7 +99,7 @@ def _post_processesing(
             return None
     if answer.find("/**") > answer.find("*/"):
         return None
-    answer = answer[answer.find("/**"): answer.find("*/") + 2]
+    answer = answer[answer.find("/**") : answer.find("*/") + 2]
     answer_lines = answer.splitlines()
     # Add indentation to all the lines, aside the first one
 
@@ -111,8 +110,7 @@ def _post_processesing(
             answer_lines[0]
             + "\n"
             + "\n".join(
-                [space_char * (starting_column - 1) +
-                 line for line in answer_lines[1:] if line]
+                [space_char * (starting_column - 1) + line for line in answer_lines[1:] if line]
             )
         )
         answer += "\n" + space_char * (starting_column - 1)
@@ -126,8 +124,7 @@ def _handle_codex(
     if "choices" in answer:
         if answer["choices"]:
             if "text" in answer["choices"][0]:
-                has_stopped = answer["choices"][0].get(
-                    "finish_reason", "") == "stop"
+                has_stopped = answer["choices"][0].get("finish_reason", "") == "stop"
                 answer_processed = _post_processesing(
                     answer["choices"][0]["text"], starting_column, use_tab, force and has_stopped
                 )
@@ -162,8 +159,7 @@ def _handle_function(
 
     use_tab = _use_tab(content[start - 1])
     if use_tab is None and src_mapping.starting_column > 1:
-        logger.info(
-            f"Non standard space indentation found {content[start - 1:end]}")
+        logger.info(f"Non standard space indentation found {content[start - 1:end]}")
         if overwrite:
             logger.info("Disable overwrite to avoid mistakes")
             overwrite = False
@@ -190,8 +186,7 @@ def _handle_function(
         if logging_file:
             codex.log_codex(logging_file, "A: " + str(answer))
 
-        answer_processed = _handle_codex(
-            answer, src_mapping.starting_column, use_tab, force)
+        answer_processed = _handle_codex(answer, src_mapping.starting_column, use_tab, force)
         if answer_processed:
             break
 
@@ -203,8 +198,7 @@ def _handle_function(
     if not answer_processed:
         return overwrite
 
-    create_patch(all_patches, src_mapping.filename.absolute,
-                 start, start, "", answer_processed)
+    create_patch(all_patches, src_mapping.filename.absolute, start, start, "", answer_processed)
 
     return overwrite
 
@@ -250,8 +244,7 @@ def _handle_compilation_unit(
         if "patches" not in all_patches:
             continue
         for file in all_patches["patches"]:
-            original_txt = compilation_unit.core.source_code[file].encode(
-                "utf8")
+            original_txt = compilation_unit.core.source_code[file].encode("utf8")
             patched_txt = original_txt
 
             patches = all_patches["patches"][file]
@@ -265,8 +258,7 @@ def _handle_compilation_unit(
                 with open(file, "w", encoding="utf8") as f:
                     f.write(patched_txt.decode("utf8"))
             else:
-                diff = create_diff(
-                    compilation_unit, original_txt, patched_txt, file)
+                diff = create_diff(compilation_unit, original_txt, patched_txt, file)
                 with open(f"{file}.patch", "w", encoding="utf8") as f:
                     f.write(diff)
 

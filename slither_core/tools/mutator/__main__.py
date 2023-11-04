@@ -4,7 +4,7 @@ import logging
 import sys
 from typing import Type, List, Any
 
-from Crytic_compile import cryticparser
+from crytic_compile import cryticparser
 
 from slither_core import Slither
 from slither_core.tools.mutator.mutators import all_mutators
@@ -29,8 +29,7 @@ def parse_args() -> argparse.Namespace:
         usage="slither-mutate target",
     )
 
-    parser.add_argument(
-        "codebase", help="Codebase to analyze (.sol file, truffle directory, ...)")
+    parser.add_argument("codebase", help="Codebase to analyze (.sol file, truffle directory, ...)")
 
     parser.add_argument(
         "--list-mutators",
@@ -52,8 +51,7 @@ def parse_args() -> argparse.Namespace:
 
 def _get_mutators() -> List[Type[AbstractMutator]]:
     detectors_ = [getattr(all_mutators, name) for name in dir(all_mutators)]
-    detectors = [c for c in detectors_ if inspect.isclass(
-        c) and issubclass(c, AbstractMutator)]
+    detectors = [c for c in detectors_ if inspect.isclass(c) and issubclass(c, AbstractMutator)]
     return detectors
 
 

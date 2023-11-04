@@ -45,8 +45,7 @@ Using initialize functions to write initial values in state variables.
         results = []
         for s in self.contract.state_variables_ordered:
             if s.initialized and not (s.is_constant or s.is_immutable):
-                info: CHECK_INFO = [
-                    s, " is a state variable with an initial value.\n"]
+                info: CHECK_INFO = [s, " is a state variable with an initial value.\n"]
                 json = self.generate_result(info)
                 results.append(json)
         return results

@@ -21,8 +21,7 @@ def resolve_function(slither: SlitherCore, contract_name: str, function_name: st
 
     # Verify the contract was resolved successfully
     if len(contracts) != 1:
-        raise ResolveFunctionException(
-            f"Could not resolve target contract: {contract_name}")
+        raise ResolveFunctionException(f"Could not resolve target contract: {contract_name}")
     contract = contracts[0]
     # Obtain the target function
     target_function = next(
@@ -54,8 +53,7 @@ def resolve_functions(
 
     # Verify that the provided argument is a list.
     if not isinstance(functions, list):
-        raise ResolveFunctionException(
-            "Provided functions to resolve must be a list type.")
+        raise ResolveFunctionException("Provided functions to resolve must be a list type.")
 
     # Loop for each item in the list.
     for item in functions:
@@ -128,14 +126,12 @@ def __find_target_paths(
                 f for (_, f) in function.high_level_calls if isinstance(f, Function)
             ]
             called_functions_list += [f for (_, f) in function.library_calls]
-            called_functions_list += [
-                f for f in function.internal_calls if isinstance(f, Function)]
+            called_functions_list += [f for f in function.internal_calls if isinstance(f, Function)]
             called_functions = set(called_functions_list)
 
             # If any of our target functions are reachable from this function, it's a result.
             if all_target_functions.intersection(called_functions):
-                path_results = __find_target_paths(
-                    slither, function, current_path.copy())
+                path_results = __find_target_paths(slither, function, current_path.copy())
                 if path_results:
                     results = results.union(path_results)
 

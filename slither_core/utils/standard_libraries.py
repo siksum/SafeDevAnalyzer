@@ -57,8 +57,7 @@ def is_openzeppelin(contract: "Contract") -> bool:
     if not contract.is_from_dependency():
         return False
     path = Path(contract.source_mapping.filename.absolute).parts
-    is_zep = "openzeppelin-solidity" in Path(
-        contract.source_mapping.filename.absolute).parts
+    is_zep = "openzeppelin-solidity" in Path(contract.source_mapping.filename.absolute).parts
     try:
         is_zep |= path[path.index("@openzeppelin") + 1] == "contracts"
     except IndexError:
@@ -69,8 +68,7 @@ def is_openzeppelin(contract: "Contract") -> bool:
 
 
 def is_openzeppelin_strict(contract: "Contract") -> bool:
-    source_hash = sha1(
-        contract.source_mapping.content.encode("utf-8")).hexdigest()
+    source_hash = sha1(contract.source_mapping.content.encode("utf-8")).hexdigest()
     return source_hash in oz_hashes
 
 

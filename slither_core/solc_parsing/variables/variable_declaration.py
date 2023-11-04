@@ -61,14 +61,11 @@ class VariableDeclarationSolc:
                 init = None
                 if "initialValue" in variable_data:
                     init = variable_data["initialValue"]
-                self._init_from_declaration(
-                    variable_data["declarations"][0], init)
+                self._init_from_declaration(variable_data["declarations"][0], init)
             elif nodeType == "VariableDeclaration":
-                self._init_from_declaration(
-                    variable_data, variable_data.get("value", None))
+                self._init_from_declaration(variable_data, variable_data.get("value", None))
             else:
-                raise ParsingError(
-                    f"Incorrect variable declaration type {nodeType}")
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
         else:
             nodeType = variable_data["name"]
@@ -85,16 +82,14 @@ class VariableDeclarationSolc:
                     raise MultipleVariablesDeclaration
                 else:
                     raise ParsingError(
-                        "Variable declaration without children?" +
-                        str(variable_data)
+                        "Variable declaration without children?" + str(variable_data)
                     )
                 declaration = variable_data["children"][0]
                 self._init_from_declaration(declaration, init)
             elif nodeType == "VariableDeclaration":
                 self._init_from_declaration(variable_data, None)
             else:
-                raise ParsingError(
-                    f"Incorrect variable declaration type {nodeType}")
+                raise ParsingError(f"Incorrect variable declaration type {nodeType}")
 
     @property
     def underlying_variable(self) -> Variable:
@@ -124,8 +119,7 @@ class VariableDeclarationSolc:
                 if write_protection:
                     if self._variable.write_protection is None:
                         self._variable.write_protection = []
-                    self._variable.write_protection.append(
-                        write_protection.group(1))
+                    self._variable.write_protection.append(write_protection.group(1))
 
     def _analyze_variable_attributes(self, attributes: Dict) -> None:
         if "visibility" in attributes:
@@ -179,8 +173,7 @@ class VariableDeclarationSolc:
             if var["typeName"]:
                 self._elem_to_parse = var["typeName"]
             else:
-                self._elem_to_parse = UnknownType(
-                    var["typeDescriptions"]["typeString"])
+                self._elem_to_parse = UnknownType(var["typeDescriptions"]["typeString"])
         else:
             if not var["children"]:
                 # It happens on variable declared inside loop declaration
@@ -216,12 +209,10 @@ class VariableDeclarationSolc:
         self._was_analyzed = True
 
         if self._elem_to_parse:
-            self._variable.type = parse_type(
-                self._elem_to_parse, caller_context)
+            self._variable.type = parse_type(self._elem_to_parse, caller_context)
             self._elem_to_parse = None
 
         if self._variable.initialized:
             assert self._initializedNotParsed
-            self._variable.expression = parse_expression(
-                self._initializedNotParsed, caller_context)
+            self._variable.expression = parse_expression(self._initializedNotParsed, caller_context)
             self._initializedNotParsed = None

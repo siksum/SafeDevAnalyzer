@@ -51,7 +51,7 @@ class SafeDevAnalyzer():
             
             if self.solc_parse.solc_version in _08_versions:
                 self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
-                print(self.abi_list)
+                # print(self.abi_list)
                 
             else:
                 abi = crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis
