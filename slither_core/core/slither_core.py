@@ -10,7 +10,7 @@ import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
-from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
+from antibug.compile.antibug_compile import AntibugCompile
 from antibug.compile.utils.naming import Filename
 
 from slither_core.core.declarations.contract_level import ContractLevel

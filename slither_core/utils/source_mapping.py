@@ -1,5 +1,5 @@
 from typing import List
-from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
+from antibug.compile.antibug_compile import AntibugCompile
 from slither_core.core.declarations import Contract, Function, Enum, Event, Import, Pragma, Structure
 from slither_core.core.solidity_types.type import Type
 from slither_core.core.source_mapping.source_mapping import Source, SourceMapping

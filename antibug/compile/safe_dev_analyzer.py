@@ -45,7 +45,8 @@ class SafeDevAnalyzer():
         file_path = self.target_list
         i = 0
         for crytic_compile in self.crytic_compile:
-            filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
+            filename_object = crytic_compile.filename_lookup(file_path[i])
+            # filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
             self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
             self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
             i += 1

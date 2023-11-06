@@ -1,8 +1,8 @@
 import logging
 from typing import Union, List, ValuesView, Type, Dict, Optional
 
-from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
-from antibug.compile.crytic_compile.exceptions import InvalidCompilation
+from antibug.compile.antibug_compile import AntibugCompile
+from antibug.compile.exceptions import InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither_core.core.compilation_unit import SlitherCompilationUnit

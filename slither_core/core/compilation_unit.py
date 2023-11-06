@@ -2,9 +2,9 @@ import math
 from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
-from antibug.compile.crytic_compile.antibug_compile import CompilationUnit, AntibugCompile
+from antibug.compile.antibug_compile import CompilationUnit, AntibugCompile
 # from Crytic_compile.compiler import CompilerVersion
-from antibug.compile.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.parse_version_and_install_solc import SolcParser
 from antibug.compile.utils.naming import Filename
 
 from slither_core.core.context.context import Context

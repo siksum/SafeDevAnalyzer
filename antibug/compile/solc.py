@@ -10,10 +10,10 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
-from antibug.compile.crytic_compile.compilation_unit import CompilationUnit
-# from antibug.antibug_compile.crytic_compile.compiler import CompilerVersion
-from antibug.compile.antibug_compile.parse_version_and_install_solc import SolcParser
-from antibug.compile.crytic_compile.exceptions import InvalidCompilation
+from antibug.compile.compilation_unit import CompilationUnit
+# from antibug.antibug_compile.compiler import CompilerVersion
+from antibug.compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.exceptions import InvalidCompilation
 from antibug.compile.utils.naming import (
     combine_filename_name,
     convert_filename,
@@ -25,7 +25,7 @@ from antibug.compile.utils.naming import (
 # from crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
+    from antibug.compile.antibug_compile import AntibugCompile
 
 LOGGER = logging.getLogger("AntibugCompile")
 
