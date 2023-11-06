@@ -131,6 +131,9 @@ class Solc():
     NAME = "solc"
     PROJECT_URL = "https://github.com/ethereum/solidity"
     TYPE = Type.SOLC
+    def __init__(self, target: str, **kwargs: str):
+        self.target = target
+
 
     def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
         """Run the compilation
@@ -145,9 +148,9 @@ class Solc():
 
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
-        compilation_unit = CompilationUnit(crytic_compile, str(self._target))
+        compilation_unit = CompilationUnit(crytic_compile, str(self.target))
 
-        targets_json = _get_targets_json(compilation_unit, self._target, **kwargs)
+        targets_json = _get_targets_json(compilation_unit, self.target, **kwargs)
 
         # there have been a couple of changes in solc starting from 0.8.x,
         if force_legacy_json and _is_at_or_above_minor_version(compilation_unit, 8):
@@ -161,7 +164,7 @@ class Solc():
             for path, info in targets_json["sources"].items():
                 if skip_filename:
                     path = convert_filename(
-                        self._target,
+                        self.target,
                         relative_to_short,
                         crytic_compile,
                         working_dir=solc_working_dir,
@@ -174,7 +177,7 @@ class Solc():
                 source_unit.ast = info["AST"]
 
         solc_handle_contracts(
-            targets_json, skip_filename, compilation_unit, self._target, solc_working_dir
+            targets_json, skip_filename, compilation_unit, self.target, solc_working_dir
         )
 
     def clean(self, **_kwargs: str) -> None:
