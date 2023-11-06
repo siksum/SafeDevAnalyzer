@@ -5,7 +5,7 @@ from typing import Dict
 from Crytic_compile.utils.naming import convert_filename
 
 from slither_core.slither import Slither
-from Crytic_compile import CryticCompile, InvalidCompilation
+from Crytic_compile import AntibugCompile, InvalidCompilation
 from antibug.compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.utils.naming import Filename
@@ -30,7 +30,7 @@ class SafeDevAnalyzer():
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
                     self.solc_parse = SolcParser(self.target_list[0])
-                    self.crytic_compile.append(CryticCompile(self.target_list[0]))
+                    self.crytic_compile.append(AntibugCompile(self.target_list[0]))
                     self.compilation_units[os.path.basename(
                         self.target_path)] = Slither(self.crytic_compile[0])  
                     
@@ -66,7 +66,7 @@ class SafeDevAnalyzer():
                 self.target_name.append(os.path.basename(file))
                 if (len(version) > 0):
                     self.solc_parse = SolcParser(file)
-                compilation_units.append(CryticCompile(file))
+                compilation_units.append(AntibugCompile(file))
             except:
                 print('compile error')
         return compilation_units

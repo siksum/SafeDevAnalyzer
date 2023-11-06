@@ -21,9 +21,9 @@ from Crytic_compile.utils.natspec import Natspec
 from .solc import relative_to_short
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Buidler(AbstractPlatform):
@@ -36,11 +36,11 @@ class Buidler(AbstractPlatform):
     TYPE = Type.BUILDER
 
     # pylint: disable=too-many-locals,too-many-statements,too-many-branches
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile objects
+            crytic_compile (AntibugCompile): Associated AntibugCompile objects
             **kwargs: optional arguments. Used: "buidler_cache_directory", "buidler_ignore_compile", "ignore_compile",
                 "buidler_working_dir", "buidler_skip_directory_name_fix", "npx_disable"
 

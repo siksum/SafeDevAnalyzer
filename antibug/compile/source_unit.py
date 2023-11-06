@@ -9,11 +9,10 @@ import cbor2
 
 from Crypto.Hash import keccak
 
-from crytic_compile.utils.naming import Filename
-from crytic_compile.utils.natspec import Natspec
+from antibug.compile.utils.naming import Filename
 
 if TYPE_CHECKING:
-    from crytic_compile.compilation_unit import CompilationUnit
+    from antibug.compile.crytic_compile.compilation_unit import CompilationUnit
 
 
 def get_library_candidate(filename: Filename, contract_name: str) -> List[str]:
@@ -78,9 +77,6 @@ class SourceUnit:
         self._srcmaps: Dict[str, List[str]] = {}
         self._srcmaps_runtime: Dict[str, List[str]] = {}
         self.ast: Dict = {}
-
-        # Natspec
-        self._natspec: Dict[str, Natspec] = {}
 
         # Libraries used by the contract
         # contract_name -> (library, pattern)
@@ -386,22 +382,6 @@ class SourceUnit:
                         bytecode,
                     )
         return bytecode
-
-    # endregion
-    ###################################################################################
-    ###################################################################################
-    # region Natspec
-    ###################################################################################
-    ###################################################################################
-
-    @property
-    def natspec(self) -> Dict[str, Natspec]:
-        """Return the natspec of the contracts
-
-        Returns:
-            Dict[str, Natspec]: Contract name -> Natspec
-        """
-        return self._natspec
 
     # endregion
     ###################################################################################

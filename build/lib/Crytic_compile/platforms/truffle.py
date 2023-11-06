@@ -24,16 +24,16 @@ from Crytic_compile.utils.natspec import Natspec
 
 # Handle cycle
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
-def export_to_truffle(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
+def export_to_truffle(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]:
     """Export to the truffle format
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Raises:
@@ -90,11 +90,11 @@ class Truffle(AbstractPlatform):
     TYPE = Type.TRUFFLE
 
     # pylint: disable=too-many-locals,too-many-statements,too-many-branches
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Compile
 
         Args:
-            crytic_compile (CryticCompile): CryticCompile object to populate
+            crytic_compile (AntibugCompile): AntibugCompile object to populate
             **kwargs: optional arguments. Used "truffle_build_directory", "truffle_ignore_compile", "ignore_compile",
                 "truffle_version", "npx_disable"
 

@@ -11,7 +11,7 @@ from zipfile import ZipFile
 from Crytic_compile.platforms.archive import generate_archive_export
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 
 def _to_str(txt: Union[bytes, str]) -> str:
@@ -28,23 +28,23 @@ def _to_str(txt: Union[bytes, str]) -> str:
     return txt
 
 
-def load_from_zip(target: str) -> List["CryticCompile"]:
+def load_from_zip(target: str) -> List["AntibugCompile"]:
     """Load a file from a zip
 
     Args:
         target (str): path to the file
 
     Returns:
-        List[CryticCompile]: List of loaded projects
+        List[AntibugCompile]: List of loaded projects
     """
     # pylint: disable=import-outside-toplevel
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
     compilations = []
     with ZipFile(target, "r") as file_desc:
         for project in file_desc.namelist():
             compilations.append(
-                CryticCompile(_to_str(file_desc.read(project)), compile_force_framework="Archive")
+                AntibugCompile(_to_str(file_desc.read(project)), compile_force_framework="Archive")
             )
 
     return compilations
@@ -60,12 +60,12 @@ ZIP_TYPES_ACCEPTED = {
 
 
 def save_to_zip(
-    crytic_compiles: List["CryticCompile"], zip_filename: str, zip_type: str = "lzma"
+    crytic_compiles: List["AntibugCompile"], zip_filename: str, zip_type: str = "lzma"
 ) -> None:
     """Save projects to a zip
 
     Args:
-        crytic_compiles (List[CryticCompile]): List of project to save
+        crytic_compiles (List[AntibugCompile]): List of project to save
         zip_filename (str): zip filename
         zip_type (str): Zip types. Supported lzma, stored, deflated, bzip2. Defaults to "lzma".
     """

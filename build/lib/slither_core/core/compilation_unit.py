@@ -1,7 +1,7 @@
 import math
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
-from Crytic_compile import CompilationUnit, CryticCompile
+from Crytic_compile import CompilationUnit, AntibugCompile
 from Crytic_compile.compiler.compiler import CompilerVersion
 from Crytic_compile.utils.naming import Filename
 
@@ -96,7 +96,7 @@ class SlitherCompilationUnit(Context):
         return self._crytic_compile_compilation_unit
 
     @property
-    def crytic_compile(self) -> CryticCompile:
+    def crytic_compile(self) -> AntibugCompile:
         return self._crytic_compile_compilation_unit.crytic_compile
 
     # endregion

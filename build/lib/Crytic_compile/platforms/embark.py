@@ -21,9 +21,9 @@ from Crytic_compile.utils.naming import convert_filename, extract_filename, extr
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Embark(AbstractPlatform):
@@ -36,11 +36,11 @@ class Embark(AbstractPlatform):
     TYPE = Type.EMBARK
 
     # pylint:disable=too-many-branches,too-many-statements,too-many-locals
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "embark_ignore_compile", "ignore_compile", "embark_overwrite_config"
 
         Raises:

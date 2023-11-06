@@ -3,7 +3,7 @@ import os
 from typing import Optional, Tuple, List
 
 from slither_core.slither import Slither
-from antibug.compile.compile import SafeDevAnalyzer
+from antibug.compile.antibug_compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.core.declarations import (
     Structure,
     Enum,
@@ -56,7 +56,7 @@ from slither_core.slithir.variables import (
 from antibug.run_detectors.based_blacklist.cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
-compiler_logger = logging.getLogger("CryticCompile")
+compiler_logger = logging.getLogger("AntibugCompile")
 compiler_logger.setLevel(logging.CRITICAL)
 slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)

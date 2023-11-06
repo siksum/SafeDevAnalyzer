@@ -23,9 +23,9 @@ from Crytic_compile.utils.naming import convert_filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Waffle(AbstractPlatform):
@@ -38,11 +38,11 @@ class Waffle(AbstractPlatform):
     TYPE = Type.WAFFLE
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
-        """Compile the project and populate the CryticCompile object
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
+        """Compile the project and populate the AntibugCompile object
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile
+            crytic_compile (AntibugCompile): Associated AntibugCompile
             **kwargs: optional arguments. Used "waffle_ignore_compile", "ignore_compile", "npx_disable",
                 "waffle_config_file"
 

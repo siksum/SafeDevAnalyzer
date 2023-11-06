@@ -9,13 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from crytic_compile.platform.exceptions import InvalidCompilation
+from antibug.compile.exceptions import InvalidCompilation
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from antibug.compile.antibug_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 @dataclass
@@ -125,16 +125,16 @@ def _verify_filename_existence(filename: Path, cwd: Path) -> Path:
 def convert_filename(
     used_filename: Union[str, Path],
     relative_to_short: Callable[[Path], Path],
-    crytic_compile: "CryticCompile",
+    crytic_compile: "AntibugCompile",
     working_dir: Optional[Union[str, Path]] = None,
 ) -> Filename:
-    """Convert a filename to CryticCompile Filename object.
+    """Convert a filename to AntibugCompile Filename object.
     The used_filename can be absolute, relative, or missing node_modules/contracts directory
 
     Args:
         used_filename (Union[str, Path]): Used filename
         relative_to_short (Callable[[Path], Path]): Callback to translate the relative to short
-        crytic_compile (CryticCompile): Associated CryticCompile object
+        crytic_compile (AntibugCompile): Associated AntibugCompile object
         working_dir (Optional[Union[str, Path]], optional): Working directory. Defaults to None.
 
     Returns:
@@ -160,11 +160,11 @@ def convert_filename(
         else:
             cwd = Path.cwd().joinpath(Path(working_dir)).resolve()
 
-    if crytic_compile.package_name:
-        try:
-            filename = filename.relative_to(Path(crytic_compile.package_name))
-        except ValueError:
-            pass
+    # if crytic_compile.package_name:
+    #     try:
+    #         filename = filename.relative_to(Path(crytic_compile.package_name))
+    #     except ValueError:
+    #         pass
 
     filename = _verify_filename_existence(filename, cwd)
 

@@ -53,7 +53,7 @@ def compile_project(project: str, **kwargs):
     print("Invoking crytic-compile on the project, please wait...")
 
     try:
-        crytic_compile.CryticCompile(project, **kwargs)
+        crytic_compile.AntibugCompile(project, **kwargs)
     except Exception as e:  # pylint: disable=broad-except
         with snip_section("Project compilation failed :( The following error was generated:"):
             logging.exception(e)

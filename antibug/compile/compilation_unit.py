@@ -9,23 +9,24 @@ import uuid
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
-from antibug.compile.crytic_compile.compiler import CompilerVersion
-from antibug.compile.crytic_compile.source_unit import SourceUnit
+# from antibug.antibug_compile.crytic_compile.compiler import CompilerVersion
+from antibug.compile.source_unit import SourceUnit
 from antibug.compile.utils.naming import Filename
+from antibug.compile.parse_version_and_install_solc import SolcParser
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from antibug.compile.crytic_compile.crytic import CryticCompile
+    from antibug.compile.antibug_compile import AntibugCompile
 
 # pylint: disable=too-many-instance-attributes
 class CompilationUnit:
     """CompilationUnit class"""
 
-    def __init__(self, crytic_compile: "CryticCompile", unique_id: str):
+    def __init__(self, crytic_compile: "AntibugCompile", unique_id: str, binary: str):
         """Init the object
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             unique_id (str): Unique ID used to identify the compilation unit
         """
 
@@ -42,15 +43,12 @@ class CompilationUnit:
         self._filenames_lookup: Optional[Dict[str, Filename]] = None
 
         # compiler.compiler
-        self._compiler_version: CompilerVersion = CompilerVersion(
-            compiler="N/A", version="N/A", optimized=False
-        )
-
+        self._compiler_version:str= binary
         # if the compilation unit comes from etherscan-like service and is a proxy,
         # store the implementation address
         self._implementation_address: Optional[str] = None
 
-        self._crytic_compile: "CryticCompile" = crytic_compile
+        self._crytic_compile: "AntibugCompile" = crytic_compile
 
         if unique_id == ".":
             unique_id = str(uuid.uuid4())
@@ -69,11 +67,11 @@ class CompilationUnit:
         return self._unique_id
 
     @property
-    def crytic_compile(self) -> "CryticCompile":
-        """Return the CryticCompile object
+    def crytic_compile(self) -> "AntibugCompile":
+        """Return the AntibugCompile object
 
         Returns:
-            CryticCompile: Associated CryticCompile object
+            AntibugCompile: Associated AntibugCompile object
         """
         return self._crytic_compile
 
@@ -257,7 +255,7 @@ class CompilationUnit:
     ###################################################################################
 
     @property
-    def compiler_version(self) -> "CompilerVersion":
+    def compiler_version(self) -> str:
         """Return the compiler info
 
         Returns:
@@ -266,7 +264,7 @@ class CompilationUnit:
         return self._compiler_version
 
     @compiler_version.setter
-    def compiler_version(self, compiler: CompilerVersion) -> None:
+    def compiler_version(self, compiler: str) -> None:
         """Set the compiler version
 
         Args:

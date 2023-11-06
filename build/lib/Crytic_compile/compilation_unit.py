@@ -15,17 +15,17 @@ from Crytic_compile.utils.naming import Filename
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 # pylint: disable=too-many-instance-attributes
 class CompilationUnit:
     """CompilationUnit class"""
 
-    def __init__(self, crytic_compile: "CryticCompile", unique_id: str):
+    def __init__(self, crytic_compile: "AntibugCompile", unique_id: str):
         """Init the object
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             unique_id (str): Unique ID used to identify the compilation unit
         """
 
@@ -50,7 +50,7 @@ class CompilationUnit:
         # store the implementation address
         self._implementation_address: Optional[str] = None
 
-        self._crytic_compile: "CryticCompile" = crytic_compile
+        self._crytic_compile: "AntibugCompile" = crytic_compile
 
         if unique_id == ".":
             unique_id = str(uuid.uuid4())
@@ -69,11 +69,11 @@ class CompilationUnit:
         return self._unique_id
 
     @property
-    def crytic_compile(self) -> "CryticCompile":
-        """Return the CryticCompile object
+    def crytic_compile(self) -> "AntibugCompile":
+        """Return the AntibugCompile object
 
         Returns:
-            CryticCompile: Associated CryticCompile object
+            AntibugCompile: Associated AntibugCompile object
         """
         return self._crytic_compile
 

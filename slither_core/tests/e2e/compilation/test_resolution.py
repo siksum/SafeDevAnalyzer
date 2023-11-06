@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-from crytic_compile import CryticCompile
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither_core import Slither
@@ -33,7 +33,7 @@ def test_contract_name_collision(solc_binary_path) -> None:
         Path(TEST_DATA_DIR, "test_contract_name_collisions", "b.sol").as_posix()
     )
 
-    compilation = CryticCompile(standard_json, solc=solc_path)
+    compilation = AntibugCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
 
     _run_all_detectors(slither)
@@ -51,7 +51,7 @@ def test_contract_function_parameter(solc_binary_path) -> None:
     standard_json.add_source_file(
         Path(TEST_DATA_DIR, "test_contract_data", "test_contract_data.sol").as_posix()
     )
-    compilation = CryticCompile(standard_json, solc=solc_path)
+    compilation = AntibugCompile(standard_json, solc=solc_path)
     slither = Slither(compilation)
     contract = slither.contracts[0]
     function = contract.functions[0]

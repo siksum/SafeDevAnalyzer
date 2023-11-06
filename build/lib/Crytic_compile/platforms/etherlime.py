@@ -23,9 +23,9 @@ from Crytic_compile.utils.naming import convert_filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 def _run_etherlime(target: str, npx_disable: bool, compile_arguments: Optional[str]) -> None:
@@ -80,11 +80,11 @@ class Etherlime(AbstractPlatform):
     TYPE = Type.ETHERLIME
 
     # pylint: disable=too-many-locals
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: Any) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: Any) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used "etherlime_ignore_compile", "ignore_compile"
 
         Raises:

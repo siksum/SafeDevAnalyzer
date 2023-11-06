@@ -21,9 +21,9 @@ from Crytic_compile.utils.naming import Filename, convert_filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Brownie(AbstractPlatform):
@@ -35,11 +35,11 @@ class Brownie(AbstractPlatform):
     PROJECT_URL = "https://github.com/iamdefinitelyahuman/brownie"
     TYPE = Type.BROWNIE
 
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used "brownie_ignore_compile", "ignore_compile"
 
         Raises:
@@ -136,12 +136,12 @@ class Brownie(AbstractPlatform):
 
 # pylint: disable=too-many-locals
 def _iterate_over_files(
-    crytic_compile: "CryticCompile", target: Path, filenames: List[Path]
+    crytic_compile: "AntibugCompile", target: Path, filenames: List[Path]
 ) -> None:
-    """Iterates over the files and populates the information into the CryticCompile object
+    """Iterates over the files and populates the information into the AntibugCompile object
 
     Args:
-        crytic_compile (CryticCompile): associated cryticCompile object
+        crytic_compile (AntibugCompile): associated cryticCompile object
         target (Path): path to the target
         filenames (List[Path]): List of files to iterate over
     """

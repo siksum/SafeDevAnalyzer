@@ -17,14 +17,14 @@ from Crytic_compile.utils.naming import Filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 
-def export_to_standard(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
+def export_to_standard(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]:
     """Export the project to the standard crytic compile format
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Returns:
@@ -74,11 +74,11 @@ class Standard(AbstractPlatform):
         self._underlying_platform: Type[AbstractPlatform] = Standard
         self._unit_tests: List[str] = []
 
-    def compile(self, crytic_compile: "CryticCompile", **_kwargs: str) -> None:
-        """Compile the file (load the file for the Standard platform) and populates the CryticCompile object
+    def compile(self, crytic_compile: "AntibugCompile", **_kwargs: str) -> None:
+        """Compile the file (load the file for the Standard platform) and populates the AntibugCompile object
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile
+            crytic_compile (AntibugCompile): Associated AntibugCompile
             **_kwargs: optional arguments. Not used
 
         """
@@ -210,14 +210,14 @@ def _convert_dict_to_filename(filename: Dict) -> Filename:
     )
 
 
-def generate_standard_export(crytic_compile: "CryticCompile") -> Dict:
-    """Convert the CryticCompile object to a json
+def generate_standard_export(crytic_compile: "AntibugCompile") -> Dict:
+    """Convert the AntibugCompile object to a json
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
 
     Returns:
-        Dict: CryticCompile converted to a json
+        Dict: AntibugCompile converted to a json
     """
 
     compilation_units = {}
@@ -272,12 +272,12 @@ def generate_standard_export(crytic_compile: "CryticCompile") -> Dict:
     return output
 
 
-def _load_from_compile_legacy1(crytic_compile: "CryticCompile", loaded_json: Dict) -> None:
+def _load_from_compile_legacy1(crytic_compile: "AntibugCompile", loaded_json: Dict) -> None:
     """Load from old (old) export
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to populate
-        loaded_json (Dict): Json representation of the CryticCompile object
+        crytic_compile (AntibugCompile): AntibugCompile object to populate
+        loaded_json (Dict): Json representation of the AntibugCompile object
     """
     compilation_unit = CompilationUnit(crytic_compile, "legacy")
     compilation_unit.compiler_version = CompilerVersion(
@@ -321,12 +321,12 @@ def _load_from_compile_legacy1(crytic_compile: "CryticCompile", loaded_json: Dic
             compilation_unit.crytic_compile.dependencies.add(filename.used)
 
 
-def _load_from_compile_legacy2(crytic_compile: "CryticCompile", loaded_json: Dict) -> None:
+def _load_from_compile_legacy2(crytic_compile: "AntibugCompile", loaded_json: Dict) -> None:
     """Load from old (old) export
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to populate
-        loaded_json (Dict): Json representation of the CryticCompile object
+        crytic_compile (AntibugCompile): AntibugCompile object to populate
+        loaded_json (Dict): Json representation of the AntibugCompile object
     """
 
     for key, compilation_unit_json in loaded_json["compilation_units"].items():
@@ -379,7 +379,7 @@ def _load_from_compile_legacy2(crytic_compile: "CryticCompile", loaded_json: Dic
                 crytic_compile.dependencies.add(filename.used)
 
 
-def _load_from_compile_0_0_1(crytic_compile: "CryticCompile", loaded_json: Dict) -> None:
+def _load_from_compile_0_0_1(crytic_compile: "AntibugCompile", loaded_json: Dict) -> None:
     for key, compilation_unit_json in loaded_json["compilation_units"].items():
         compilation_unit = CompilationUnit(crytic_compile, key)
         compilation_unit.compiler_version = CompilerVersion(
@@ -428,7 +428,7 @@ def _load_from_compile_0_0_1(crytic_compile: "CryticCompile", loaded_json: Dict)
                     crytic_compile.dependencies.add(filename.used)
 
 
-def _load_from_compile_current(crytic_compile: "CryticCompile", loaded_json: Dict) -> None:
+def _load_from_compile_current(crytic_compile: "AntibugCompile", loaded_json: Dict) -> None:
     for key, compilation_unit_json in loaded_json["compilation_units"].items():
         compilation_unit = CompilationUnit(crytic_compile, key)
         compilation_unit.compiler_version = CompilerVersion(
@@ -470,12 +470,12 @@ def _load_from_compile_current(crytic_compile: "CryticCompile", loaded_json: Dic
             source_unit.ast = source_unit_data["ast"]
 
 
-def load_from_compile(crytic_compile: "CryticCompile", loaded_json: Dict) -> Tuple[int, List[str]]:
+def load_from_compile(crytic_compile: "AntibugCompile", loaded_json: Dict) -> Tuple[int, List[str]]:
     """Load from a standard crytic compile json
     This function must be called on well-formed json
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to populate
+        crytic_compile (AntibugCompile): AntibugCompile object to populate
         loaded_json (Dict): Json to load
 
     Returns:

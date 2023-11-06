@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from solc_select.solc_select import installed_versions, install_artifacts
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 # pylint: disable=too-few-public-methods
 class CompilerVersion:

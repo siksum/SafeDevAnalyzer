@@ -25,9 +25,9 @@ from Crytic_compile.utils.natspec import Natspec
 from Crytic_compile.utils.subprocess import run
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Dapp(AbstractPlatform):
@@ -40,11 +40,11 @@ class Dapp(AbstractPlatform):
     TYPE = Type.DAPP
 
     # pylint: disable=too-many-locals
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "dapp_ignore_compile", "ignore_compile"
         """
 

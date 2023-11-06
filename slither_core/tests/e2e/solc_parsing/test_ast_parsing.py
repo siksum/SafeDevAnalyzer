@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Tuple
 
-from crytic_compile import CryticCompile, save_to_zip
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 from deepdiff import DeepDiff
 from packaging.version import parse as parse_version
@@ -594,7 +594,7 @@ def _generate_compile(test_item: Test, skip_existing=False):
 
         set_solc(version)
         print(f"Compiled to {expected_file}")
-        cc = CryticCompile(test_file, solc_force_legacy_json=flavor == "legacy")
+        cc = AntibugCompile(test_file, solc_force_legacy_json=flavor == "legacy")
 
         # pylint: disable=no-member
         Path(expected_file).parents[0].mkdir(parents=True, exist_ok=True)

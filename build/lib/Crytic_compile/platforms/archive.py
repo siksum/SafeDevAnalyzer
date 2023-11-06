@@ -16,14 +16,14 @@ from Crytic_compile.platforms import standard
 from Crytic_compile.platforms.abstract_platform import AbstractPlatform
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 
-def export_to_archive(crytic_compile: "CryticCompile", **kwargs: Any) -> List[str]:
+def export_to_archive(crytic_compile: "AntibugCompile", **kwargs: Any) -> List[str]:
     """Export the archive
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile containing the compilation units to export
+        crytic_compile (AntibugCompile): AntibugCompile containing the compilation units to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Returns:
@@ -67,11 +67,11 @@ class Archive(AbstractPlatform):
         self._underlying_platform: Type[AbstractPlatform] = Archive
         self._unit_tests: List[str] = []
 
-    def compile(self, crytic_compile: "CryticCompile", **_kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **_kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): associated CryticCompile object
+            crytic_compile (AntibugCompile): associated AntibugCompile object
             **_kwargs: unused
         """
         # pylint: disable=import-outside-toplevel
@@ -139,11 +139,11 @@ class Archive(AbstractPlatform):
         return self._unit_tests
 
 
-def generate_archive_export(crytic_compile: "CryticCompile") -> Tuple[Dict, str]:
+def generate_archive_export(crytic_compile: "AntibugCompile") -> Tuple[Dict, str]:
     """Generate the archive export
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
 
     Returns:
         Tuple[Dict, str]: The dict is the exported archive, and the str the filename

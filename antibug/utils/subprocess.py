@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from typing import Any, Dict, List, Optional, Union
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 def run(

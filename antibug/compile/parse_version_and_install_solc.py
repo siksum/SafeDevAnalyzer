@@ -52,17 +52,17 @@ class SolcParser:
         return self._version_list
 
 
-    @classmethod
-    def intalled_solc_versions(cls) -> List[str]:
-        cls._intalled_solc_versions = [str(p.name).replace("solc-", "") for p in SOLC_BINARIES_DIR.iterdir() if p.is_dir()]
-        return cls._intalled_solc_versions
+    @property
+    def intalled_solc_versions(self) -> List[str]:
+        self._intalled_solc_versions = [str(p.name).replace("solc-", "") for p in SOLC_BINARIES_DIR.iterdir() if p.is_dir()]
+        return self._intalled_solc_versions
 
-    @classmethod
-    def current_solc_version(cls) -> Optional[str]:
+    @property
+    def current_solc_version(self) -> Optional[str]:
         if os.path.exists(f"{SOLC_PARSER_DIR}/global-version"):
             with open(f"{SOLC_PARSER_DIR}/global-version", "r", encoding="utf-8") as f:
-                cls._current_solc_version = f.read()
-                return cls._current_solc_version
+                self._current_solc_version = f.read()
+                return self._current_solc_version
         else:
             return None
 
@@ -142,7 +142,7 @@ class SolcParser:
         artifact_file_dir = SOLC_BINARIES_DIR.joinpath(f"solc-{self._solc_binary_version}")
         if os.path.exists(artifact_file_dir):
             print(f"'{self._solc_binary_version}' is already installed.")
-            return artifact_file_dir, False
+            return False
         
         artifacts = self._release_version_list
         url = f"https://binaries.soliditylang.org/macosx-amd64/" + \
@@ -157,7 +157,7 @@ class SolcParser:
         self._solc_binary_path = artifact_file_dir.joinpath(f"solc-{self._solc_binary_version}")
         os.chmod(self._solc_binary_path, 0o775)
         print(f"Version '{self._solc_binary_version}' installed.")
-
+        return True
 
     def uninstall_solc(self):
         artifact_file_dir = SOLC_BINARIES_DIR.joinpath(f"solc-{self._solc_binary_version}")
@@ -175,14 +175,14 @@ class SolcParser:
             return
 
     def switch_global_version(self, always_install: bool) -> None:
-        if self._solc_binary_version in self.intalled_solc_versions():
+        if self._solc_binary_version in self.intalled_solc_versions:
             with open(f"{SOLC_PARSER_DIR}/global-version", "w", encoding="utf-8") as f:
                 f.write(self._solc_binary_version)
-            #print("Switched global version to", version)
-        elif self._solc_binary_version in self._version_list():
+            print("Switched global version to", self._solc_binary_version)
+        elif self._solc_binary_version in self._version_list:
             if always_install:
-                self.install_solc([self._solc_binary_version])
-                self.switch_global_version(self._solc_binary_version, always_install)
+                self.install_solc()
+                self.switch_global_version(always_install)
             else:
                 raise argparse.ArgumentTypeError(
                     f"'{self._solc_binary_version}' must be installed prior to use.")
@@ -216,6 +216,8 @@ class SolcParser:
             return
         
         self._solc_binary_version = solc_version
-        self.install_solc()
-        self.switch_global_version(True)
+        flag= self.install_solc()
+        self.switch_global_version(flag)
 
+# instance = SolcParser('reentrancy.sol')
+# instance.run_parser()

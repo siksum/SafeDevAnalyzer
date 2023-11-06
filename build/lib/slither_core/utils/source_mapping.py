@@ -1,5 +1,5 @@
 from typing import List
-from Crytic_compile import CryticCompile
+from Crytic_compile import AntibugCompile
 from slither_core.core.declarations import Contract, Function, Enum, Event, Import, Pragma, Structure
 from slither_core.core.solidity_types.type import Type
 from slither_core.core.source_mapping.source_mapping import Source, SourceMapping
@@ -7,7 +7,7 @@ from slither_core.core.variables.variable import Variable
 from slither_core.exceptions import SlitherError
 
 
-def get_definition(target: SourceMapping, crytic_compile: CryticCompile) -> Source:
+def get_definition(target: SourceMapping, crytic_compile: AntibugCompile) -> Source:
     if isinstance(target, (Contract, Function, Enum, Event, Structure, Variable)):
         # Add " " to look after the first solidity keyword
         pattern = " " + target.name

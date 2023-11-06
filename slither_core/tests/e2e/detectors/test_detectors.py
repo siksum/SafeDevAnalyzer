@@ -4,7 +4,7 @@ import sys
 from typing import Type, Optional, List
 
 import pytest
-from crytic_compile import CryticCompile, save_to_zip
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile, save_to_zip
 from crytic_compile.utils.zip import load_from_zip
 
 from solc_select import solc_select
@@ -1724,7 +1724,7 @@ def _generate_compile(test_item: Test, skip_existing=False):
             return
 
     set_solc(test_item)
-    crytic_compile = CryticCompile(test_file_path)
+    crytic_compile = AntibugCompile(test_file_path)
     save_to_zip([crytic_compile], zip_artifact_path)
 
 

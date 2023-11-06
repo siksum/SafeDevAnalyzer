@@ -27,9 +27,9 @@ from antibug.compile.parse_version_and_install_solc import SolcParser
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
@@ -94,14 +94,14 @@ def export_to_solc_from_compilation_unit(
     return None
 
 
-def export_to_solc(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
+def export_to_solc(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]:
     """Export all the compilation units to the standard solc output format.
     The files generated will be either
     - combined_solc.json, if there is one compilation unit (echidna legacy)
     - $key.json, where $key is the compilation unit identifiant
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Returns:
@@ -134,11 +134,11 @@ class Solc(AbstractPlatform):
     PROJECT_URL = "https://github.com/ethereum/solidity"
     TYPE = Type.SOLC
 
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "solc_working_dir", "solc_force_legacy_json"
 
         Raises:

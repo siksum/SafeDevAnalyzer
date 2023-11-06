@@ -756,7 +756,7 @@ Please rename it, this name is reserved for Slither's internals"""
         contract.set_is_analyzed(True)
 
     def _convert_to_slithir(self) -> None:
-
+        print(self._compilation_unit.contracts)
         for contract in self._compilation_unit.contracts:
             contract.add_constructor_variables()
 

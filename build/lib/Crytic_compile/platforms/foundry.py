@@ -16,11 +16,11 @@ from Crytic_compile.utils.subprocess import run
 
 # Handle cycle
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 T = TypeVar("T")
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class Foundry(AbstractPlatform):
@@ -33,11 +33,11 @@ class Foundry(AbstractPlatform):
     TYPE = Type.FOUNDRY
 
     # pylint: disable=too-many-locals,too-many-statements,too-many-branches
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Compile
 
         Args:
-            crytic_compile (CryticCompile): CryticCompile object to populate
+            crytic_compile (AntibugCompile): AntibugCompile object to populate
             **kwargs: optional arguments. Used: "foundry_ignore_compile", "foundry_out_directory"
 
         """

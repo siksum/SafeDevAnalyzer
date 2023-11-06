@@ -10,8 +10,8 @@ import re
 from collections import defaultdict
 from typing import Optional, Dict, List, Set, Union, Tuple
 
-from crytic_compile import CryticCompile
-from crytic_compile.utils.naming import Filename
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
+from antibug.compile.utils.naming import Filename
 
 from slither_core.core.declarations.contract_level import ContractLevel
 from slither_core.core.compilation_unit import SlitherCompilationUnit
@@ -63,7 +63,7 @@ class SlitherCore(Context):
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
 
-        self._crytic_compile: Optional[CryticCompile] = None
+        self._crytic_compile: Optional[AntibugCompile] = None
 
         self._generate_patches = False
         self._exclude_dependencies = False
@@ -506,7 +506,7 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self) -> CryticCompile:
+    def crytic_compile(self) -> AntibugCompile:
         return self._crytic_compile  # type: ignore
 
     # endregion

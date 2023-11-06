@@ -1758,7 +1758,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
             node.irs_ssa = [ir for ir in node.irs_ssa if not self._unchange_phi(ir)]
 
     def generate_slithir_and_analyze(self) -> None:
-
         for node in self.nodes:
             node.slithir_generation()
 

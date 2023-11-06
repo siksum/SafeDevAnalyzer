@@ -1,5 +1,5 @@
 from pathlib import Path
-from crytic_compile import CryticCompile
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
 from crytic_compile.platform.solc_standard_json import SolcStandardJson
 
 from slither_core import Slither
@@ -16,7 +16,7 @@ def test_using_for_global_collision(solc_binary_path) -> None:
     standard_json = SolcStandardJson()
     for source_file in Path(USING_FOR_TEST_DATA_DIR, "using_for_global_collision").rglob("*.sol"):
         standard_json.add_source_file(Path(source_file).as_posix())
-    compilation = CryticCompile(standard_json, solc=solc_path)
+    compilation = AntibugCompile(standard_json, solc=solc_path)
     sl = Slither(compilation)
     _run_all_detectors(sl)
 

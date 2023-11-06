@@ -2,10 +2,10 @@ import math
 from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
-from Crytic_compile import CompilationUnit, CryticCompile
+from antibug.compile.crytic_compile.antibug_compile import CompilationUnit, AntibugCompile
 # from Crytic_compile.compiler import CompilerVersion
-from antibug.compile.parse_version_and_install_solc import SolcParser
-from Crytic_compile.naming import Filename
+from antibug.compile.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.utils.naming import Filename
 
 from slither_core.core.context.context import Context
 from slither_core.core.declarations import (
@@ -105,14 +105,14 @@ class SlitherCompilationUnit(Context):
     @property
     def solc_version(self) -> str:
         # TODO: make version a non optional argument of compiler version in cc
-        return self._crytic_compile_compilation_unit.compiler_version.version  # type:ignore
+        return self._crytic_compile_compilation_unit.compiler_version  # type:ignore
 
     @property
     def crytic_compile_compilation_unit(self) -> CompilationUnit:
         return self._crytic_compile_compilation_unit
 
     @property
-    def crytic_compile(self) -> CryticCompile:
+    def crytic_compile(self) -> AntibugCompile:
         return self._crytic_compile_compilation_unit.crytic_compile
 
     # endregion

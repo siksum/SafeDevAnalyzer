@@ -55,7 +55,7 @@ from slither_core.slithir.variables import (
 from .cache import load_cache
 
 simil_logger = logging.getLogger("Slither-simil")
-compiler_logger = logging.getLogger("CryticCompile")
+compiler_logger = logging.getLogger("AntibugCompile")
 compiler_logger.setLevel(logging.CRITICAL)
 slither_logger = logging.getLogger("Slither")
 slither_logger.setLevel(logging.CRITICAL)

@@ -117,7 +117,7 @@ def get_highest_version(self, version_list, target_version, target_index):
 
 ### slither wrapping
 
-- slither에서 detector 돌리기 전에 거치는 과정 : Slither -> CryticCompile -> CompilationUnit -> SourceUnit
+- slither에서 detector 돌리기 전에 거치는 과정 : Slither -> AntibugCompile -> CompilationUnit -> SourceUnit
   - 이때, 버전에 대한 자동화 부분이 존재하지 않음
   - 돌릴때 마다 사용자가 설정해야 하는 문제 발생
   - 만약, 디렉토리 경로를 주고 안에 있는 sol 파일 버전들이 모두 다르다면 돌아가지 않음
@@ -128,7 +128,7 @@ def get_highest_version(self, version_list, target_version, target_index):
 ### Compile 방식 변경
 
 - 만들기 전에 생각한 것은 sol 파일의 버전 파싱해서 기호에 따른 적절한 solc 바이너리 설치하고 적용후 해당 버전의 solc 바이너리를 실행하여 컴파일하는 방식으로 가면 되겠다 생각함
-- 기존에 slither에서 수행하는 컴파일 방식에서는 CryticCompile object를 결괏값으로 출력하고 있어 우리가 원하는 정보들 뽑기가 어렵다 판단
+- 기존에 slither에서 수행하는 컴파일 방식에서는 AntibugCompile object를 결괏값으로 출력하고 있어 우리가 원하는 정보들 뽑기가 어렵다 판단
 - solc-parser에 solc 실행하는 것까지 내가 만들고, 거기서 ABI, bytecode를 뽑아낸 다음에 crytic-compile에서 컴파일하는 함수만 덮어씌워주면 되지 않을까? 생각했음
   ```mermaid
     %%{init: {"flowchart": {"htmlLabels": false}} }%%
@@ -136,7 +136,7 @@ def get_highest_version(self, version_list, target_version, target_index):
         markdown["`solc compile`"]
         newLines["`ABI
         EVM bytecode
-        CryticCompile object`"]
+        AntibugCompile object`"]
         markdown --> newLines
   ```
 - Crytic Compile 내 solc platform 로직을 수정하면 될 것이라 생각했는데, 종속성이 심해서 변경이 불가하였음
@@ -352,6 +352,7 @@ def get_highest_version(self, version_list, target_version, target_index):
   ```
 
 - Solution
+
   ```python
     def get_highest_version(self, version_list, target_version, target_index):
         matching_versions = []
@@ -366,6 +367,7 @@ def get_highest_version(self, version_list, target_version, target_index):
         else:
             return matching_versions[target_index -1]
   ```
+
   - matching_versions 내에서 target_version의 인덱스를 구하고, 해당 리스트 내에서 적절한 버전을 선택하도록 로직 변경
   - 그전에는 부버전 중 가장 최신일 경우 다음 부버전으로 넘어간다고 생각해서 version_list에서 인덱스를 검색했으나, 부버전 내에서만 선택해야 하므로 matching_versions만 고려하면 됨
 
@@ -379,10 +381,11 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 ### sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결
+
 - 단일 sol 파일에 여러 컨트랙트가 들어가는걸 고려 못했음
 - key를 가장 처음 나오는 컨트랙트 명으로 한정지어버려서(`next(iter(abi))`) 가장 처음 컨트랙트에 대해서만 abi, bytecode가 추출되었음
-  
 - 기존 코드
+
   ```python
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
       filename=os.path.basename(filename)[:-4]
@@ -410,12 +413,12 @@ def get_highest_version(self, version_list, target_version, target_index):
               "bytecodes": "0x" + bytecode
           }
           combined_json=combined_data
-      result_json = json.dumps(combined_json, indent=2)   
+      result_json = json.dumps(combined_json, indent=2)
       filename=os.path.basename(analyzer.target_list[0])[:-4]
   ```
   - 기존에는 디렉토리로 path가 들어올 것을 고려해서 abi, bytecode, filename을 모두 list로 받음
   - 지금 당장 list 형태를 단일로 바꾸기에는 일이 커질 것 같아서 0번째 인덱스라고 하드코딩 해놨음..
-  - output에서 달라진 점은 
+  - output에서 달라진 점은
     ```JSON
       {
         "contract": "EtherStore",
@@ -438,9 +441,12 @@ def get_highest_version(self, version_list, target_version, target_index):
 <br></br>
 
 # 2023.10.30 (월)
+
 ### json result convert logic refactoring
+
 - `__main__.py`에 정의 되어 있던 json output 뽑는 로직을 `convert_to_json.py`로 따로 빼두는 작업 진행
 - 기존 코드
+
   ```python
     def get_root_dir():
       current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
@@ -470,16 +476,18 @@ def get_highest_version(self, version_list, target_version, target_index):
               "bytecodes": "0x" + bytecode
           }
           combined_json=combined_data
-      result_json = json.dumps(combined_json, indent=2)   
+      result_json = json.dumps(combined_json, indent=2)
       filename=os.path.basename(analyzer.target_list[0])[:-4]
       try:
           output_path = os.path.join(output_dir+f"/{filename}.json")
           with open(output_path, "w") as f:
               f.write(result_json)
       except Exception as e:
-          print(f"Failed to write to {output_path}. Reason: {e}") 
+          print(f"Failed to write to {output_path}. Reason: {e}")
   ```
+
 - Solution
+
   ```python
     def get_root_dir():
         current_path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
@@ -506,7 +514,7 @@ def get_highest_version(self, version_list, target_version, target_index):
         return output_path
 
     def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
-        if target is not None:      
+        if target is not None:
             output_path= get_output_path(target, output_dir_path)
 
         try:
@@ -526,29 +534,35 @@ def get_highest_version(self, version_list, target_version, target_index):
                 "bytecodes": "0x" + bytecode
             }
             combined_json=combined_data
-        result_json = json.dumps(combined_json, indent=2)   
+        result_json = json.dumps(combined_json, indent=2)
 
         write_to_json(output_dir_path, result_json, analyzer.target_list[0])
                       .....
   ```
 
 # 2023.11.1 (수)
+
 ### setup dependencies 관련
 
-
 # 2023.11.2 (목)
+
 ### 버전에 따른 abi 출력이 달라지는 문제
+
 - 0.8 이상 버전에서는 원하는 대로 잘 출력이 되지만, 0.7 이하에서는 "\"문자가 붙어버림
+
   - v0.7.6
+
   ```JSON
     "abi":"[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
   ```
+
   - v0.8.0
     ```JSON
       "abi":[{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balances","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}],
     ```
 
 - `SafeDevAnalyzer/Crytic_compile/solc.py`에서 확인해보면 버전에 따라 다른 옵션을 주고 있음
+
   ```python
       def _build_options(compiler_version: SolcParser) -> str:
         old_04_versions = [f"0.4.{x}" for x in range(0, 12)]
@@ -568,45 +582,48 @@ def get_highest_version(self, version_list, target_version, target_index):
 
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
   ```
+
   - 조사해보니 이전에는 json에서 abi를 string으로 처리했으나, 0.8부터는 하위 객체로 인식한다고 함
-    ``` shell
+
+    ```shell
     Command Line Interface: JSON fields abi, devdoc, userdoc and storage-layout are now sub-objects rather than strings.
-    ``` 
+    ```
+
     [Solidity 0.8.0 Release Announcement | Solidity Programming Language](https://soliditylang.org/blog/2020/12/16/solidity-v0.8.0-release-announcement/)
-    
+
     → 이전 버전의 string을 object 형태로 변환하는 과정 필요함
 
   - Solution
     ```python
-        def to_deploy(self): 
+        def to_deploy(self):
             file_path = self.target_list
             i = 0
             for crytic_compile in self.crytic_compile:
                 filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
-      
+
                 _08_versions= [f"0.8.{x}" for x in range(0, 22)]
-                
+
                 if self.solc_parse.solc_version in _08_versions:
                     self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
-                    
+
                 else:
                     abi = crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis
                     dict_keys_contract = abi.keys()
                     dict_keys_list = list(dict_keys_contract)
-                    combined_data = {}  
+                    combined_data = {}
                     for contract in dict_keys_list:
                         abi_objects=json.loads(abi[contract])
                         combined_data[contract]= abi_objects
-                    
+
                     self.abi_list.append(combined_data)
                 self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._runtime_bytecodes)
                 i += 1
-            
+
             return self.abi_list, self.bytecode_list
     ```
-      - 0.8 버전에 대해서는 기존의 방식 이용하고, 0.7이하 버전에서는 string을 json object로 변환 후 contract 이름과 매칭하여 새로운 json 생성
-      - 테스트 해보니 0.4.15까지 잘변환됨. 0.4.15버전 이하 코드는 아직 못찾았음 ㅜ
-    <br />
+    - 0.8 버전에 대해서는 기존의 방식 이용하고, 0.7이하 버전에서는 string을 json object로 변환 후 contract 이름과 매칭하여 새로운 json 생성
+    - 테스트 해보니 0.4.15까지 잘변환됨. 0.4.15버전 이하 코드는 아직 못찾았음 ㅜ
+      <br />
 
 # TODOs
 
@@ -630,7 +647,6 @@ def get_highest_version(self, version_list, target_version, target_index):
 - [x] sol 파일 내부에 컨트랙트가 여러 개 있을 때 가장 마지막 컨트랙트에 대한 abi, bytecode가 생성되는 문제 해결하기
 
 - [x] JSON output 뽑아내는 코드 `__main__.py`에서 분리하기
-  
-- [x] ABI 형태가 버전별로 다르게 출력되는 문제 해결하기 
+- [x] ABI 형태가 버전별로 다르게 출력되는 문제 해결하기
 
 - [ ] mermaid 그래프 나란히 두는 방법 찾아보기

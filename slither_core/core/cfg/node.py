@@ -714,7 +714,6 @@ class Node(SourceMapping):  # pylint: disable=too-many-public-methods
         if self.expression:
             expression = self.expression
             self._irs = convert_expression(expression, self)  # type:ignore
-
         self._find_read_write_call()
 
     def all_slithir_operations(self) -> List[Operation]:

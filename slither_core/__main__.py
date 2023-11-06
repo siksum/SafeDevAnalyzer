@@ -14,7 +14,7 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
 from pkg_resources import iter_entry_points, require
 
-from crytic_compile import cryticparser, CryticCompile
+from crytic_compile import cryticparser, AntibugCompile
 from crytic_compile.platform.standard import generate_standard_export
 from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
 from crytic_compile import compile_all, is_supported
@@ -63,7 +63,7 @@ logger = logging.getLogger("Slither")
 
 
 def process_single(
-    target: Union[str, CryticCompile],
+    target: Union[str, AntibugCompile],
     args: argparse.Namespace,
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
@@ -782,7 +782,7 @@ def main_impl(
         ("TypeParsing", default_log),
         ("SSA_Conversion", default_log),
         ("Printers", default_log),
-        # ('CryticCompile', default_log)
+        # ('AntibugCompile', default_log)
     ]:
         logger_level = logging.getLogger(l_name)
         logger_level.setLevel(l_level)
@@ -792,7 +792,7 @@ def main_impl(
 
     console_handler.setFormatter(FormatterCryticCompile())
 
-    crytic_compile_error = logging.getLogger(("CryticCompile"))
+    crytic_compile_error = logging.getLogger(("AntibugCompile"))
     crytic_compile_error.addHandler(console_handler)
     crytic_compile_error.propagate = False
     crytic_compile_error.setLevel(logging.INFO)
@@ -823,7 +823,7 @@ def main_impl(
                 results_printers += results_printers_tmp
                 slither_instances.append(slither_instance)
 
-        # Rely on CryticCompile to discern the underlying type of compilations.
+        # Rely on AntibugCompile to discern the underlying type of compilations.
         else:
             (
                 slither_instances,

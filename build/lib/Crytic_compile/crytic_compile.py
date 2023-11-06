@@ -1,5 +1,5 @@
 """
-CryticCompile main module. Handle the compilation.
+AntibugCompile main module. Handle the compilation.
 """
 import base64
 
@@ -36,7 +36,7 @@ from Crytic_compile.utils.zip import load_from_zip
 if TYPE_CHECKING:
     pass
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 logging.basicConfig()
 
 
@@ -112,7 +112,7 @@ def _configure_solc(solc_requested: str, offline: bool) -> str:
 
 
 # pylint: disable=too-many-instance-attributes
-class CryticCompile:
+class AntibugCompile:
     """
     Main class.
     """
@@ -519,10 +519,10 @@ class CryticCompile:
     ###################################################################################
     ###################################################################################
 
-    # TODO: refactor import_archive_compilations to rely on one CryticCompile object
+    # TODO: refactor import_archive_compilations to rely on one AntibugCompile object
     # But multiple compilation units
     @staticmethod
-    def import_archive_compilations(compiled_archive: Union[str, Dict]) -> List["CryticCompile"]:
+    def import_archive_compilations(compiled_archive: Union[str, Dict]) -> List["AntibugCompile"]:
         """Import from an archive. compiled_archive is either a json file or the loaded dictionary
         The dictionary myst contain the "compilations" keyword
 
@@ -533,7 +533,7 @@ class CryticCompile:
             ValueError: The import did not worked
 
         Returns:
-            [CryticCompile]: List of crytic compile object
+            [AntibugCompile]: List of crytic compile object
         """
         # If the argument is a string, it is likely a filepath, load the archive.
         if isinstance(compiled_archive, str):
@@ -544,7 +544,7 @@ class CryticCompile:
         if not isinstance(compiled_archive, dict) or "compilations" not in compiled_archive:
             raise ValueError("Cannot import compiled archive, invalid format.")
 
-        return [CryticCompile(archive) for archive in compiled_archive["compilations"]]
+        return [AntibugCompile(archive) for archive in compiled_archive["compilations"]]
 
     # endregion
 
@@ -688,10 +688,10 @@ class CryticCompile:
 ###################################################################################
 ###################################################################################
 
-# TODO: refactor me to be integrated within CryticCompile.__init__
-def compile_all(target: str, **kwargs: str) -> List[CryticCompile]:
+# TODO: refactor me to be integrated within AntibugCompile.__init__
+def compile_all(target: str, **kwargs: str) -> List[AntibugCompile]:
     """Given a direct or glob pattern target, compiles all underlying sources and returns
-    all the relevant instances of CryticCompile.
+    all the relevant instances of AntibugCompile.
 
     Args:
         target (str): A string representing a file/directory path or glob pattern denoting where compilation should occur.
@@ -701,12 +701,12 @@ def compile_all(target: str, **kwargs: str) -> List[CryticCompile]:
         NotImplementedError: If the target could not be compiled
 
     Returns:
-        List[CryticCompile]: Returns a list of CryticCompile instances for all compilations which occurred.
+        List[AntibugCompile]: Returns a list of AntibugCompile instances for all compilations which occurred.
     """
     use_solc_standard_json = kwargs.get("solc_standard_json", False)
 
     # Check if the target refers to a valid target already.
-    compilations: List[CryticCompile] = []
+    compilations: List[AntibugCompile] = []
     if os.path.isfile(target) or is_supported(target):
         if target.endswith(".zip"):
             compilations = load_from_zip(target)
@@ -716,7 +716,7 @@ def compile_all(target: str, **kwargs: str) -> List[CryticCompile]:
                     tmp.write(base64.b64decode(target_file.read()))
                     compilations = load_from_zip(tmp.name)
         else:
-            compilations.append(CryticCompile(target, **kwargs))
+            compilations.append(AntibugCompile(target, **kwargs))
     elif os.path.isdir(target):
         solidity_filenames = glob.glob(os.path.join(target, "*.sol"))
         vyper_filenames = glob.glob(os.path.join(target, "*.vy"))
@@ -727,16 +727,16 @@ def compile_all(target: str, **kwargs: str) -> List[CryticCompile]:
             # input to create a single compilation with all files
             solc_standard_json = SolcStandardJson()
             solc_standard_json.add_source_files(solidity_filenames)
-            compilations.append(CryticCompile(solc_standard_json, **kwargs))
+            compilations.append(AntibugCompile(solc_standard_json, **kwargs))
         else:
             # We compile each file and add it to our compilations.
             for filename in solidity_filenames:
-                compilations.append(CryticCompile(filename, **kwargs))
+                compilations.append(AntibugCompile(filename, **kwargs))
 
         if vyper_filenames:
             vyper_standard_json = VyperStandardJson()
             vyper_standard_json.add_source_files(vyper_filenames)
-            compilations.append(CryticCompile(vyper_standard_json, **kwargs))
+            compilations.append(AntibugCompile(vyper_standard_json, **kwargs))
     else:
         raise NotImplementedError()
         # TODO split glob into language

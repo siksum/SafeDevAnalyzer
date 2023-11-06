@@ -22,9 +22,9 @@ from Crytic_compile.utils.naming import Filename
 # Cycle dependency
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 ETHERSCAN_BASE = "https://api%s/api?module=contract&action=getsourcecode&address=%s"
@@ -54,11 +54,11 @@ SUPPORTED_NETWORK = {
 }
 
 
-def _handle_bytecode(crytic_compile: "CryticCompile", target: str, result_b: bytes) -> None:
-    """Parse the bytecode and populate CryticCompile info
+def _handle_bytecode(crytic_compile: "AntibugCompile", target: str, result_b: bytes) -> None:
+    """Parse the bytecode and populate AntibugCompile info
 
     Args:
-        crytic_compile (CryticCompile): Associate CryticCompile object
+        crytic_compile (AntibugCompile): Associate AntibugCompile object
         target (str): path to the target
         result_b (bytes): text containing the bytecode
     """
@@ -200,11 +200,11 @@ class Etherscan(AbstractPlatform):
     TYPE = Type.ETHERSCAN
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used "solc", "etherscan_only_source_code", "etherscan_only_bytecode",
                 "etherscan_api_key", "export_dir"
 

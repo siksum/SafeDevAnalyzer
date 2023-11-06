@@ -1,4 +1,4 @@
-from antibug.compile.compile import SafeDevAnalyzer
+from antibug.compile.antibug_compile.safe_dev_analyzer import SafeDevAnalyzer
 from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib

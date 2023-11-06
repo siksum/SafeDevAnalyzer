@@ -20,9 +20,9 @@ from Crytic_compile.utils.naming import convert_filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 class VyperStandardJson(AbstractPlatform):
@@ -56,11 +56,11 @@ class VyperStandardJson(AbstractPlatform):
             },
         }
 
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Compile the target
 
         Args:
-            crytic_compile (CryticCompile): CryticCompile object to populate
+            crytic_compile (AntibugCompile): AntibugCompile object to populate
             **kwargs: optional arguments. Used "vyper"
 
 

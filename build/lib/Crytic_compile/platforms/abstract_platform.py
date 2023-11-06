@@ -11,7 +11,7 @@ from Crytic_compile.platforms import Type
 from Crytic_compile.utils.unit_tests import guess_tests
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 
 class IncorrectPlatformInitialization(Exception):
@@ -132,11 +132,11 @@ class AbstractPlatform(metaclass=abc.ABCMeta):
     ###################################################################################
 
     @abc.abstractmethod
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): CryticCompile object associated with the platform
+            crytic_compile (AntibugCompile): AntibugCompile object associated with the platform
             **kwargs: optional arguments.
         """
         return

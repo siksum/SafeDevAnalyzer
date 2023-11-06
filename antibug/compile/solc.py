@@ -10,11 +10,11 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
-from crytic_compile.compilation_unit import CompilationUnit
-from crytic_compile.compiler.compiler import CompilerVersion
-from crytic_compile.platform.exceptions import InvalidCompilation
-from crytic_compile.platform.types import Type
-from crytic_compile.utils.naming import (
+from antibug.compile.crytic_compile.compilation_unit import CompilationUnit
+# from antibug.antibug_compile.crytic_compile.compiler import CompilerVersion
+from antibug.compile.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.crytic_compile.exceptions import InvalidCompilation
+from antibug.compile.utils.naming import (
     combine_filename_name,
     convert_filename,
     extract_filename,
@@ -22,12 +22,12 @@ from crytic_compile.utils.naming import (
 )
 
 # Cycle dependency
-from crytic_compile.utils.natspec import Natspec
+# from crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from crytic_compile import CryticCompile
+    from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
@@ -92,14 +92,14 @@ def export_to_solc_from_compilation_unit(
     return None
 
 
-def export_to_solc(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
+def export_to_solc(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]:
     """Export all the compilation units to the standard solc output format.
     The files generated will be either
     - combined_solc.json, if there is one compilation unit (echidna legacy)
     - $key.json, where $key is the compilation unit identifiant
 
     Args:
-        crytic_compile (CryticCompile): CryticCompile object to export
+        crytic_compile (AntibugCompile): AntibugCompile object to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Returns:
@@ -130,16 +130,17 @@ class Solc():
 
     NAME = "solc"
     PROJECT_URL = "https://github.com/ethereum/solidity"
-    TYPE = Type.SOLC
-    def __init__(self, target: str, **kwargs: str):
+    # TYPE = Type.SOLC
+    def __init__(self, target: str, binary:str, **kwargs: str):
         self.target = target
+        self.compiler_version = binary
 
 
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: str) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "solc_working_dir", "solc_force_legacy_json"
 
         Raises:
@@ -148,7 +149,7 @@ class Solc():
 
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
-        compilation_unit = CompilationUnit(crytic_compile, str(self.target))
+        compilation_unit = CompilationUnit(crytic_compile, str(self.target), self.compiler_version)
 
         targets_json = _get_targets_json(compilation_unit, self.target, **kwargs)
 
@@ -156,7 +157,7 @@ class Solc():
         if force_legacy_json and _is_at_or_above_minor_version(compilation_unit, 8):
             raise InvalidCompilation("legacy JSON not supported from 0.8.x onwards")
 
-        skip_filename = compilation_unit.compiler_version.version in [
+        skip_filename = compilation_unit.compiler_version in [
             f"0.4.{x}" for x in range(0, 10)
         ]
 
@@ -342,8 +343,8 @@ def solc_handle_contracts(
             source_unit.srcmaps_runtime[contract_name] = info["srcmap-runtime"].split(";")
             userdoc = json.loads(info.get("userdoc", "{}")) if not is_above_0_8 else info["userdoc"]
             devdoc = json.loads(info.get("devdoc", "{}")) if not is_above_0_8 else info["devdoc"]
-            natspec = Natspec(userdoc, devdoc)
-            source_unit.natspec[contract_name] = natspec
+            # natspec = Natspec(userdoc, devdoc)
+            # source_unit.natspec[contract_name] = natspec
 
 
 def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: int) -> bool:
@@ -356,8 +357,8 @@ def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: 
     Returns:
         bool: True if the compilation unit version is above or equal to the provided version
     """
-    assert compilation_unit.compiler_version.version
-    return int(compilation_unit.compiler_version.version.split(".")[1]) >= version
+    assert compilation_unit.compiler_version
+    return int(compilation_unit.compiler_version.split(".")[1]) >= version
 
 
 def get_version(solc: str, env: Optional[Dict[str, str]]) -> str:
@@ -417,7 +418,7 @@ def is_optimized(solc_arguments: Optional[str]) -> bool:
     return False
 
 
-def _build_options(compiler_version: CompilerVersion, force_legacy_json: bool) -> str:
+def _build_options(compiler_version: SolcParser, force_legacy_json: bool) -> str:
     """
     Build the solc command line options
 
@@ -437,12 +438,12 @@ def _build_options(compiler_version: CompilerVersion, force_legacy_json: bool) -
         + [f"0.7.{x}" for x in range(0, 7)]
         + [f"0.8.{x}" for x in range(0, 10)]
     )
-    assert compiler_version.version
-    if compiler_version.version in old_04_versions or compiler_version.version.startswith("0.3"):
+    assert compiler_version
+    if compiler_version in old_04_versions or compiler_version.startswith("0.3"):
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
     if force_legacy_json:
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
-    if compiler_version.version in explicit_compact_format:
+    if compiler_version in explicit_compact_format:
         return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
 
     return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
@@ -495,12 +496,12 @@ def _run_solc(
     if not filename.endswith(".sol"):
         raise InvalidCompilation(f"{filename} is not the expected format '.sol'")
 
-    compilation_unit.compiler_version = CompilerVersion(
-        compiler="solc", version=get_version(solc, env), optimized=is_optimized(solc_arguments)
-    )
+    # compilation_unit.compiler_version = SolcParser(
+    #     compiler="solc", version=get_version(solc, env), optimized=is_optimized(solc_arguments)
+    # )
 
     compiler_version = compilation_unit.compiler_version
-    assert compiler_version
+    # assert compiler_version
     options = _build_options(compiler_version, force_legacy_json)
 
     cmd = [solc]
@@ -522,7 +523,7 @@ def _run_solc(
         cmd += solc_args
 
     additional_kwargs: Dict = {"cwd": working_dir} if working_dir else {}
-    if not compiler_version.version in [f"0.4.{x}" for x in range(0, 11)]:
+    if not compiler_version in [f"0.4.{x}" for x in range(0, 11)]:
         # Add --allow-paths argument, if it isn't already specified
         # We allow the CWD as well as the directory that contains the file
         if "--allow-paths" not in cmd:
@@ -579,7 +580,7 @@ def _run_solc(
 
     if stderr and (not solc_disable_warnings):
         LOGGER.info("Compilation warnings/errors on %s:\n%s", filename, stderr)
-
+        
     try:
         ret: Dict = json.loads(stdout)
         return ret

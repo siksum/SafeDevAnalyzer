@@ -1,5 +1,5 @@
 """
-CryticCompile main module. Handle the compilation.
+AntibugCompile main module. Handle the compilation.
 """
 
 import logging
@@ -10,15 +10,15 @@ from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
-from antibug.compile.crytic_compile.compilation_unit import CompilationUnit
-from antibug.compile.crytic_compile.solc import Solc
+from antibug.compile.compilation_unit import CompilationUnit
+from antibug.compile.solc import Solc
 from antibug.compile.utils.naming import Filename
 
 # Cycle dependency
 if TYPE_CHECKING:
     pass
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 logging.basicConfig()
 
 
@@ -43,13 +43,13 @@ def _extract_libraries(libraries_str: Optional[str]) -> Optional[Dict[str, int]]
 
 
 # pylint: disable=too-many-instance-attributes
-class CryticCompile:
+class AntibugCompile:
     """
     Main class.
     """
 
     # pylint: disable=too-many-branches
-    def __init__(self, target: Union[str, Solc], **kwargs: str) -> None:
+    def __init__(self, target: Union[str, Solc], binary: str, **kwargs: str) -> None:
         """See https://github.com/crytic/crytic-compile/wiki/Configuration
         Target is usually a file or a project directory. It can be an AbstractPlatform
         for custom setup
@@ -78,13 +78,17 @@ class CryticCompile:
         self._cached_line_to_code: Dict[Filename, List[bytes]] = {}
 
         self._working_dir = Path.cwd()
+        
+        self.compiler_version: str = binary
+        
 
-        self._platform = Solc(target)
+        self._platform = Solc(target, self.compiler_version)
 
         self._compilation_units: Dict[str, CompilationUnit] = {}
 
         self.libraries: Optional[Dict[str, int]] = _extract_libraries(kwargs.get("compile_libraries", None))  # type: ignore
-
+        
+        
         self._compile(**kwargs)
 
     @property
@@ -335,6 +339,6 @@ class CryticCompile:
     # endregion
     ###################################################################################
     ###################################################################################
-target="/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol"
-instance =CryticCompile(target)
-print(instance.compilation_units[target].asts)
+# target="/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol"
+# instance =AntibugCompile(target)
+# print(instance.compilation_units[target].asts)

@@ -17,11 +17,11 @@ from Crytic_compile.platforms.all_export import PLATFORMS_EXPORT
 from Crytic_compile.utils.zip import ZIP_TYPES_ACCEPTED, save_to_zip
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
 
 logging.basicConfig()
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 LOGGER.setLevel(logging.INFO)
 
 
@@ -173,11 +173,11 @@ class ShowPlatforms(argparse.Action):  # pylint: disable=too-few-public-methods
         parser.exit()
 
 
-def _print_filenames(compilation: "CryticCompile") -> None:
+def _print_filenames(compilation: "AntibugCompile") -> None:
     """Print the filenames
 
     Args:
-        compilation (CryticCompile): CryticCompile project
+        compilation (AntibugCompile): AntibugCompile project
     """
     for compilation_id, compilation_unit in compilation.compilation_units.items():
         print(
@@ -193,7 +193,7 @@ def _print_filenames(compilation: "CryticCompile") -> None:
             print(f"\t\tUsed: {filename.used}")
 
 
-def _print_libraries(compilation: "CryticCompile") -> None:
+def _print_libraries(compilation: "AntibugCompile") -> None:
     for compilation_id, compilation_unit in compilation.compilation_units.items():
         print(
             f"Compilation unit: {compilation_id} solc {compilation_unit.compiler_version.version})"

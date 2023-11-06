@@ -9,7 +9,7 @@ from compile.parse_version_and_install_solc import SolcParser
 from compile.compilation_unit import SafeDevCompilationUnit
 from compile.filename import Filename, convert_filename
 
-# from Crytic_compile.crytic_compile import CryticCompile
+# from Crytic_compile.crytic_compile import AntibugCompile
 import os
 
 
@@ -158,7 +158,7 @@ def execute_solc() -> None:
         raise InvalidCompilation(f"Invalid solc compilation {stderr}")
 
 
-# instance = CryticCompile(sys.argv[1])
+# instance = AntibugCompile(sys.argv[1])
 # print(instance.package_name)
 # print("=====================================")
 

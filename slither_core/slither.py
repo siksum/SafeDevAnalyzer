@@ -1,7 +1,8 @@
 import logging
 from typing import Union, List, ValuesView, Type, Dict, Optional
 
-from Crytic_compile import CryticCompile, InvalidCompilation
+from antibug.compile.crytic_compile.antibug_compile import AntibugCompile
+from antibug.compile.crytic_compile.exceptions import InvalidCompilation
 
 # pylint: disable= no-name-in-module
 from slither_core.core.compilation_unit import SlitherCompilationUnit
@@ -51,10 +52,10 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
 class Slither(
     SlitherCore
 ):  # pylint: disable=too-many-instance-attributes,too-many-locals,too-many-statements
-    def __init__(self, target: Union[str, CryticCompile], **kwargs) -> None:
+    def __init__(self, target: Union[str, AntibugCompile], **kwargs) -> None:
         """
         Args:
-            target (str | CryticCompile)
+            target (str | AntibugCompile)
         Keyword Args:
             solc (str): solc binary location (default 'solc')
             disable_solc_warnings (bool): True to disable solc warnings (default false)
@@ -89,10 +90,10 @@ class Slither(
 
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
-            if isinstance(target, CryticCompile):
+            if isinstance(target, AntibugCompile):
                 crytic_compile = target
             else:
-                crytic_compile = CryticCompile(target, **kwargs)
+                crytic_compile = AntibugCompile(target, **kwargs)
             self._crytic_compile = crytic_compile
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from

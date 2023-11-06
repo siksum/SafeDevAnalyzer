@@ -20,9 +20,9 @@ from Crytic_compile.utils.naming import convert_filename
 from Crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from Crytic_compile import AntibugCompile
 
-LOGGER = logging.getLogger("CryticCompile")
+LOGGER = logging.getLogger("AntibugCompile")
 
 
 def standalone_compile(
@@ -431,11 +431,11 @@ class SolcStandardJson(Solc):
         return self._json
 
     # pylint: disable=too-many-locals
-    def compile(self, crytic_compile: "CryticCompile", **kwargs: Any) -> None:
+    def compile(self, crytic_compile: "AntibugCompile", **kwargs: Any) -> None:
         """[summary]
 
         Args:
-            crytic_compile (CryticCompile): Associated CryticCompile object
+            crytic_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "solc", "solc_disable_warnings", "solc_args", "solc_working_dir",
                 "solc_remaps"
         """
