@@ -9,7 +9,6 @@ import uuid
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
-# from antibug.antibug_compile.crytic_compile.compiler import CompilerVersion
 from antibug.compile.source_unit import SourceUnit
 from antibug.compile.utils.naming import Filename
 

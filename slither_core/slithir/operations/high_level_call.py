@@ -126,7 +126,7 @@ class HighLevelCall(Call, OperationWithLValue):
     ###################################################################################
     def is_static_call(self) -> bool:
         # If solidity >0.5, STATICCALL is used
-        if self.compilation_unit.solc_version and self.compilation_unit.solc_version >= "0.5.0":
+        if self.compilation_unit.compiler_version and self.compilation_unit.compiler_version >= "0.5.0":
             if isinstance(self.function, Function) and (self.function.view or self.function.pure):
                 return True
             if isinstance(self.function, Variable):

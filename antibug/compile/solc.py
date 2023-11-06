@@ -130,7 +130,7 @@ class Solc():
 
     NAME = "solc"
     PROJECT_URL = "https://github.com/ethereum/solidity"
-    # TYPE = Type.SOLC
+    
     def __init__(self, target: str, binary:str, **kwargs: str):
         self.target = target
         self.compiler_version = binary
@@ -181,13 +181,6 @@ class Solc():
             targets_json, skip_filename, compilation_unit, self.target, solc_working_dir
         )
 
-    def clean(self, **_kwargs: str) -> None:
-        """Clean compilation artifacts
-
-        Args:
-            **_kwargs: unused.
-        """
-        return
 
     @staticmethod
     def is_supported(target: str, **kwargs: str) -> bool:
@@ -212,14 +205,6 @@ class Solc():
             bool: True if the target is a dependency
         """
         return False
-
-    def _guessed_tests(self) -> List[str]:
-        """Guess the potential unit tests commands (always empty for direct solc)
-
-        Returns:
-            List[str]: The guessed unit tests commands
-        """
-        return []
 
 
 def _get_targets_json(compilation_unit: "CompilationUnit", target: str, **kwargs: Any) -> Dict:
@@ -250,35 +235,8 @@ def _get_targets_json(compilation_unit: "CompilationUnit", target: str, **kwargs
         else:
             solcs_path = solcs_path_
     # solcs_env is always a list. It matches solc-select list
-    solcs_env = kwargs.get("solc_solcs_select")
     solc_working_dir = kwargs.get("solc_working_dir", None)
     force_legacy_json = kwargs.get("solc_force_legacy_json", False)
-
-    if solcs_path:
-        return _run_solcs_path(
-            compilation_unit,
-            target,
-            solcs_path,
-            solc_disable_warnings,
-            solc_arguments,
-            solc_remaps=solc_remaps,
-            working_dir=solc_working_dir,
-            force_legacy_json=force_legacy_json,
-        )
-
-    if solcs_env:
-        solcs_env_list = solcs_env.split(",")
-        return _run_solcs_env(
-            compilation_unit,
-            target,
-            solc,
-            solc_disable_warnings,
-            solc_arguments,
-            solcs_env=solcs_env_list,
-            solc_remaps=solc_remaps,
-            working_dir=solc_working_dir,
-            force_legacy_json=force_legacy_json,
-        )
 
     return _run_solc(
         compilation_unit,
@@ -341,10 +299,6 @@ def solc_handle_contracts(
             source_unit.bytecodes_runtime[contract_name] = info["bin-runtime"]
             source_unit.srcmaps_init[contract_name] = info["srcmap"].split(";")
             source_unit.srcmaps_runtime[contract_name] = info["srcmap-runtime"].split(";")
-            userdoc = json.loads(info.get("userdoc", "{}")) if not is_above_0_8 else info["userdoc"]
-            devdoc = json.loads(info.get("devdoc", "{}")) if not is_above_0_8 else info["devdoc"]
-            # natspec = Natspec(userdoc, devdoc)
-            # source_unit.natspec[contract_name] = natspec
 
 
 def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: int) -> bool:
@@ -359,49 +313,6 @@ def _is_at_or_above_minor_version(compilation_unit: "CompilationUnit", version: 
     """
     assert compilation_unit.compiler_version
     return int(compilation_unit.compiler_version.split(".")[1]) >= version
-
-
-def get_version(solc: str, env: Optional[Dict[str, str]]) -> str:
-    """Obtains the version of the solc executable specified.
-
-    Args:
-        solc (str): The solc executable name to invoke.
-        env (Optional[Dict[str, str]]): An optional environment key-value store which can be used when invoking the solc executable.
-
-    Raises:
-        InvalidCompilation: If solc failed to run
-
-    Returns:
-        str: Returns the version of the provided solc executable.
-    """
-
-    cmd = [solc, "--version"]
-    LOGGER.info(
-        "'%s' running",
-        " ".join(cmd),
-    )
-    try:
-        with subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=env,
-            executable=shutil.which(cmd[0]),
-        ) as process:
-            stdout_bytes, stderr_bytes = process.communicate()
-            stdout, stderr = (
-                stdout_bytes.decode(errors="backslashreplace"),
-                stderr_bytes.decode(errors="backslashreplace"),
-            )  # convert bytestrings to unicode strings
-            version = re.findall(r"\d+\.\d+\.\d+", stdout)
-            if len(version) == 0:
-                raise InvalidCompilation(
-                    f"\nSolidity version not found:\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}"
-                )
-            return version[0]
-    except OSError as error:
-        # pylint: disable=raise-missing-from
-        raise InvalidCompilation(error)
 
 
 def is_optimized(solc_arguments: Optional[str]) -> bool:
@@ -481,25 +392,7 @@ def _run_solc(
     Returns:
         Dict: Json compilation artifacts
     """
-    if not os.path.isfile(filename) and (
-        not working_dir or not os.path.isfile(os.path.join(str(working_dir), filename))
-    ):
-        if os.path.isdir(filename):
-            raise InvalidCompilation(
-                f"{filename} is a directory. Expected a Solidity file when not using a compilation framework."
-            )
-
-        raise InvalidCompilation(
-            f"{filename} does not exist. Are you in the correct working directory?"
-        )
-
-    if not filename.endswith(".sol"):
-        raise InvalidCompilation(f"{filename} is not the expected format '.sol'")
-
-    # compilation_unit.compiler_version = SolcParser(
-    #     compiler="solc", version=get_version(solc, env), optimized=is_optimized(solc_arguments)
-    # )
-
+    
     compiler_version = compilation_unit.compiler_version
     # assert compiler_version
     options = _build_options(compiler_version, force_legacy_json)
@@ -522,53 +415,19 @@ def _run_solc(
         solc_args = [item.strip() for sublist in solc_args_ for item in sublist if item]
         cmd += solc_args
 
-    additional_kwargs: Dict = {"cwd": working_dir} if working_dir else {}
-    if not compiler_version in [f"0.4.{x}" for x in range(0, 11)]:
-        # Add --allow-paths argument, if it isn't already specified
-        # We allow the CWD as well as the directory that contains the file
-        if "--allow-paths" not in cmd:
-            file_dir_start = os.path.normpath(os.path.dirname(filename))
-            # Paths in the --allow-paths arg can't contain commas, since this is the delimeter
-            # Try using absolute path; if it contains a comma, try using relative path instead
-            file_dir = os.path.abspath(file_dir_start)
-            if "," in file_dir:
-                try:
-                    file_dir = os.path.relpath(file_dir_start)
-                except ValueError:
-                    # relpath can fail if, for example, we're on Windows and the directory is on a different drive than CWD
-                    pass
-
-            # Even the relative path might have a comma in it, so we want to make sure first
-            if "," not in file_dir:
-                cmd += ["--allow-paths", ".," + file_dir]
-            else:
-                LOGGER.warning(
-                    "Solc filepath contains a comma; omitting the --allow-paths argument. This may result in failed imports.\n"
-                )
-
     try:
         LOGGER.info(
             "'%s' running",
             " ".join(cmd),
         )
-        # pylint: disable=consider-using-with
-        if env:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                executable=shutil.which(cmd[0]),
-                env=env,
-                **additional_kwargs,
-            )
-        else:
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                executable=shutil.which(cmd[0]),
-                **additional_kwargs,
-            )
+
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            executable=shutil.which(cmd[0]),
+            # **additional_kwargs,
+        )
     except OSError as error:
         # pylint: disable=raise-missing-from
         raise InvalidCompilation(error)
@@ -589,200 +448,8 @@ def _run_solc(
         raise InvalidCompilation(f"Invalid solc compilation {stderr}")
 
 
-# pylint: disable=too-many-arguments
-def _run_solcs_path(
-    compilation_unit: "CompilationUnit",
-    filename: str,
-    solcs_path: Optional[Union[Dict, List[str]]],
-    solc_disable_warnings: bool,
-    solc_arguments: str,
-    solc_remaps: Optional[Union[str, List[str]]] = None,
-    env: Optional[Dict] = None,
-    working_dir: Optional[str] = None,
-    force_legacy_json: bool = False,
-) -> Dict:
-    """[summary]
-
-    Args:
-        compilation_unit (CompilationUnit): Associated compilation unit
-        filename (str): Solidity file to compile
-        solcs_path (Optional[Union[Dict, List[str]]]): List of solc binaries to try. If its a dict, in the form "version:path".
-        solc_disable_warnings (bool): If True, disable solc warnings
-        solc_arguments (str): Additional solc cli arguments
-        solc_remaps (Optional[Union[str, List[str]]], optional): Solc remaps. Can be a string where remap are separated with space, or list of str, or a list of. Defaults to None.
-        env (Optional[Dict]): Environement variable when solc is run. Defaults to None.
-        working_dir (Optional[Union[Path, str]], optional): Working directory when solc is run. Defaults to None.
-        force_legacy_json (bool): Force to use the legacy json format. Defaults to False.
-
-    Raises:
-        InvalidCompilation: [description]
-
-    Returns:
-        Dict: Json compilation artifacts
-    """
-    targets_json = None
-    if isinstance(solcs_path, dict):
-        guessed_solcs = _guess_solc(filename, working_dir)
-        compilation_errors = []
-        for guessed_solc in guessed_solcs:
-            if not guessed_solc in solcs_path:
-                continue
-            try:
-                targets_json = _run_solc(
-                    compilation_unit,
-                    filename,
-                    solcs_path[guessed_solc],
-                    solc_disable_warnings,
-                    solc_arguments,
-                    solc_remaps=solc_remaps,
-                    env=env,
-                    working_dir=working_dir,
-                    force_legacy_json=force_legacy_json,
-                )
-                break
-            except InvalidCompilation:
-                pass
-
-    if not targets_json:
-        if isinstance(solcs_path, dict):
-            solc_bins: List[str] = list(solcs_path.values())
-        elif solcs_path:
-            solc_bins = solcs_path
-        else:
-            solc_bins = []
-
-        for solc_bin in solc_bins:
-            try:
-                targets_json = _run_solc(
-                    compilation_unit,
-                    filename,
-                    solc_bin,
-                    solc_disable_warnings,
-                    solc_arguments,
-                    solc_remaps=solc_remaps,
-                    env=env,
-                    working_dir=working_dir,
-                    force_legacy_json=force_legacy_json,
-                )
-                break
-            except InvalidCompilation as ic:
-                compilation_errors.append(solc_bin + ": " + ic.args[0])
-
-    if not targets_json:
-        raise InvalidCompilation(
-            "Invalid solc compilation, none of the solc versions provided worked:\n"
-            + "\n".join(compilation_errors)
-        )
-
-    return targets_json
-
-
-# pylint: disable=too-many-arguments
-def _run_solcs_env(
-    compilation_unit: "CompilationUnit",
-    filename: str,
-    solc: str,
-    solc_disable_warnings: bool,
-    solc_arguments: str,
-    solc_remaps: Optional[Union[List[str], str]] = None,
-    env: Optional[Dict] = None,
-    working_dir: Optional[str] = None,
-    solcs_env: Optional[List[str]] = None,
-    force_legacy_json: bool = False,
-) -> Dict:
-    """Run different solc based on environment variable
-    This is mostly a legacy function for old solc-select usages
-
-    Args:
-        compilation_unit (CompilationUnit): Associated compilation unit
-        filename (str): Solidity file to compile
-        solc (str): Solc binary
-        solc_disable_warnings (bool): If True, disable solc warnings
-        solc_arguments (str): Additional solc cli arguments
-        solc_remaps (Optional[Union[str, List[str]]], optional): Solc remaps. Can be a string where remap are separated with space, or list of str, or a list of. Defaults to None.
-        env (Optional[Dict], optional): Environement variable when solc is run. Defaults to None.
-        working_dir (Optional[Union[Path, str]], optional): Working directory when solc is run. Defaults to None.
-        solcs_env (Optional[List[str]]): List of solc env variable to try. Defaults to None.
-        force_legacy_json (bool): Force to use the legacy json format. Defaults to False.
-
-    Raises:
-        InvalidCompilation: If solc failed
-
-    Returns:
-        Dict: Json compilation artifacts
-    """
-    env = dict(os.environ) if env is None else env
-    targets_json = None
-    guessed_solcs = _guess_solc(filename, working_dir)
-    compilation_errors = []
-    for guessed_solc in guessed_solcs:
-        if solcs_env and not guessed_solc in solcs_env:
-            continue
-        try:
-            env["SOLC_VERSION"] = guessed_solc
-            targets_json = _run_solc(
-                compilation_unit,
-                filename,
-                solc,
-                solc_disable_warnings,
-                solc_arguments,
-                solc_remaps=solc_remaps,
-                env=env,
-                working_dir=working_dir,
-                force_legacy_json=force_legacy_json,
-            )
-            break
-        except InvalidCompilation:
-            pass
-
-    if not targets_json:
-        solc_versions_env = solcs_env if solcs_env else []
-
-        for version_env in solc_versions_env:
-            try:
-                env["SOLC_VERSION"] = version_env
-                targets_json = _run_solc(
-                    compilation_unit,
-                    filename,
-                    solc,
-                    solc_disable_warnings,
-                    solc_arguments,
-                    solc_remaps=solc_remaps,
-                    env=env,
-                    working_dir=working_dir,
-                    force_legacy_json=force_legacy_json,
-                )
-                break
-            except InvalidCompilation as ic:
-                compilation_errors.append(version_env + ": " + ic.args[0])
-
-    if not targets_json:
-        raise InvalidCompilation(
-            "Invalid solc compilation, none of the solc versions provided worked:\n"
-            + "\n".join(compilation_errors)
-        )
-
-    return targets_json
-
 
 PATTERN = re.compile(r"pragma solidity\s*(?:\^|>=|<=)?\s*(\d+\.\d+\.\d+)")
-
-
-def _guess_solc(target: str, solc_working_dir: Optional[str]) -> List[str]:
-    """Guess the Solidity version (look for "pragma solidity")
-
-    Args:
-        target (str): Solidity filename
-        solc_working_dir (Optional[str]): Working directory
-
-    Returns:
-        List[str]: List of potential solidity version
-    """
-    if solc_working_dir:
-        target = os.path.join(solc_working_dir, target)
-    with open(target, encoding="utf8") as file_desc:
-        buf = file_desc.read()
-        return PATTERN.findall(buf)
 
 
 def relative_to_short(relative: Path) -> Path:

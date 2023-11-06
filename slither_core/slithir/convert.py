@@ -114,8 +114,8 @@ def convert_expression(expression: Expression, node: "Node") -> List[Operation]:
 
     visitor = ExpressionToSlithIR(expression, node)
     result = visitor.result()
-    is_solidity = node.compilation_unit.is_solidity
-    result = apply_ir_heuristics(result, node, is_solidity)
+    # is_solidity = node.compilation_unit.is_solidity
+    result = apply_ir_heuristics(result, node)
 
     if result:
         if node.type in [NodeType.IF, NodeType.IFLOOP]:
@@ -1254,7 +1254,7 @@ def convert_to_low_level(
         new_ir.call_value = ir.call_value
         new_ir.arguments = ir.arguments
         # TODO fix this for Vyper
-        if ir.node.compilation_unit.solc_version >= "0.5":
+        if ir.node.compilation_unit.compiler_version >= "0.5":
             new_ir.lvalue.set_type([ElementaryType("bool"), ElementaryType("bytes")])
         else:
             new_ir.lvalue.set_type(ElementaryType("bool"))
@@ -2000,7 +2000,7 @@ def _find_source_mapping_references(irs: List[Operation]) -> None:
 ###################################################################################
 
 
-def apply_ir_heuristics(irs: List[Operation], node: "Node", is_solidity: bool) -> List[Operation]:
+def apply_ir_heuristics(irs: List[Operation], node: "Node") -> List[Operation]:
     """
     Apply a set of heuristic to improve slithIR
     """
@@ -2012,9 +2012,8 @@ def apply_ir_heuristics(irs: List[Operation], node: "Node", is_solidity: bool) -
     find_references_origin(irs)
 
     # These are heuristics that are only applied to Solidity
-    if is_solidity:
-        convert_constant_types(irs)
-        convert_delete(irs)
+    convert_constant_types(irs)
+    convert_delete(irs)
 
     _find_source_mapping_references(irs)
 

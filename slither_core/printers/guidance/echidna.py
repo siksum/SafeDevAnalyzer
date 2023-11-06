@@ -80,7 +80,7 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
     :return:
     """
     if f.view or f.pure:
-        if not f.compilation_unit.solc_version.startswith("0.4"):
+        if not f.compilation_unit.compiler_version.startswith("0.4"):
             return True
     if f.payable:
         return False
@@ -103,7 +103,7 @@ def _is_constant(f: Function) -> bool:  # pylint: disable=too-many-branches
         if isinstance(ir, HighLevelCall):
             if isinstance(ir.function, Variable) or ir.function.view or ir.function.pure:
                 # External call to constant functions are ensured to be constant only for solidity >= 0.5
-                if f.compilation_unit.solc_version.startswith("0.4"):
+                if f.compilation_unit.compiler_version.startswith("0.4"):
                     return False
             else:
                 return False
@@ -460,7 +460,7 @@ class Echidna(AbstractPrinter):
             "have_external_calls": external_calls,
             # "call_a_parameter": call_parameters,
             "use_balance": use_balance,
-            "solc_versions": [unit.solc_version for unit in self.slither.compilation_units],
+            "solc_versions": [unit.compiler_version for unit in self.slither.compilation_units],
             "with_fallback": with_fallback,
             "with_receive": with_receive,
         }

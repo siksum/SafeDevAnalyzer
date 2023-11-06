@@ -37,7 +37,7 @@ class ContractSolc(CallerContextExpression):
     def __init__(
         self, slither_parser: "SlitherCompilationUnitSolc", contract: Contract, data: Dict[str, Any]
     ) -> None:
-        # assert slitherSolc.solc_version.startswith('0.4')
+        # assert slitherSolc.compiler_version.startswith('0.4')
 
         self._contract = contract
         self._slither_parser = slither_parser

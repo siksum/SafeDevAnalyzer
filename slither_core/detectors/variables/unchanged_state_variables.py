@@ -121,7 +121,7 @@ class UnchangedStateVariables:
 
                     elif (
                         not v.type.is_dynamic
-                        and version.parse(self.compilation_unit.solc_version)
+                        and version.parse(self.compilation_unit.compiler_version)
                         >= version.parse("0.6.5")
                         and (v in constructor_variables_written or v in variables_initialized)
                     ):

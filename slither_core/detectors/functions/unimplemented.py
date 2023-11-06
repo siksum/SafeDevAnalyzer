@@ -91,7 +91,7 @@ All unimplemented functions must be implemented on a contract that is meant to b
                 and not f.is_fallback
                 and not f.is_constructor_variables
             ):
-                if self.compilation_unit.solc_version not in older_solc_versions:
+                if self.compilation_unit.compiler_version not in older_solc_versions:
                     # Since 0.5.1, Solidity allows creating state variable matching a function signature
                     if not self._match_state_variable(contract, f):
                         unimplemented.add(f)

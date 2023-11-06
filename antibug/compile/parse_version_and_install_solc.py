@@ -141,7 +141,7 @@ class SolcParser:
     def install_solc(self):
         artifact_file_dir = SOLC_BINARIES_DIR.joinpath(f"solc-{self._solc_binary_version}")
         if os.path.exists(artifact_file_dir):
-            print(f"'{self._solc_binary_version}' is already installed.")
+            # print(f"'{self._solc_binary_version}' is already installed.")
             return False
         
         artifacts = self._release_version_list

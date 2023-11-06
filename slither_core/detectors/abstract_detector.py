@@ -179,7 +179,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         if self.VULNERABLE_SOLC_VERSIONS:
             return (
                 self.compilation_unit.is_solidity
-                and self.compilation_unit.solc_version in self.VULNERABLE_SOLC_VERSIONS
+                and self.compilation_unit.compiler_version in self.VULNERABLE_SOLC_VERSIONS
             )
         if self.LANGUAGE:
             return self.compilation_unit.language.value == self.LANGUAGE

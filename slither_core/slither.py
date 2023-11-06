@@ -129,7 +129,6 @@ class Slither(
         printers_to_run = kwargs.get("printers_to_run", "")
         if printers_to_run == "echidna":
             self.skip_data_dependency = True
-
         self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
 
     def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
@@ -151,7 +150,6 @@ class Slither(
                     if self.no_fail:
                         continue
                     raise e
-
     @property
     def detectors(self):
         return self._detectors

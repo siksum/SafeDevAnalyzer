@@ -151,19 +151,19 @@ Consider using the latest version of Solidity for testing."""
 
                 results.append(json)
 
-        if self.compilation_unit.solc_version not in self.ALLOWED_VERSIONS:
+        if self.compilation_unit.compiler_version not in self.ALLOWED_VERSIONS:
 
-            if self.compilation_unit.solc_version in self.BUGGY_VERSIONS:
+            if self.compilation_unit.compiler_version in self.BUGGY_VERSIONS:
                 info = [
                     "solc-",
-                    self.compilation_unit.solc_version,
+                    self.compilation_unit.compiler_version,
                     " ",
                     self.BUGGY_VERSION_TXT,
                 ]
             else:
                 info = [
                     "solc-",
-                    self.compilation_unit.solc_version,
+                    self.compilation_unit.compiler_version,
                     " is not recommended for deployment\n",
                 ]
 

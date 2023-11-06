@@ -342,7 +342,7 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
         :return:
         """
 
-        return self.compilation_unit.solc_version[0] >= "0.8.0"
+        return self.compilation_unit.compiler_version[0] >= "0.8.0"
 
     @property
     def id(self) -> Optional[str]:
@@ -1760,7 +1760,6 @@ class Function(SourceMapping, metaclass=ABCMeta):  # pylint: disable=too-many-pu
     def generate_slithir_and_analyze(self) -> None:
         for node in self.nodes:
             node.slithir_generation()
-
         self._analyze_read_write()
         self._analyze_calls()
 

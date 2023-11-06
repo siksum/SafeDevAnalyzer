@@ -249,7 +249,7 @@ class ExternalFunction(AbstractDetector):
 
                     info = [f"{function_definition.full_name} should be declared external:\n"]
                     info += ["\t- ", function_definition, "\n"]
-                    if self.compilation_unit.solc_version >= "0.5.":
+                    if self.compilation_unit.compiler_version >= "0.5.":
                         info += [
                             "Moreover, the following function parameters should change its data location:\n"
                         ]

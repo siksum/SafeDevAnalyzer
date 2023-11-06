@@ -1,4 +1,2 @@
-Crytic_compile
 antibug
-result
 slither_core

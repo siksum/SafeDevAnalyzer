@@ -3,8 +3,6 @@ from enum import Enum
 from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from antibug.compile.antibug_compile import CompilationUnit, AntibugCompile
-# from Crytic_compile.compiler import CompilerVersion
-from antibug.compile.parse_version_and_install_solc import SolcParser
 from antibug.compile.utils.naming import Filename
 
 from slither_core.core.context.context import Context
@@ -103,7 +101,7 @@ class SlitherCompilationUnit(Context):
     #     return self._crytic_compile_compilation_unit.compiler_version
 
     @property
-    def solc_version(self) -> str:
+    def compiler_version(self) -> str:
         # TODO: make version a non optional argument of compiler version in cc
         return self._crytic_compile_compilation_unit.compiler_version  # type:ignore
 

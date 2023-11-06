@@ -1,17 +1,11 @@
 import os
-import sys
-from pathlib import Path
 from typing import Dict
-from antibug.compile.utils.naming import convert_filename
 
 from slither_core.slither import Slither
 from antibug.compile.antibug_compile import AntibugCompile
 from antibug.compile.exceptions import InvalidCompilation
 from antibug.compile.parse_version_and_install_solc import SolcParser
 
-from antibug.compile.utils.naming import Filename
-
-import json
 class SafeDevAnalyzer():
     def __init__(self, target: str, **kwargs) -> None:
         self.target_path = os.path.abspath(target)
@@ -35,18 +29,18 @@ class SafeDevAnalyzer():
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.solc_parse.run_parser()
                     self.crytic_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
+                    self.slither=Slither(self.crytic_compile[0])
                     # self.compilation_units[os.path.basename(
                     #     self.target_path)] = Slither(self.crytic_compile[0])  
         except InvalidCompilation:
             print('Not supported file type')
-            sys.exit(0)
+            return
 
     def to_deploy(self): 
         file_path = self.target_list
         i = 0
         for crytic_compile in self.crytic_compile:
             filename_object = crytic_compile.filename_lookup(file_path[i])
-            # filename_object = convert_filename(file_path[i], relative_to_short, crytic_compile)
             self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
             self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
             i += 1
@@ -63,56 +57,12 @@ class SafeDevAnalyzer():
     
     def get_crytic_compile_list(self):
         compilation_units = []
-        version = '0.8.0'  # default
         for file in self.target_list:
             try:
                 self.target_name.append(os.path.basename(file))
-                if (len(version) > 0):
-                    self.solc_parse = SolcParser(file)
-                    self.solc_parse.run_parser()
+                self.solc_parse = SolcParser(file)
+                self.solc_parse.run_parser()
                 compilation_units.append(AntibugCompile(file, self.solc_parse._solc_binary_version))
             except:
                 print('compile error')
         return compilation_units
-    
-    
-def relative_to_short(relative: Path) -> Path:
-    return relative
-
-
-# instance = SafeDevAnalyzer('/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol')
-# file= '/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol'
-# object=Filename(absolute='/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol', used='/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/antibug_compile/test/overflow.sol', relative='test/overflow.sol', short='test/overflow.sol')
-
-# abis =instance.crytic_compile[0]._compilation_units[file]._source_units[object].abis.keys()
-# print(abis)
-# print(json.loads(abis['TimeLock']))
-# runtime_bytecodes = instance.crytic_compile[0]._compilation_units[file]._source_units[object]._runtime_bytecodes
-
-# combined_data = {
-#     "abis": abis,
-#     "bytecodes": runtime_bytecodes
-# }
-
-# combined_json = json.dumps(combined_data, indent=4)
-# print("abi and bytecode")
-# print(combined_json)
-# print()
-
-# print("compilation units")
-# print(instance.crytic_compile[0])
-
-# ###### test directory #######  -> done
-# instance1 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/overflow.sol')
-# print(instance1.compilation_units)
-
-# ###### test zip ######### -> not working
-# instance2 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test.zip')
-# print(instance2.compilation_units)
-
-# ###### test import #########
-# instance3 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import/var.sol')
-# print(instance3.compilation_units)
-
-# instance4 = SafeDevAnalyzer('/Users/sikk/Desktop/AntiBug/development/SafeDevAnalyzer/antibug/compile/test/import')
-# print(instance4.compilation_units)

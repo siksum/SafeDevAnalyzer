@@ -109,22 +109,6 @@ class AntibugCompile:
         """
         return self._compilation_units
 
-    def is_in_multiple_compilation_unit(self, contract: str) -> bool:
-        """Check if the contract is shared by multiple compilation unit
-
-        Args:
-            contract (str): contract name
-
-        Returns:
-            bool: True if the contract is in multiple compilation units
-        """
-        count = 0
-        for compilation_unit in self._compilation_units.values():
-            for source_unit in compilation_unit.source_units.values():
-                if contract in source_unit.contracts_names:
-                    count += 1
-        return count >= 2
-
     ###################################################################################
     ###################################################################################
     # region Utils
@@ -302,17 +286,6 @@ class AntibugCompile:
             src (Dict): New source content
         """
         self._src_content = src
-
-    def src_content_for_file(self, filename_absolute: str) -> Optional[str]:
-        """Get the source code of the file
-
-        Args:
-            filename_absolute (str): absolute filename
-
-        Returns:
-            Optional[str]: source code
-        """
-        return self.src_content.get(filename_absolute, None)
 
     # endregion
     ###################################################################################

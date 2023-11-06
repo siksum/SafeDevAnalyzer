@@ -113,7 +113,7 @@ The constructor of `A` is called multiple times in `D` and `E`:
             # Leading to several FPs
             # As the result, we might miss some TPs if the reused is due to the constructor called
             # In the contract definition
-            if self.compilation_unit.solc_version >= "0.4.22":
+            if self.compilation_unit.compiler_version >= "0.4.22":
                 # Find all base constructors explicitly called from the contract definition with arguments.
                 _add_constructors_with_args(
                     current_contract.explicit_base_constructor_calls,
