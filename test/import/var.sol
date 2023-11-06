@@ -1,18 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.7.0;
 
-// import Foo.sol from current directory
-import "./foo.sol";
+contract TimeLock {
+    mapping(address => uint) public balances;
+    mapping(address => uint) public lockTime;
 
-// import {symbol1 as alias, symbol2} from "filename";
-import {Unauthorized, add as func, Point} from "./foo.sol";
+    function deposit() external payable {
+        balances[msg.sender] += msg.value;
+        lockTime[msg.sender] = block.timestamp + 1 weeks;
+    }
 
-contract Import {
-    // Initialize Foo.sol
-    Foo public foo = new Foo();
+    function increaseLockTime(uint _secondsToIncrease) public {
+        lockTime[msg.sender] += _secondsToIncrease;
+    }
 
-    // Test Foo.sol by getting it's name.
-    function getFooName() public view returns (string memory) {
-        return foo.name();
+    function withdraw() public {
+        require(balances[msg.sender] > 0, "Insufficient funds");
+        require(
+            block.timestamp > lockTime[msg.sender],
+            "Lock time not expired"
+        );
+
+        uint amount = balances[msg.sender];
+        balances[msg.sender] = 0;
+
+        (bool sent, ) = msg.sender.call{value: amount}("");
+        require(sent, "Failed to send Ether");
     }
 }

@@ -27,8 +27,8 @@ class SafeDevAnalyzer():
             if os.path.isdir(self.target_path):
                 self.target_list = self.find_all_solidity_files('.sol')
                 self.crytic_compile.extend(self.get_crytic_compile_list())
-                for crytic, filename in zip(self.crytic_compile, self.target_name):
-                    self.compilation_units[filename] = Slither(crytic)
+                # for crytic, filename in zip(self.crytic_compile, self.target_name):
+                #     self.compilation_units[filename] = Slither(crytic)
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
@@ -50,7 +50,6 @@ class SafeDevAnalyzer():
             self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
             self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
             i += 1
-        
         return self.abi_list, self.bytecode_list
     
     def find_all_solidity_files(self, extension: str):
@@ -71,7 +70,7 @@ class SafeDevAnalyzer():
                 if (len(version) > 0):
                     self.solc_parse = SolcParser(file)
                     self.solc_parse.run_parser()
-                compilation_units.append(AntibugCompile(file))
+                compilation_units.append(AntibugCompile(file, self.solc_parse._solc_binary_version))
             except:
                 print('compile error')
         return compilation_units

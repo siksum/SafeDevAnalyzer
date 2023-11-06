@@ -42,19 +42,19 @@ def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
         print(f"Failed to write to {output_path}. Reason: {e}")
 
 
-def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer:SafeDevAnalyzer):
-    combined_data = {}
+def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
     output_dir_path = output_dir("deploy_json_results")
-    combined_json = {}
-    for (contract, abi_data), bytecode in zip(abi_list[0].items(), bytecode_list[0].values()):
-        combined_data[contract]= {
-            "abis": abi_data,
-            "bytecodes": "0x" + bytecode
-        }
-        combined_json=combined_data
-    result_json = json.dumps(combined_json, indent=2)   
+    
+    for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
+        combined_data = {}
+        for (contract, abi_data), bytecode_data in zip(abi.items(), bytecode.values()):
+            combined_data[contract] = {
+                "abis": abi_data,
+                "bytecodes": "0x" + bytecode_data
+            }
+            result_json = json.dumps(combined_data, indent=2)
+            write_to_json(output_dir_path, result_json, filename)
 
-    write_to_json(output_dir_path, result_json, analyzer.target_list[0])
 
 
 def convert_to_detect_result_json(result, target):

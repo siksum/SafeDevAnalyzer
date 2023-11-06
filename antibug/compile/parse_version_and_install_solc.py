@@ -218,6 +218,3 @@ class SolcParser:
         self._solc_binary_version = solc_version
         flag= self.install_solc()
         self.switch_global_version(flag)
-
-# instance = SolcParser('reentrancy.sol')
-# instance.run_parser()
