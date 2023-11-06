@@ -10,24 +10,22 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional, Union, Any
 
-from Crytic_compile.compilation_unit import CompilationUnit
-from Crytic_compile.compiler.compiler import CompilerVersion
-from Crytic_compile.platforms.abstract_platform import AbstractPlatform
-from Crytic_compile.platforms.exceptions import InvalidCompilation
-from Crytic_compile.platforms.types import Type
-from Crytic_compile.utils.naming import (
+from crytic_compile.compilation_unit import CompilationUnit
+from crytic_compile.compiler.compiler import CompilerVersion
+from crytic_compile.platform.exceptions import InvalidCompilation
+from crytic_compile.platform.types import Type
+from crytic_compile.utils.naming import (
     combine_filename_name,
     convert_filename,
     extract_filename,
     extract_name,
 )
 
-from antibug.compile.parse_version_and_install_solc import SolcParser
 # Cycle dependency
-from Crytic_compile.utils.natspec import Natspec
+from crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 
@@ -125,7 +123,7 @@ def export_to_solc(crytic_compile: "CryticCompile", **kwargs: str) -> List[str]:
     return paths
 
 
-class Solc(AbstractPlatform):
+class Solc():
     """
     Solc platform
     """
@@ -479,7 +477,6 @@ def _run_solc(
     Returns:
         Dict: Json compilation artifacts
     """
-
     if not os.path.isfile(filename) and (
         not working_dir or not os.path.isfile(os.path.join(str(working_dir), filename))
     ):
@@ -794,3 +791,4 @@ def relative_to_short(relative: Path) -> Path:
         Path: Converted path
     """
     return relative
+

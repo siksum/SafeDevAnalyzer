@@ -1,4 +1,4 @@
-from antibug.antibug_compile.compile import SafeDevAnalyzer
+from antibug.compile.compile import SafeDevAnalyzer
 
 import sys
 import json

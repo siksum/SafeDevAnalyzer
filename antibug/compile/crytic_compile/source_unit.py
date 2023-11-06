@@ -9,11 +9,11 @@ import cbor2
 
 from Crypto.Hash import keccak
 
-from Crytic_compile.naming import Filename
-#from Crytic_compile.utils.natspec import Natspec
+from crytic_compile.utils.naming import Filename
+from crytic_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
-    from Crytic_compile.compilation_unit import CompilationUnit
+    from crytic_compile.compilation_unit import CompilationUnit
 
 
 def get_library_candidate(filename: Filename, contract_name: str) -> List[str]:
@@ -79,6 +79,8 @@ class SourceUnit:
         self._srcmaps_runtime: Dict[str, List[str]] = {}
         self.ast: Dict = {}
 
+        # Natspec
+        self._natspec: Dict[str, Natspec] = {}
 
         # Libraries used by the contract
         # contract_name -> (library, pattern)
@@ -188,7 +190,53 @@ class SourceUnit:
     # endregion
     ###################################################################################
     ###################################################################################
+    # region Source mapping
+    ###################################################################################
+    ###################################################################################
 
+    @property
+    def srcmaps_init(self) -> Dict[str, List[str]]:
+        """Return the srcmaps init
+
+        Returns:
+            Dict[str, List[str]]: Srcmaps init (solc/vyper format)
+        """
+        return self._srcmaps
+
+    @property
+    def srcmaps_runtime(self) -> Dict[str, List[str]]:
+        """Return the srcmaps runtime
+
+        Returns:
+            Dict[str, List[str]]: Srcmaps runtime (solc/vyper format)
+        """
+        return self._srcmaps_runtime
+
+    def srcmap_init(self, name: str) -> List[str]:
+        """Return the srcmap init of a contract
+
+        Args:
+            name (str): name of the contract
+
+        Returns:
+            List[str]: Srcmap init (solc/vyper format)
+        """
+        return self._srcmaps.get(name, [])
+
+    def srcmap_runtime(self, name: str) -> List[str]:
+        """Return the srcmap runtime of a contract
+
+        Args:
+            name (str): name of the contract
+
+        Returns:
+            List[str]: Srcmap runtime (solc/vyper format)
+        """
+        return self._srcmaps_runtime.get(name, [])
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
     # region Libraries
     ###################################################################################
     ###################################################################################
@@ -342,7 +390,22 @@ class SourceUnit:
     # endregion
     ###################################################################################
     ###################################################################################
+    # region Natspec
+    ###################################################################################
+    ###################################################################################
 
+    @property
+    def natspec(self) -> Dict[str, Natspec]:
+        """Return the natspec of the contracts
+
+        Returns:
+            Dict[str, Natspec]: Contract name -> Natspec
+        """
+        return self._natspec
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
     # region Contract Names
     ###################################################################################
     ###################################################################################
@@ -426,6 +489,7 @@ class SourceUnit:
                     sha3_result = keccak.new(digest_bits=256)
                     sha3_result.update(sig.encode("utf-8"))
                     self._hashes[name][sig] = int("0x" + sha3_result.hexdigest()[:8], 16)
+                    # self._hashes[name][sig] = ("0x" + str(sha3_result.hexdigest()[:8]))
 
     # endregion
     ###################################################################################
@@ -464,7 +528,8 @@ class SourceUnit:
                     sha3_result = keccak.new(digest_bits=256)
                     sha3_result.update(sig.encode("utf-8"))
 
-                    self._events[name][sig] = (int("0x" + sha3_result.hexdigest()[:8], 16), indexes)
+                    # self._events[name][sig] = (int("0x" + sha3_result.hexdigest()[:8], 16), indexes)
+                    self._events[name][sig] = ("0x" + str(sha3_result.hexdigest()[:8]), indexes)
 
     # endregion
     ###################################################################################
@@ -535,3 +600,4 @@ class SourceUnit:
     # endregion
     ###################################################################################
     ###################################################################################
+    

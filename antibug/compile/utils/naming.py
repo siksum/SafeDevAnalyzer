@@ -9,11 +9,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, Callable, Optional
 
-from Crytic_compile.exceptions import InvalidCompilation
+from crytic_compile.platform.exceptions import InvalidCompilation
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from crytic_compile import CryticCompile
 
 LOGGER = logging.getLogger("CryticCompile")
 
@@ -141,14 +141,14 @@ def convert_filename(
         Filename: Filename converted
     """
     filename_txt = used_filename
-    if platform.system() == "Windows":
-        elements = list(Path(filename_txt).parts)
-        if elements[0] == "/" or elements[0] == "\\":
-            elements = elements[1:]  # remove '/'
-            elements[0] = elements[0] + ":/"  # add :/
-        filename = Path(*elements)
-    else:
-        filename = Path(filename_txt)
+    # if platform.system() == "Windows":
+    #     elements = list(Path(filename_txt).parts)
+    #     if elements[0] == "/" or elements[0] == "\\":
+    #         elements = elements[1:]  # remove '/'
+    #         elements[0] = elements[0] + ":/"  # add :/
+    #     filename = Path(*elements)
+    # else:
+    filename = Path(filename_txt)
 
     # cwd points to the directory to be used
     if working_dir is None:
@@ -159,6 +159,12 @@ def convert_filename(
             cwd = working_dir
         else:
             cwd = Path.cwd().joinpath(Path(working_dir)).resolve()
+
+    if crytic_compile.package_name:
+        try:
+            filename = filename.relative_to(Path(crytic_compile.package_name))
+        except ValueError:
+            pass
 
     filename = _verify_filename_existence(filename, cwd)
 

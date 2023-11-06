@@ -6,7 +6,7 @@ from Crytic_compile.naming import convert_filename
 
 from slither_core.slither import Slither
 from Crytic_compile import CryticCompile, InvalidCompilation
-from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.naming import Filename
 
@@ -63,7 +63,7 @@ class SafeDevAnalyzer():
                     combined_data[contract]= abi_objects
                 
                 self.abi_list.append(combined_data)
-            self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._runtime_bytecodes)
+            self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
             i += 1
         
         return self.abi_list, self.bytecode_list

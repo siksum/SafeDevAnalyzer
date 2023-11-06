@@ -5,7 +5,7 @@ import traceback
 from argparse import Namespace
 import os
 
-from antibug.antibug_compile.compile import SafeDevAnalyzer
+from antibug.compile.compile import SafeDevAnalyzer
 from antibug.run_simil.cache import save_cache
 from antibug.run_simil.encode import encode_contract, load_contracts, parse_target, load_and_encode
 from antibug.run_simil.model import train_unsupervised, load_model

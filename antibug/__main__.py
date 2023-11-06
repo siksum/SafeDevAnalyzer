@@ -8,8 +8,8 @@ from antibug.run_detectors.detectors import RunDetector
 from antibug.run_detectors.based_blacklist.test import test
 from antibug.run_detectors.based_blacklist.vuln import vuln
 
-from antibug.antibug_compile.compile import SafeDevAnalyzer
-from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.compile import SafeDevAnalyzer
+from antibug.compile.parse_version_and_install_solc import SolcParser
 
 
 

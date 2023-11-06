@@ -9,12 +9,13 @@ import uuid
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Set, Optional
 
-from Crytic_compile.source_unit import SourceUnit
-from Crytic_compile.naming import Filename
+from crytic_compile.compiler.compiler import CompilerVersion
+from crytic_compile.source_unit import SourceUnit
+from crytic_compile.utils.naming import Filename
 
 # Cycle dependency
 if TYPE_CHECKING:
-    from Crytic_compile import CryticCompile
+    from crytic_compile import CryticCompile
 
 # pylint: disable=too-many-instance-attributes
 class CompilationUnit:
@@ -39,6 +40,15 @@ class CompilationUnit:
 
         # mapping from absolute/relative/used to filename
         self._filenames_lookup: Optional[Dict[str, Filename]] = None
+
+        # compiler.compiler
+        self._compiler_version: CompilerVersion = CompilerVersion(
+            compiler="N/A", version="N/A", optimized=False
+        )
+
+        # if the compilation unit comes from etherscan-like service and is a proxy,
+        # store the implementation address
+        self._implementation_address: Optional[str] = None
 
         self._crytic_compile: "CryticCompile" = crytic_compile
 
@@ -124,6 +134,23 @@ class CompilationUnit:
                 self.filenames.append(filename)
         return self._source_units[filename]
 
+    @property
+    def implementation_address(self) -> Optional[str]:
+        """Return the implementation address if the compilation unit is a proxy
+
+        Returns:
+            Optional[str]: Implementation address
+        """
+        return self._implementation_address
+
+    @implementation_address.setter
+    def implementation_address(self, implementation: str) -> None:
+        """Set the implementation address
+
+        Args:
+            implementation (str): Implementation address
+        """
+        self._implementation_address = implementation
 
     # endregion
     ###################################################################################
@@ -180,6 +207,23 @@ class CompilationUnit:
             raise ValueError("f{filename} does not exist in {d}")
         return d_file[used_filename]
 
+    def relative_filename_from_absolute_filename(self, absolute_filename: str) -> str:
+        """Return the relative file based on the absolute name
+
+        Args:
+            absolute_filename (str): Absolute filename
+
+        Raises:
+            ValueError: If the filename is not found
+
+        Returns:
+            str: Absolute filename
+        """
+        d_file = {f.absolute: f.relative for f in self._filenames}
+        if absolute_filename not in d_file:
+            raise ValueError("f{absolute_filename} does not exist in {d}")
+        return d_file[absolute_filename]
+
     def filename_lookup(self, filename: str) -> Filename:
         """Return a crytic_compile.naming.Filename from a any filename
 
@@ -192,6 +236,11 @@ class CompilationUnit:
         Returns:
             Filename: Associated Filename object
         """
+        # pylint: disable=import-outside-toplevel
+        from crytic_compile.platform.truffle import Truffle
+
+        if isinstance(self.crytic_compile.platform, Truffle) and filename.startswith("project:/"):
+            filename = filename[len("project:/") :]
 
         if self._filenames_lookup is None:
             self._filenames_lookup = {}
@@ -208,3 +257,31 @@ class CompilationUnit:
     # endregion
     ###################################################################################
     ###################################################################################
+    # region Compiler information
+    ###################################################################################
+    ###################################################################################
+
+    @property
+    def compiler_version(self) -> "CompilerVersion":
+        """Return the compiler info
+
+        Returns:
+            CompilerVersion: compiler info
+        """
+        return self._compiler_version
+
+    @compiler_version.setter
+    def compiler_version(self, compiler: CompilerVersion) -> None:
+        """Set the compiler version
+
+        Args:
+            compiler (CompilerVersion): New compiler version
+        """
+        self._compiler_version = compiler
+
+    # endregion
+    ###################################################################################
+    ###################################################################################
+
+
+

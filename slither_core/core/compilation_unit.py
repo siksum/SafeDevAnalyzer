@@ -4,7 +4,7 @@ from typing import Optional, Dict, List, Set, Union, TYPE_CHECKING, Tuple
 
 from Crytic_compile import CompilationUnit, CryticCompile
 # from Crytic_compile.compiler import CompilerVersion
-from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.parse_version_and_install_solc import SolcParser
 from Crytic_compile.naming import Filename
 
 from slither_core.core.context.context import Context

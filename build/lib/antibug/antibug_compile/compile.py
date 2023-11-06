@@ -6,7 +6,7 @@ from Crytic_compile.utils.naming import convert_filename
 
 from slither_core.slither import Slither
 from Crytic_compile import CryticCompile, InvalidCompilation
-from antibug.antibug_compile.parse_version_and_install_solc import SolcParser
+from antibug.compile.parse_version_and_install_solc import SolcParser
 
 from Crytic_compile.utils.naming import Filename
 class SafeDevAnalyzer():
