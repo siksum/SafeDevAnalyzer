@@ -1,24 +1,14 @@
-pragma solidity ^0.5.1;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-contract EtherGame {
-    uint public targetAmount = 7 ether;
-    address public winner;
+contract Array {
+    // Several ways to initialize an array
+    uint[] public arr;
+    uint[] public arr2 = [1, 2, 3];
+    // Fixed sized array, all elements initialize to 0
+    uint[10] public myFixedSizeArr;
 
-    function deposit() public payable {
-        require(msg.value == 1 ether, "You can only send 1 Ether");
-
-        uint balance = address(this).balance;
-        require(balance <= targetAmount, "Game is over");
-
-        if (balance == targetAmount) {
-            winner = msg.sender;
-        }
-    }
-
-    function claimReward() public {
-        require(msg.sender == winner, "Not winner");
-
-        (bool sent, ) = msg.sender.call.value(address(this).balance)("");
-        require(sent, "Failed to send Ether");
+    function get(uint i) public view returns (uint) {
+        return arr[i];
     }
 }

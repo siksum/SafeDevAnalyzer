@@ -73,29 +73,14 @@ def detect_vuln_action(target, detector):
     if not detector:
         print("Detecting all vulnerabilities")
         instance = RunDetector(target)
-        result = instance.register_and_run_detectors()
-        for res in result:
-            print(colored(f"check: {res['check']}", "magenta"))
-            print(colored(f"impact: {res['impact']}", "magenta"))
-            print(colored(f"confidence: {res['confidence']}", "magenta"))
-            print(colored(f"description", "magenta"))
-            for description in res['description']:
-                print(colored(description, "cyan"), end=' ')
-            print()
-        return result
+        result, error = instance.register_and_run_detectors()
+
     else:
         print("Detecting specific vulnerabilities")
         instance = RunDetector(target, detector)
-        result = instance.register_and_run_detectors()
-        for res in result:
-            print(colored(f"check: {res['check']}", "magenta"))
-            print(colored(f"impact: {res['impact']}", "magenta"))
-            print(colored(f"confidence: {res['confidence']}", "magenta"))
-            print(colored(f"description", "magenta"))
-            for description in res['description']:
-                print(colored(description, "cyan"), end=' ')
-            print()
-        return result
+        result, error = instance.register_and_run_detectors()
+  
+    return result, error
     
 def detect_based_blacklist_action(target, fname, input, bin):
     filename, contract, fname, res = test(target, fname, input, bin)
@@ -140,8 +125,10 @@ def main():
     args = parse_arguments()
     if args.command == 'detect':
         if args.detect_command == 'basic':
-            result = detect_vuln_action(args.target, args.detector)
-            convert_to_detect_result_json(result, args.target)
+            # detect_vuln_action(args.target, args.detector)
+            result, error = detect_vuln_action(args.target, args.detector)
+            # if error is None:
+            convert_to_detect_result_json(result, args.target, error)
         elif args.detect_command == 'blacklist':
             result, contract, function = detect_based_blacklist_action(args.filename, args.fname, args.input, args.model)
             convert_to_blacklist_result_json(result, contract, function)

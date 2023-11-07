@@ -21,17 +21,17 @@ class SafeDevAnalyzer():
             if os.path.isdir(self.target_path):
                 self.target_list = self.find_all_solidity_files('.sol')
                 self.crytic_compile.extend(self.get_crytic_compile_list())
-                # for crytic, filename in zip(self.crytic_compile, self.target_name):
-                #     self.compilation_units[filename] = Slither(crytic)
+                for crytic, filename in zip(self.crytic_compile, self.target_name):
+                    self.compilation_units[filename] = Slither(crytic)
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.solc_parse.run_parser()
                     self.crytic_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
-                    self.slither=Slither(self.crytic_compile[0])
-                    # self.compilation_units[os.path.basename(
-                    #     self.target_path)] = Slither(self.crytic_compile[0])  
+                    # self.slither=Slither(self.crytic_compile[0])
+                    self.compilation_units[os.path.basename(
+                        self.target_path)] = Slither(self.crytic_compile[0])  
         except InvalidCompilation:
             print('Not supported file type')
             return

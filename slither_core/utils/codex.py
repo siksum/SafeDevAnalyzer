@@ -87,6 +87,8 @@ def openai_module():  # type: ignore
         import openai
 
         api_key = os.getenv("OPENAI_API_KEY")
+        # api_key ="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"
+        # print(api_key)
         if api_key is None:
             logger.info(
                 "Please provide an Open API Key in OPENAI_API_KEY (https://beta.openai.com/account/api-keys)"

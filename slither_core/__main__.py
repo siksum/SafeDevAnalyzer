@@ -14,10 +14,8 @@ from typing import Tuple, Optional, List, Dict, Type, Union, Any, Sequence
 
 from pkg_resources import iter_entry_points, require
 
-from crytic_compile import cryticparser, AntibugCompile
-from crytic_compile.platform.standard import generate_standard_export
-from crytic_compile.platform.etherscan import SUPPORTED_NETWORK
-from crytic_compile import compile_all, is_supported
+from antibug.compile.antibug_compile import AntibugCompile
+from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 
 from slither_core.detectors import all_detectors
 from slither_core.detectors.abstract_detector import AbstractDetector, DetectorClassification
@@ -93,7 +91,8 @@ def process_all(
     detector_classes: List[Type[AbstractDetector]],
     printer_classes: List[Type[AbstractPrinter]],
 ) -> Tuple[List[Slither], List[Dict], List[Output], int]:
-    compilations = compile_all(target, **vars(args))
+    compilations = SafeDevAnalyzer(target)
+    compilations = compilations.compilation_units.values()
     slither_instances = []
     results_detectors = []
     results_printers = []
@@ -283,7 +282,6 @@ def parse_args(
     usage += "\t- file.sol // a Solidity file\n"
     usage += "\t- project_directory // a project directory. See https://github.com/crytic/crytic-compile/#crytic-compile for the supported platforms\n"
     usage += "\t- 0x.. // a contract on mainnet\n"
-    usage += f"\t- NETWORK:0x.. // a contract on a different network. Supported networks: {','.join(x[:-1] for x in SUPPORTED_NETWORK)}\n"
 
     parser = argparse.ArgumentParser(
         description="For usage information, see https://github.com/crytic/slither/wiki/Usage",
@@ -291,8 +289,6 @@ def parse_args(
     )
 
     parser.add_argument("filename", help=argparse.SUPPRESS)
-
-    cryticparser.init(parser)
 
     parser.add_argument(
         "--version",
@@ -846,6 +842,7 @@ def main_impl(
 
             # Add our detector results to JSON if desired.
             if results_detectors and "detectors" in args.json_types:
+                print(results_detectors)
                 json_results["detectors"] = results_detectors
 
             # Add our printer results to JSON if desired.

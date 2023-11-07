@@ -3,7 +3,7 @@ from abc import ABCMeta
 from typing import Dict, Union, List, Tuple, TYPE_CHECKING, Optional, Any
 
 from Crypto.Hash import SHA1
-from crytic_compile.utils.naming import Filename
+from antibug.compile.utils.naming import Filename
 from slither_core.core.context.context import Context
 
 if TYPE_CHECKING:
@@ -31,19 +31,20 @@ class Source:
 
     def to_json(self) -> Dict:
         return {
-            "start": self.start,
-            "length": self.length,
+            # "start": self.start,
+            # "length": self.length,
+            
             # TODO investigate filename_used usecase
             # It creates non-deterministic result
             # As it sometimes refer to the relative and sometimes to the absolute
             # "filename_used": self.filename.used,
-            "filename_relative": self.filename.relative,
+            # "filename_relative": self.filename.relative,
             "filename_absolute": self.filename.absolute,
-            "filename_short": self.filename.short,
+            # "filename_short": self.filename.short,
             "is_dependency": self.is_dependency,
             "lines": self.lines,
-            "starting_column": self.starting_column,
-            "ending_column": self.ending_column,
+            # "starting_column": self.starting_column,
+            # "ending_column": self.ending_column,
         }
 
     def to_markdown(self, markdown_root: str) -> str:

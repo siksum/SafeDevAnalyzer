@@ -68,159 +68,6 @@ def output_to_json(filename: Optional[str], error, results: Dict) -> None:
                 json.dump(json_result, f, indent=2)
 
 
-def _output_result_to_sarif(
-    detector: Dict, detectors_classes: List["AbstractDetector"], sarif: Dict
-) -> None:
-    confidence = "very-high"
-    if detector["confidence"] == "Medium":
-        confidence = "high"
-    elif detector["confidence"] == "Low":
-        confidence = "medium"
-    elif detector["confidence"] == "Informational":
-        confidence = "low"
-
-    risk = "0.0"
-    if detector["impact"] == "High":
-        risk = "8.0"
-    elif detector["impact"] == "Medium":
-        risk = "4.0"
-    elif detector["impact"] == "Low":
-        risk = "3.0"
-
-    detector_class = next((d for d in detectors_classes if d.ARGUMENT == detector["check"]))
-    check_id = (
-        str(detector_class.IMPACT.value)
-        + "-"
-        + str(detector_class.CONFIDENCE.value)
-        + "-"
-        + detector["check"]
-    )
-
-    rule = {
-        "id": check_id,
-        "name": detector["check"],
-        "properties": {"precision": confidence, "security-severity": risk},
-        "shortDescription": {"text": detector_class.WIKI_TITLE},
-        "help": {"text": detector_class.WIKI_RECOMMENDATION},
-    }
-    # Add the rule if does not exist yet
-    if len([x for x in sarif["runs"][0]["tool"]["driver"]["rules"] if x["id"] == check_id]) == 0:
-        sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
-
-    if not detector["elements"]:
-        logger.info(yellow("Cannot generate Github security alert for finding without location"))
-        logger.info(yellow(detector["description"]))
-        logger.info(yellow("This will be supported in a future Slither release"))
-        return
-
-    # From 3.19.10 (http://docs.oasis-open.org/sarif/sarif/v2.0/csprd01/sarif-v2.0-csprd01.html)
-    # The locations array SHALL NOT contain more than one element unless the condition indicated by the result,
-    # if any, can only be corrected by making a change at every location specified in the array.
-    finding = detector["elements"][0]
-    path = finding["source_mapping"]["filename_relative"]
-    start_line = finding["source_mapping"]["lines"][0]
-    end_line = finding["source_mapping"]["lines"][-1]
-
-    sarif["runs"][0]["results"].append(
-        {
-            "ruleId": check_id,
-            "message": {"text": detector["description"], "markdown": detector["markdown"]},
-            "level": "warning",
-            "locations": [
-                {
-                    "physicalLocation": {
-                        "artifactLocation": {"uri": path},
-                        "region": {"startLine": start_line, "endLine": end_line},
-                    }
-                }
-            ],
-            "partialFingerprints": {"id": detector["id"]},
-        }
-    )
-
-
-def output_to_sarif(
-    filename: Optional[str], results: Dict, detectors_classes: List[Type["AbstractDetector"]]
-) -> None:
-    """
-
-    :param filename:
-    :type filename:
-    :param results:
-    :type results:
-    :return:
-    :rtype:
-    """
-
-    sarif: Dict[str, Any] = {
-        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-        "version": "2.1.0",
-        "runs": [
-            {
-                "tool": {
-                    "driver": {
-                        "name": "Slither",
-                        "informationUri": "https://github.com/crytic/slither",
-                        "version": require("slither-analyzer")[0].version,
-                        "rules": [],
-                    }
-                },
-                "results": [],
-            }
-        ],
-    }
-
-    for detector in results.get("detectors", []):
-        _output_result_to_sarif(detector, detectors_classes, sarif)
-
-    if filename == "-":
-        filename = None
-
-    # Determine if we should output to stdout
-    if filename is None:
-        # Write json to console
-        print(json.dumps(sarif))
-    else:
-        # Write json to file
-        if os.path.isfile(filename):
-            logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
-        else:
-            with open(filename, "w", encoding="utf8") as f:
-                json.dump(sarif, f, indent=2)
-
-
-# https://docs.python.org/3/library/zipfile.html#zipfile-objects
-ZIP_TYPES_ACCEPTED = {
-    "lzma": zipfile.ZIP_LZMA,
-    "stored": zipfile.ZIP_STORED,
-    "deflated": zipfile.ZIP_DEFLATED,
-    "bzip2": zipfile.ZIP_BZIP2,
-}
-
-
-def output_to_zip(filename: str, error: Optional[str], results: Dict, zip_type: str = "lzma"):
-    """
-    Output the results to a zip
-    The file in the zip is named slither_results.json
-    Note: the json file will not have indentation, as a result the resulting json file will be smaller
-    :param zip_type:
-    :param filename:
-    :param error:
-    :param results:
-    :return:
-    """
-    json_result = {"success": error is None, "error": error, "results": results}
-    if os.path.isfile(filename):
-        logger.info(yellow(f"{filename} exists already, the overwrite is prevented"))
-    else:
-        with ZipFile(
-            filename,
-            "w",
-            compression=ZIP_TYPES_ACCEPTED.get(zip_type, zipfile.ZIP_LZMA),
-        ) as file_desc:
-            file_desc.writestr("slither_results.json", json.dumps(json_result).encode("utf8"))
-
-
 # endregion
 ###################################################################################
 ###################################################################################
@@ -311,7 +158,7 @@ def _convert_to_id(d: str) -> str:
 def _create_base_element(
     custom_type: str,
     name: str,
-    source_mapping: Dict,
+    source_mapping: Optional[Dict] = None,
     type_specific_fields: Optional[
         Dict[
             str,
@@ -342,7 +189,10 @@ def _create_base_element(
         additional_fields = {}
     if type_specific_fields is None:
         type_specific_fields = {}
+    if source_mapping is None:
+        source_mapping = {}
     element = {"type": custom_type, "name": name, "source_mapping": source_mapping}
+    # element = {"type": custom_type, "name": name}
     if type_specific_fields:
         element["type_specific_fields"] = type_specific_fields
     if additional_fields:
@@ -366,17 +216,17 @@ def _create_parent_element(
     if isinstance(element, FunctionContract):
         if element.contract_declarer:
             contract = Output("")
-            contract.add_contract(element.contract_declarer)
+            contract.add_parent_contract(element.contract_declarer)
             return contract.data["elements"][0]
     elif isinstance(element, ContractLevel):
         if element.contract:
             contract = Output("")
-            contract.add_contract(element.contract)
+            contract.add_parent_contract(element.contract)
             return contract.data["elements"][0]
     elif isinstance(element, (LocalVariable, Node)):
         if element.function:
             function = Output("")
-            function.add_function(element.function)
+            function.add_parent_function(element.function)
             return function.data["elements"][0]
     return None
 
@@ -406,9 +256,9 @@ class Output:
         self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
-        self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
-        self._data["first_markdown_element"] = ""
-        self._markdown_root = markdown_root
+        # self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
+        # self._data["first_markdown_element"] = ""
+        # self._markdown_root = markdown_root
 
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
@@ -421,12 +271,15 @@ class Output:
 
         if additional_fields:
             self._data["additional_fields"] = additional_fields
+        # self.new_data = [{k: v for k, v in item.items() if k != 'id'} for item in self._data]
+
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None) -> None:
-        if not self._data["first_markdown_element"]:
-            self._data["first_markdown_element"] = add.source_mapping.to_markdown(
-                self._markdown_root
-            )
+        # if not self._data["first_markdown_element"]:
+        #     self._data["first_markdown_element"] = add.source_mapping.to_markdown(
+        #         self._markdown_root
+        #     )
+        print(self.data)
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):
@@ -442,15 +295,21 @@ class Output:
         elif isinstance(add, CustomError):
             self.add_custom_error(add, additional_fields=additional_fields)
         elif isinstance(add, Pragma):
-            self.add_pragma(add, additional_fields=additional_fields)
+            pass
+        #     self.add_pragma(add, additional_fields=additional_fields)
         elif isinstance(add, Node):
             self.add_node(add, additional_fields=additional_fields)
+            
         else:
             raise SlitherError(f"Impossible to add {type(add)} to the json")
 
     @property
     def data(self) -> Dict:
         return self._data
+
+    @property
+    def new_data(self) -> Dict:
+        return self.new_data
 
     @property
     def elements(self) -> List[Dict]:
@@ -494,6 +353,12 @@ class Output:
             "contract", contract.name, contract.source_mapping.to_json(), {}, additional_fields
         )
         self._data["elements"].append(element)
+        
+    def add_parent_contract(self, contract: Contract, additional_fields: Optional[Dict] = None) -> None:
+        if additional_fields is None:
+            additional_fields = {}
+        element = _create_base_element("contract", contract.name)
+        self._data["elements"].append(element)
 
     # endregion
     ###################################################################################
@@ -501,7 +366,19 @@ class Output:
     # region Functions
     ###################################################################################
     ###################################################################################
-
+    def add_parent_function(self, function: Function, additional_fields: Optional[Dict] = None) -> None:
+        if additional_fields is None:
+            additional_fields = {}
+        # type_specific_fields = {
+        #     "parent": _create_parent_element(function),
+        #     "signature": function.full_name,
+        # }
+        element = _create_base_element(
+            "function",
+            function.name
+        )
+        self._data["elements"].append(element)
+        
     def add_function(self, function: Function, additional_fields: Optional[Dict] = None) -> None:
         if additional_fields is None:
             additional_fields = {}
@@ -648,18 +525,18 @@ class Output:
     ###################################################################################
     ###################################################################################
 
-    def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None) -> None:
-        if additional_fields is None:
-            additional_fields = {}
-        type_specific_fields = {"directive": pragma.directive}
-        element = _create_base_element(
-            "pragma",
-            pragma.version,
-            pragma.source_mapping.to_json(),
-            type_specific_fields,
-            additional_fields,
-        )
-        self._data["elements"].append(element)
+    # def add_pragma(self, pragma: Pragma, additional_fields: Optional[Dict] = None) -> None:
+    #     if additional_fields is None:
+    #         additional_fields = {}
+    #     type_specific_fields = {"directive": pragma.directive}
+    #     element = _create_base_element(
+    #         "pragma",
+    #         pragma.version,
+    #         pragma.source_mapping.to_json(),
+    #         type_specific_fields,
+    #         additional_fields,
+    #     )
+    #     self._data["elements"].append(element)
 
     # endregion
     ###################################################################################

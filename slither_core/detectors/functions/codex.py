@@ -57,7 +57,7 @@ class Codex(AbstractDetector):
             openai_module.organization = self.slither.codex_organization
 
         try:
-            res = openai_module.Completion.create(
+            res = openai_module.completions.create(
                 prompt=prompt,
                 model=self.slither.codex_model,
                 temperature=self.slither.codex_temperature,

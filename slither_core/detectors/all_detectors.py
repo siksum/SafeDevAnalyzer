@@ -5,7 +5,7 @@ from .variables.uninitialized_storage_variables import UninitializedStorageVars
 from .variables.uninitialized_local_variables import UninitializedLocalVars
 from .variables.var_read_using_this import VarReadUsingThis
 from .attributes.constant_pragma import ConstantPragma
-from .attributes.incorrect_solc import IncorrectSolc
+# from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
 from .functions.arbitrary_send_eth import ArbitrarySendEth
 from .erc.erc20.arbitrary_send_erc20_no_permit import ArbitrarySendErc20NoPermit

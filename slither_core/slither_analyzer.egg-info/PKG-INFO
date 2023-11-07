@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: slither-analyzer
+Version: 0.10.0
+Summary: Slither is a Solidity and Vyper static analysis framework written in Python 3.
+Home-page: https://github.com/crytic/slither
+Author: Trail of Bits
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.8
+Provides-Extra: lint
+Provides-Extra: doc
+Provides-Extra: dev
+
+UNKNOWN
+

@@ -3,6 +3,7 @@ from typing import Union, List, ValuesView, Type, Dict, Optional
 
 from antibug.compile.antibug_compile import AntibugCompile
 from antibug.compile.exceptions import InvalidCompilation
+from antibug.compile.parse_version_and_install_solc import SolcParser
 
 # pylint: disable= no-name-in-module
 from slither_core.core.compilation_unit import SlitherCompilationUnit
@@ -70,7 +71,6 @@ class Slither(
 
         """
         super().__init__()
-
         self._disallow_partial: bool = kwargs.get("disallow_partial", False)
         self._skip_assembly: bool = kwargs.get("skip_assembly", False)
         self._show_ignored_findings: bool = kwargs.get("show_ignored_findings", False)
@@ -92,8 +92,6 @@ class Slither(
         try:
             if isinstance(target, AntibugCompile):
                 crytic_compile = target
-            else:
-                crytic_compile = AntibugCompile(target, **kwargs)
             self._crytic_compile = crytic_compile
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from

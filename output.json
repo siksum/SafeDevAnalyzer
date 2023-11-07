@@ -1,0 +1,1030 @@
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "withdraw",
+            "source_mapping": {
+              "start": 282,
+              "length": 241,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "EtherStore",
+                "source_mapping": {
+                  "start": 57,
+                  "length": 629,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "withdraw()"
+            }
+          },
+          {
+            "type": "node",
+            "name": "(sent) = msg.sender.call{value: bal}()",
+            "source_mapping": {
+              "start": 387,
+              "length": 47,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                20
+              ],
+              "starting_column": 9,
+              "ending_column": 56
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "withdraw",
+                "source_mapping": {
+                  "start": 282,
+                  "length": 241,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "EtherStore",
+                    "source_mapping": {
+                      "start": 57,
+                      "length": 629,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "withdraw()"
+                }
+              }
+            },
+            "additional_fields": {
+              "underlying_type": "external_calls"
+            }
+          },
+          {
+            "type": "node",
+            "name": "balances[msg.sender] = 0",
+            "source_mapping": {
+              "start": 492,
+              "length": 24,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                23
+              ],
+              "starting_column": 9,
+              "ending_column": 33
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "withdraw",
+                "source_mapping": {
+                  "start": 282,
+                  "length": 241,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "EtherStore",
+                    "source_mapping": {
+                      "start": 57,
+                      "length": 629,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "withdraw()"
+                }
+              }
+            },
+            "additional_fields": {
+              "underlying_type": "variables_written",
+              "variable_name": "balances"
+            }
+          }
+        ],
+        "description": "Reentrancy in EtherStore.withdraw() (test/reentrancy.sol#16-24):\n\tExternal calls:\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#20)\n\tState variables written after the call(s):\n\t- balances[msg.sender] = 0 (test/reentrancy.sol#23)\n\tEtherStore.balances (test/reentrancy.sol#5) can be used in cross function reentrancies:\n\t- EtherStore.balances (test/reentrancy.sol#5)\n\t- EtherStore.deposit() (test/reentrancy.sol#12-14)\n\t- EtherStore.withdraw() (test/reentrancy.sol#16-24)\n",
+        "markdown": "Reentrancy in [EtherStore.withdraw()](test/reentrancy.sol#L16-L24):\n\tExternal calls:\n\t- [(sent) = msg.sender.call{value: bal}()](test/reentrancy.sol#L20)\n\tState variables written after the call(s):\n\t- [balances[msg.sender] = 0](test/reentrancy.sol#L23)\n\t[EtherStore.balances](test/reentrancy.sol#L5) can be used in cross function reentrancies:\n\t- [EtherStore.balances](test/reentrancy.sol#L5)\n\t- [EtherStore.deposit()](test/reentrancy.sol#L12-L14)\n\t- [EtherStore.withdraw()](test/reentrancy.sol#L16-L24)\n",
+        "first_markdown_element": "test/reentrancy.sol#L16-L24",
+        "id": "b6b5457de381764a316523f226f5842541b99e830c64fb7401e09e632b883a92",
+        "check": "reentrancy-eth",
+        "impact": "High",
+        "confidence": "Medium"
+      },
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "withdraw",
+            "source_mapping": {
+              "start": 1078,
+              "length": 402,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "TimeLock",
+                "source_mapping": {
+                  "start": 688,
+                  "length": 794,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "withdraw()"
+            }
+          },
+          {
+            "type": "node",
+            "name": "require(bool,string)(block.timestamp > lockTime[msg.sender],Lock time not expired)",
+            "source_mapping": {
+              "start": 1180,
+              "length": 106,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                47,
+                48,
+                49,
+                50
+              ],
+              "starting_column": 9,
+              "ending_column": 10
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "withdraw",
+                "source_mapping": {
+                  "start": 1078,
+                  "length": 402,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "TimeLock",
+                    "source_mapping": {
+                      "start": 688,
+                      "length": 794,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                        42,
+                        43,
+                        44,
+                        45,
+                        46,
+                        47,
+                        48,
+                        49,
+                        50,
+                        51,
+                        52,
+                        53,
+                        54,
+                        55,
+                        56,
+                        57,
+                        58
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "withdraw()"
+                }
+              }
+            }
+          }
+        ],
+        "description": "TimeLock.withdraw() (test/reentrancy.sol#45-57) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool,string)(block.timestamp > lockTime[msg.sender],Lock time not expired) (test/reentrancy.sol#47-50)\n",
+        "markdown": "[TimeLock.withdraw()](test/reentrancy.sol#L45-L57) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool,string)(block.timestamp > lockTime[msg.sender],Lock time not expired)](test/reentrancy.sol#L47-L50)\n",
+        "first_markdown_element": "test/reentrancy.sol#L45-L57",
+        "id": "26f543eeee839b396502c9753c11c36f78f0a644d1797b24cf7137bbadbeac19",
+        "check": "timestamp",
+        "impact": "Low",
+        "confidence": "Medium"
+      },
+      {
+        "elements": [
+          {
+            "type": "pragma",
+            "name": "^0.7.0",
+            "source_mapping": {
+              "start": 32,
+              "length": 23,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                2
+              ],
+              "starting_column": 1,
+              "ending_column": 24
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                "^",
+                "0.7",
+                ".0"
+              ]
+            }
+          }
+        ],
+        "description": "Pragma version^0.7.0 (test/reentrancy.sol#2) allows old versions\n",
+        "markdown": "Pragma version[^0.7.0](test/reentrancy.sol#L2) allows old versions\n",
+        "first_markdown_element": "test/reentrancy.sol#L2",
+        "id": "593699192b8e84cac2b610871b39f8f8dbd6b2a1cf30ef85feaa027ecd32f145",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [],
+        "description": "solc-0.7.1 is not recommended for deployment\n",
+        "markdown": "solc-0.7.1 is not recommended for deployment\n",
+        "first_markdown_element": "",
+        "id": "a5062f5b6b3db0b23b953289c531124733849f75ee56ceae003c6f6dccc8f182",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "withdraw",
+            "source_mapping": {
+              "start": 1078,
+              "length": 402,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "TimeLock",
+                "source_mapping": {
+                  "start": 688,
+                  "length": 794,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57,
+                    58
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "withdraw()"
+            }
+          },
+          {
+            "type": "node",
+            "name": "(sent) = msg.sender.call{value: amount}()",
+            "source_mapping": {
+              "start": 1376,
+              "length": 50,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                55
+              ],
+              "starting_column": 9,
+              "ending_column": 59
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "withdraw",
+                "source_mapping": {
+                  "start": 1078,
+                  "length": 402,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    45,
+                    46,
+                    47,
+                    48,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    55,
+                    56,
+                    57
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "TimeLock",
+                    "source_mapping": {
+                      "start": 688,
+                      "length": 794,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                        42,
+                        43,
+                        44,
+                        45,
+                        46,
+                        47,
+                        48,
+                        49,
+                        50,
+                        51,
+                        52,
+                        53,
+                        54,
+                        55,
+                        56,
+                        57,
+                        58
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "withdraw()"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Low level call in TimeLock.withdraw() (test/reentrancy.sol#45-57):\n\t- (sent) = msg.sender.call{value: amount}() (test/reentrancy.sol#55)\n",
+        "markdown": "Low level call in [TimeLock.withdraw()](test/reentrancy.sol#L45-L57):\n\t- [(sent) = msg.sender.call{value: amount}()](test/reentrancy.sol#L55)\n",
+        "first_markdown_element": "test/reentrancy.sol#L45-L57",
+        "id": "86142bf1c2a4bb34c119b2bff48a9b6a60b895416fbe2d845af0c6354a3a9f4a",
+        "check": "low-level-calls",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "function",
+            "name": "withdraw",
+            "source_mapping": {
+              "start": 282,
+              "length": 241,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24
+              ],
+              "starting_column": 5,
+              "ending_column": 6
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "EtherStore",
+                "source_mapping": {
+                  "start": 57,
+                  "length": 629,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              },
+              "signature": "withdraw()"
+            }
+          },
+          {
+            "type": "node",
+            "name": "(sent) = msg.sender.call{value: bal}()",
+            "source_mapping": {
+              "start": 387,
+              "length": 47,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                20
+              ],
+              "starting_column": 9,
+              "ending_column": 56
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "withdraw",
+                "source_mapping": {
+                  "start": 282,
+                  "length": 241,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "EtherStore",
+                    "source_mapping": {
+                      "start": 57,
+                      "length": 629,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "withdraw()"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Low level call in EtherStore.withdraw() (test/reentrancy.sol#16-24):\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#20)\n",
+        "markdown": "Low level call in [EtherStore.withdraw()](test/reentrancy.sol#L16-L24):\n\t- [(sent) = msg.sender.call{value: bal}()](test/reentrancy.sol#L20)\n",
+        "first_markdown_element": "test/reentrancy.sol#L16-L24",
+        "id": "ff01dafb58f3052c23651977fe8fd9acc07a0079887106eab1b2f293c960e10e",
+        "check": "low-level-calls",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "variable",
+            "name": "_secondsToIncrease",
+            "source_mapping": {
+              "start": 981,
+              "length": 23,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                41
+              ],
+              "starting_column": 31,
+              "ending_column": 54
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "increaseLockTime",
+                "source_mapping": {
+                  "start": 955,
+                  "length": 117,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    41,
+                    42,
+                    43
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "TimeLock",
+                    "source_mapping": {
+                      "start": 688,
+                      "length": 794,
+                      "filename_relative": "test/reentrancy.sol",
+                      "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                      "filename_short": "test/reentrancy.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                        42,
+                        43,
+                        44,
+                        45,
+                        46,
+                        47,
+                        48,
+                        49,
+                        50,
+                        51,
+                        52,
+                        53,
+                        54,
+                        55,
+                        56,
+                        57,
+                        58
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "increaseLockTime(uint256)"
+                }
+              }
+            },
+            "additional_fields": {
+              "target": "parameter",
+              "convention": "mixedCase"
+            }
+          }
+        ],
+        "description": "Parameter TimeLock.increaseLockTime(uint256)._secondsToIncrease (test/reentrancy.sol#41) is not in mixedCase\n",
+        "markdown": "Parameter [TimeLock.increaseLockTime(uint256)._secondsToIncrease](test/reentrancy.sol#L41) is not in mixedCase\n",
+        "first_markdown_element": "test/reentrancy.sol#L41",
+        "id": "49648246d5bae9fb905b5a9fcd092081a73e155eea7ad52de120e351b09477ac",
+        "check": "naming-convention",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "variable",
+            "name": "a",
+            "source_mapping": {
+              "start": 130,
+              "length": 6,
+              "filename_relative": "test/reentrancy.sol",
+              "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+              "filename_short": "test/reentrancy.sol",
+              "is_dependency": false,
+              "lines": [
+                7
+              ],
+              "starting_column": 5,
+              "ending_column": 11
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "contract",
+                "name": "EtherStore",
+                "source_mapping": {
+                  "start": 57,
+                  "length": 629,
+                  "filename_relative": "test/reentrancy.sol",
+                  "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+                  "filename_short": "test/reentrancy.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                  ],
+                  "starting_column": 1,
+                  "ending_column": 2
+                }
+              }
+            }
+          }
+        ],
+        "description": "EtherStore.a (test/reentrancy.sol#7) should be immutable \n",
+        "markdown": "[EtherStore.a](test/reentrancy.sol#L7) should be immutable \n",
+        "first_markdown_element": "test/reentrancy.sol#L7",
+        "id": "ca81e6500caf86d849547a2a406ca698b1fb9fb7c7db52a83ca2d9b3164c0358",
+        "check": "immutable-states",
+        "impact": "Optimization",
+        "confidence": "High"
+      }
+    ]
+  }
+}

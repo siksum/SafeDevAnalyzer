@@ -178,11 +178,12 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def _is_applicable_detector(self) -> bool:
         if self.VULNERABLE_SOLC_VERSIONS:
             return (
-                self.compilation_unit.is_solidity
-                and self.compilation_unit.compiler_version in self.VULNERABLE_SOLC_VERSIONS
+                # self.compilation_unit.is_solidity
+                # and 
+                self.compilation_unit.compiler_version in self.VULNERABLE_SOLC_VERSIONS
             )
-        if self.LANGUAGE:
-            return self.compilation_unit.language.value == self.LANGUAGE
+        # if self.LANGUAGE:
+        #     return self.compilation_unit.language.value == self.LANGUAGE
         return True
 
     @abc.abstractmethod
