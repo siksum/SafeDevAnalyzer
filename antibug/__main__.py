@@ -1,6 +1,5 @@
 import argparse
 import sys
-from termcolor import colored
 import argparse
 
 from antibug.utils.convert_to_json import convert_to_deploy_info_json, convert_to_detect_result_json, convert_to_blacklist_result_json

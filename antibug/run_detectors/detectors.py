@@ -1,5 +1,4 @@
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
-from termcolor import colored
 from slither_core.detectors import all_detectors
 import importlib
 from typing import List, Type, Dict, Any, Optional
@@ -59,12 +58,12 @@ class RunDetector(SafeDevAnalyzer):
                                 instance.register_detector(item)
                             results.extend(instance.run_detectors())
                         else:
-                            print(colored(
-                                f'Error: {self.selected_detectors} is not available', 'red'))
+                            print(
+                                f'Error: {self.selected_detectors} is not available', 'red')
                             return
                 else:
-                    print(colored(
-                        f'Error: {self.selected_detectors} is not available', 'red'))
+                    print(
+                        f'Error: {self.selected_detectors} is not available', 'red')
                     return
         except SlitherException as e:
             self.output_error = str(e)

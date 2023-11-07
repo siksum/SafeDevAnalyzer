@@ -1,3 +1,0 @@
-[console_scripts]
-slither = slither_core.__main__:main
-
