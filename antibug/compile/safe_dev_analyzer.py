@@ -29,7 +29,6 @@ class SafeDevAnalyzer():
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.solc_parse.run_parser()
                     self.crytic_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
-                    # self.slither=Slither(self.crytic_compile[0])
                     self.compilation_units[os.path.basename(
                         self.target_path)] = Slither(self.crytic_compile[0])  
         except InvalidCompilation:

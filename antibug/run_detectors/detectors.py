@@ -1,16 +1,10 @@
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.detectors import all_detectors
 import importlib
-from typing import List, Type, Dict, Any, Optional
-import json
-import os
+from typing import Dict, Any
 import logging
-from slither_core.detectors.abstract_detector import classification_txt, AbstractDetector
-# from slither_core.utils.output import output_to_json
 from slither_core.exceptions import SlitherException
 import traceback
-
-
 
 class RunDetector(SafeDevAnalyzer):
     available_detector_list = []
@@ -20,7 +14,7 @@ class RunDetector(SafeDevAnalyzer):
         self.target = input_file
         (_, self.category, self.import_list) = self.get_all_detectors()
         self.selected_detectors = detectors if detectors is not None else []
-        self.output_error = None
+        self.output_error = []
         self.json_results: Dict[str, Any] = {}
         super().__init__(input_file)
 
@@ -39,15 +33,15 @@ class RunDetector(SafeDevAnalyzer):
     def register_and_run_detectors(self):
         try: 
             self.available_detector_list, _, self.import_list = self.get_all_detectors()
-            values = list(self.compilation_units.values())
+            compilation_unit_list = list(self.compilation_units.values())
             results = []
-            for instance in values:
+            compilation_units_detect_results=[]
+            for compilnation_unit in compilation_unit_list:
                 if not self.selected_detectors:
                     for item in self.import_list[10:]:
-                        instance.register_detector(item)
-                        
-                    # results.extend(instance.run_detectors())
-                    results=instance.run_detectors()
+                        compilnation_unit.register_detector(item)
+                    results=compilnation_unit.run_detectors()
+                    
                 elif self.selected_detectors:
                     for detector in self.selected_detectors:
                         if detector in self.category:
@@ -55,37 +49,37 @@ class RunDetector(SafeDevAnalyzer):
                             filtered_list = [
                                 item for item in self.import_list if f'{category}' in str(item)]
                             for item in filtered_list:
-                                instance.register_detector(item)
-                            results.extend(instance.run_detectors())
+                                compilnation_unit.register_detector(item)
+                            results=compilnation_unit.run_detectors()
+                            
                         else:
-                            print(
-                                f'Error: {self.selected_detectors} is not available', 'red')
+                            print(f'Error: {self.selected_detectors} is not available')
                             return
                 else:
-                    print(
-                        f'Error: {self.selected_detectors} is not available', 'red')
+                    print(f'Error: {self.selected_detectors} is not available')
                     return
+                
+                if all(not sublst for sublst in results):
+                    self.output_error.append("No detection results")
+                    compilation_units_detect_results.append(None)
+                    return compilation_units_detect_results, self.target_list, self.output_error, 
+                
+                result = self.detect_result(results)
+                compilation_units_detect_results.append(result)
+                self.output_error.append(None)    
+                
         except SlitherException as e:
-            self.output_error = str(e)
+            self.output_error.append(str(e))
             traceback.print_exc()
             logging.error(self.output_error)
         
-        if all(not sublst for sublst in results):
-            self.output_error = "No detection results"
-            return None, self.output_error
-        
-        result = self.detect_result(results)
-        
-        return result, self.output_error
+        return compilation_units_detect_results, self.target_list, self.output_error
 
     def detect_result(self, results):
-        # print(results)
         results_detectors = []
         detector_resultss = [x for x in results if x]  # remove empty results
-        # print(detector_resultss)
         detector_results = [item for sublist in detector_resultss for item in sublist]  # flatten
         results_detectors.extend(detector_results)
         self.json_results = results_detectors
-        # print(results_detectors)
         return self.json_results
         

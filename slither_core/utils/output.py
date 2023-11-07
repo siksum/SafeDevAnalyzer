@@ -42,7 +42,6 @@ logger = logging.getLogger("Slither")
 
 def output_to_json(filename: Optional[str], error, results: Dict) -> None:
     """
-
     :param filename: Filename where the json will be written. If None or "-", write to stdout
     :param error: Error to report
     :param results: Results to report
@@ -58,7 +57,7 @@ def output_to_json(filename: Optional[str], error, results: Dict) -> None:
     # Determine if we should output to stdout
     if filename is None:
         # Write json to console
-        print(json.dumps(json_result))
+        json.dumps(json_result)
     else:
         # Write json to file
         if os.path.isfile(filename):
@@ -271,7 +270,6 @@ class Output:
 
         if additional_fields:
             self._data["additional_fields"] = additional_fields
-        # self.new_data = [{k: v for k, v in item.items() if k != 'id'} for item in self._data]
 
 
     def add(self, add: SupportedOutput, additional_fields: Optional[Dict] = None) -> None:
@@ -279,7 +277,6 @@ class Output:
         #     self._data["first_markdown_element"] = add.source_mapping.to_markdown(
         #         self._markdown_root
         #     )
-        print(self.data)
         if isinstance(add, Variable):
             self.add_variable(add, additional_fields=additional_fields)
         elif isinstance(add, Contract):

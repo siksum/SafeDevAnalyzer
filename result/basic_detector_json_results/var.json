@@ -1,0 +1,156 @@
+{
+  "success": true,
+  "error": null,
+  "results": [
+    {
+      "elements": [
+        {
+          "type": "function",
+          "name": "withdraw",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/import/var.sol",
+            "is_dependency": false,
+            "lines": [
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "contract",
+              "name": "TimeLock",
+              "source_mapping": {}
+            },
+            "signature": "withdraw()"
+          }
+        },
+        {
+          "type": "node",
+          "name": "(sent) = msg.sender.call{value: amount}()",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/import/var.sol",
+            "is_dependency": false,
+            "lines": [
+              27
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "function",
+              "name": "withdraw",
+              "source_mapping": {}
+            }
+          }
+        }
+      ],
+      "description": "Low level call in TimeLock.withdraw() (test/import/var.sol#17-29):\n\t- (sent) = msg.sender.call{value: amount}() (test/import/var.sol#27)\n",
+      "id": "286e9da9890c304e3402e1099d37d23b518a148edad8807a2affbe3e89692d5c",
+      "check": "low-level-calls",
+      "impact": "Informational",
+      "confidence": "High"
+    },
+    {
+      "elements": [
+        {
+          "type": "variable",
+          "name": "_secondsToIncrease",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/import/var.sol",
+            "is_dependency": false,
+            "lines": [
+              13
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "function",
+              "name": "increaseLockTime",
+              "source_mapping": {}
+            }
+          },
+          "additional_fields": {
+            "target": "parameter",
+            "convention": "mixedCase"
+          }
+        }
+      ],
+      "description": "Parameter TimeLock.increaseLockTime(uint256)._secondsToIncrease (test/import/var.sol#13) is not in mixedCase\n",
+      "id": "49648246d5bae9fb905b5a9fcd092081a73e155eea7ad52de120e351b09477ac",
+      "check": "naming-convention",
+      "impact": "Informational",
+      "confidence": "High"
+    },
+    {
+      "elements": [
+        {
+          "type": "function",
+          "name": "withdraw",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/import/var.sol",
+            "is_dependency": false,
+            "lines": [
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "contract",
+              "name": "TimeLock",
+              "source_mapping": {}
+            },
+            "signature": "withdraw()"
+          }
+        },
+        {
+          "type": "node",
+          "name": "require(bool,string)(block.timestamp > lockTime[msg.sender],Lock time not expired)",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/import/var.sol",
+            "is_dependency": false,
+            "lines": [
+              19,
+              20,
+              21,
+              22
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "function",
+              "name": "withdraw",
+              "source_mapping": {}
+            }
+          }
+        }
+      ],
+      "description": "TimeLock.withdraw() (test/import/var.sol#17-29) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool,string)(block.timestamp > lockTime[msg.sender],Lock time not expired) (test/import/var.sol#19-22)\n",
+      "id": "43c4ef87de3c5c50717dd01c5a68361559bc06fad9a0578ce52dbc1ab3d3b4c9",
+      "check": "timestamp",
+      "impact": "Low",
+      "confidence": "Medium"
+    }
+  ]
+}

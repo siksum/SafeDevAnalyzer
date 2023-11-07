@@ -49,9 +49,8 @@ def parse_arguments():
 
     # 'deploy' sub-command
     deploy_parser = subparsers.add_parser(
-        'deploy', help='Deploy detector, defaults to all')
+        'compile', help='antibug compiler, defaults to all')
     deploy_parser.add_argument('target', help='ath to the rule file')
-
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -62,8 +61,8 @@ def parse_arguments():
 
 def version_info():
     solc_parser = SolcParser()
-    current_version = solc_parser.get_current_version()
-    installed_versions = solc_parser.get_intalled_versions()
+    current_version = solc_parser.current_solc_version
+    installed_versions = solc_parser.intalled_solc_versions
     version_info = f"\nCurrent version: {current_version}\n\nInstalled versions: {installed_versions}\n"
     return version_info
 
@@ -72,14 +71,14 @@ def detect_vuln_action(target, detector):
     if not detector:
         print("Detecting all vulnerabilities")
         instance = RunDetector(target)
-        result, error = instance.register_and_run_detectors()
-
+        result_list, target_list, error_list = instance.register_and_run_detectors()
+        
     else:
         print("Detecting specific vulnerabilities")
         instance = RunDetector(target, detector)
-        result, error = instance.register_and_run_detectors()
+        result_list = instance.register_and_run_detectors()
   
-    return result, error
+    return result_list, target_list, error_list
     
 def detect_based_blacklist_action(target, fname, input, bin):
     filename, contract, fname, res = test(target, fname, input, bin)
@@ -124,17 +123,18 @@ def main():
     args = parse_arguments()
     if args.command == 'detect':
         if args.detect_command == 'basic':
-            # detect_vuln_action(args.target, args.detector)
-            result, error = detect_vuln_action(args.target, args.detector)
-            # if error is None:
-            convert_to_detect_result_json(result, args.target, error)
+            result_list, target_list, error_list = detect_vuln_action(args.target, args.detector)
+            convert_to_detect_result_json(result_list, target_list, error_list)
+            
+            # for result, filename, error in zip(result_list, target_list, error_list):
+            #     convert_to_detect_result_json(result, filename, error)
         elif args.detect_command == 'blacklist':
             result, contract, function = detect_based_blacklist_action(args.filename, args.fname, args.input, args.model)
             convert_to_blacklist_result_json(result, contract, function)
         else:
             print("Error: Invalid command.")
             return
-    elif args.command == 'deploy':
+    elif args.command == 'compile':
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_deploy()
         convert_to_deploy_info_json(abi_list, bytecode_list, analyzer)

@@ -58,13 +58,14 @@ def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyz
 
 
 
-def convert_to_detect_result_json(result: Dict, filename, error) -> None:
+def convert_to_detect_result_json(result_list, filename_list, error_list) -> None:
     output_dir_path = output_dir("basic_detector_json_results")
-    json_result = {"success": error is None, "error": error, "results": result}
     
-    combined_json = json.dumps(json_result, indent=2)
+    for result, filename, error in zip(result_list, filename_list, error_list):
+        json_result = {"success": error is None, "error": error, "results": result}
+        combined_json = json.dumps(json_result, indent=2)
 
-    write_to_json(output_dir_path, combined_json, filename)
+        write_to_json(output_dir_path, combined_json, filename)
 
 
 def convert_to_blacklist_result_json(result, contract, function):

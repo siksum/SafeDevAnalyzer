@@ -218,6 +218,7 @@ class Slither(
 
         self.load_previous_results()
         results = [d.detect() for d in self._detectors]
+                    
 
         self.write_results_to_hide()
         return results
