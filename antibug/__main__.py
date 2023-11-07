@@ -49,7 +49,7 @@ def parse_arguments():
 
     # 'deploy' sub-command
     deploy_parser = subparsers.add_parser(
-        'compile', help='antibug compiler, defaults to all')
+        'deploy', help='antibug compiler, defaults to all')
     deploy_parser.add_argument('target', help='ath to the rule file')
 
     if len(sys.argv) == 1:
@@ -134,7 +134,7 @@ def main():
         else:
             print("Error: Invalid command.")
             return
-    elif args.command == 'compile':
+    elif args.command == 'deploy':
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_deploy()
         convert_to_deploy_info_json(abi_list, bytecode_list, analyzer)
