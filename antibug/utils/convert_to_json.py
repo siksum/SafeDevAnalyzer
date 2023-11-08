@@ -64,7 +64,6 @@ def convert_to_detect_result_json(result_list, filename_list, error_list) -> Non
     for result, filename, error in zip(result_list, filename_list, error_list):
         json_result = {"success": error is None, "error": error, "results": result}
         combined_json = json.dumps(json_result, indent=2)
-
         write_to_json(output_dir_path, combined_json, filename)
 
 
