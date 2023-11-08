@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import re
+import sys
 import shutil
 import subprocess
 from pathlib import Path
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from antibug.compile.antibug_compile import AntibugCompile
 
 LOGGER = logging.getLogger("AntibugCompile")
+LOGGER.setLevel(logging.ERROR) 
 
 
 def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
@@ -438,7 +440,8 @@ def _run_solc(
     )  # convert bytestrings to unicode strings
 
     if stderr and (not solc_disable_warnings):
-        LOGGER.info("Compilation warnings/errors on %s:\n%s", filename, stderr)
+        LOGGER.error(stderr)
+        sys.exit(1)
         
     try:
         ret: Dict = json.loads(stdout)

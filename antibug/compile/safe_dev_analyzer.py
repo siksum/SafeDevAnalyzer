@@ -32,7 +32,6 @@ class SafeDevAnalyzer():
                     self.compilation_units[os.path.basename(
                         self.target_path)] = Slither(self.crytic_compile[0])  
         except InvalidCompilation:
-            print('Not supported file type')
             return
 
     def to_deploy(self): 

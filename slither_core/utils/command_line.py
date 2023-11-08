@@ -7,9 +7,9 @@ import logging
 from collections import defaultdict
 from typing import Dict, List, Type, Union
 
-from crytic_compile.cryticparser.defaults import (
-    DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
-)
+# from crytic_compile.cryticparser.defaults import (
+    # DEFAULTS_FLAG_IN_CONFIG as DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
+# )
 
 from slither_core.detectors.abstract_detector import classification_txt, AbstractDetector
 from slither_core.printers.abstract_printer import AbstractPrinter
@@ -70,7 +70,7 @@ defaults_flag_in_config = {
     "no_fail": False,
     "sarif_input": "export.sarif",
     "sarif_triage": "export.sarif.sarifexplorer",
-    **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
+    # **DEFAULTS_FLAG_IN_CONFIG_CRYTIC_COMPILE,
 }
 
 deprecated_flags = {

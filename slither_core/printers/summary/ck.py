@@ -28,8 +28,8 @@
      - No auth or onlyOwner: total number of functions without auth or onlyOwner modifiers
      - No modifiers: total number of functions without modifiers
      - Ext calls: total number of external calls
-
 """
+
 from slither_core.printers.abstract_printer import AbstractPrinter
 from slither_core.utils.ck import CKMetrics
 from slither_core.utils.output import Output
