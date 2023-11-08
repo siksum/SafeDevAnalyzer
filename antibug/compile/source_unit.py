@@ -12,7 +12,7 @@ from Crypto.Hash import keccak
 from antibug.compile.utils.naming import Filename
 
 if TYPE_CHECKING:
-    from antibug.compile.crytic_compile.compilation_unit import CompilationUnit
+    from antibug.compile.compilation_unit import CompilationUnit
 
 
 def get_library_candidate(filename: Filename, contract_name: str) -> List[str]:

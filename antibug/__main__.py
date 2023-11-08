@@ -2,14 +2,13 @@ import argparse
 import sys
 import argparse
 
-from antibug.utils.convert_to_json import convert_to_deploy_info_json, convert_to_detect_result_json, convert_to_blacklist_result_json
+from antibug.utils.convert_to_json import convert_to_deploy_info_json, convert_to_detect_result_json, convert_to_blacklist_result_json, remove_all_json_files
 from antibug.run_detectors.detectors import RunDetector
 # from antibug.run_detectors.based_blacklist.test import test
 # from antibug.run_detectors.based_blacklist.vuln import vuln
 
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
-
 
 
 def parse_arguments():
@@ -34,6 +33,8 @@ def parse_arguments():
     basic_parser.add_argument('detector', help='Target rule', nargs='*')
     basic_parser.add_argument('target', help='Path to the rule file')
 
+    remove_parser = subparsers.add_parser('remove')
+    
     # blacklist_parser = detect_subparser.add_parser('blacklist')
     # blacklist_parser.add_argument("model", help="model.bin")
     # blacklist_parser.add_argument("filename", action="store", help="contract.sol")
@@ -135,6 +136,8 @@ def main():
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_deploy()
         convert_to_deploy_info_json(abi_list, bytecode_list, analyzer)
+    elif args.command == 'remove':
+        remove_all_json_files()
     else:
         print("Error: Invalid command.")
         return

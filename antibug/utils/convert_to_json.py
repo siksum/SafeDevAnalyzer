@@ -1,9 +1,8 @@
 import glob
 import json
 import os
-
-from typing import Optional, Dict
-
+import shutil
+from typing import Optional
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 
 
@@ -75,3 +74,10 @@ def convert_to_blacklist_result_json(result, contract, function):
     write_to_json(output_path, combined_json)
 
 
+def remove_all_json_files():
+    output_dir = os.path.join(get_root_dir(), f"result")
+    try:
+        shutil.rmtree(output_dir)
+    except Exception as e:
+        print(f"ERROR: {e}")
+    
