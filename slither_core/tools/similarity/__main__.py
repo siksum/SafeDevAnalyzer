@@ -4,7 +4,7 @@ import argparse
 import logging
 import sys
 
-from crytic_compile import cryticparser
+from antibug_compile import cryticparser
 
 from slither_core.tools.similarity.info import info
 from slither_core.tools.similarity.test import test

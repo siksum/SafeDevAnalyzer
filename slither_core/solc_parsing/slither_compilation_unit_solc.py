@@ -205,7 +205,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
 
         if "nodeType" in data_loaded:
             self._is_compact_ast = True
-
+            
         if "sourcePaths" in data_loaded:
             for sourcePath in data_loaded["sourcePaths"]:
                 if os.path.isfile(sourcePath):
@@ -214,6 +214,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if data_loaded[self.get_key()] == "root":
             logger.error("solc <0.4 is not supported")
             return
+        
         if data_loaded[self.get_key()] == "SourceUnit":
             self._parse_source_unit(data_loaded, filename)
         else:
@@ -223,7 +224,7 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
         if self.get_children() not in data_loaded:
             return
         scope = self.compilation_unit.get_scope(filename)
-
+        
         for top_level_data in data_loaded[self.get_children()]:
             if top_level_data[self.get_key()] == "ContractDefinition":
                 contract = Contract(self._compilation_unit, scope)
@@ -374,12 +375,13 @@ class SlitherCompilationUnitSolc(CallerContextExpression):
             # This works only for crytic compile.
             # which used --combined-json ast, rather than --ast-json
             # As a result -1 is not used as index
-            if self._compilation_unit.core.crytic_compile is not None:
+            if self._compilation_unit.core.antibug_compile is not None:
                 sourceUnit = len(self._compilation_unit.core.source_code)
 
         self._compilation_unit.source_units[sourceUnit] = name
         if os.path.isfile(name) and not name in self._compilation_unit.core.source_code:
             self._compilation_unit.core.add_source_code(name)
+            
         else:
             lib_name = os.path.join("node_modules", name)
             if os.path.isfile(lib_name) and not name in self._compilation_unit.core.source_code:
@@ -430,7 +432,6 @@ Please rename it, this name is reserved for Slither's internals"""
             # try:
             # Resolve linearized base contracts.
             missing_inheritance = None
-
             for i in contract_parser.linearized_base_contracts[1:]:
                 if i in contract_parser.remapping:
                     contract_name = contract_parser.remapping[i]
@@ -489,7 +490,7 @@ Please rename it, this name is reserved for Slither's internals"""
                 self._compilation_unit.contracts_with_missing_inheritance.add(
                     contract_parser.underlying_contract
                 )
-                txt = f"Missing inheritance {contract_parser.underlying_contract} ({contract_parser.compilation_unit.crytic_compile_compilation_unit.unique_id})\n"
+                txt = f"Missing inheritance {contract_parser.underlying_contract} ({contract_parser.compilation_unit.antibug_compile_compilation_unit.unique_id})\n"
                 txt += f"Missing inheritance ID: {missing_inheritance}\n"
                 if contract_parser.underlying_contract.inheritance:
                     txt += "Inheritance found:\n"

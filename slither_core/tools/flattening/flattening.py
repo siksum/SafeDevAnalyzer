@@ -241,7 +241,7 @@ class Flattening:
             ret += f"pragma solidity {self._pragma_solidity};\n"
         else:
             # TODO support multiple compiler version
-            ret += f"pragma solidity {list(self._compilation_unit.crytic_compile.compilation_units.values())[0].compiler_version.version};\n"
+            ret += f"pragma solidity {list(self._compilation_unit.antibug_compile.compilation_units.values())[0].compiler_version.version};\n"
 
         if self._use_abi_encoder_v2:
             ret += "pragma experimental ABIEncoderV2;\n"

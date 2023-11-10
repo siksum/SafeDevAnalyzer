@@ -91,9 +91,11 @@ def transform_slithir_vars_to_ssa(
     tmp_variables = [v for v in variables if isinstance(v, TemporaryVariable)]
     for idx, _ in enumerate(tmp_variables):
         tmp_variables[idx].index = idx
+        
     ref_variables = [v for v in variables if isinstance(v, ReferenceVariable)]
     for idx, _ in enumerate(ref_variables):
         ref_variables[idx].index = idx
+        
     tuple_variables = [v for v in variables if isinstance(v, TupleVariable)]
     for idx, _ in enumerate(tuple_variables):
         tuple_variables[idx].index = idx

@@ -38,8 +38,8 @@ def apply_patch(original_txt: bytes, patch: Dict, offset: int) -> Tuple[bytes, i
 def create_diff(
     compilation_unit: SlitherCompilationUnit, original_txt: bytes, patched_txt: bytes, filename: str
 ) -> str:
-    if compilation_unit.crytic_compile:
-        relative_path = compilation_unit.crytic_compile.filename_lookup(filename).relative
+    if compilation_unit.antibug_compile:
+        relative_path = compilation_unit.antibug_compile.filename_lookup(filename).relative
         relative_path = os.path.join(".", relative_path)
     else:
         relative_path = filename

@@ -23,7 +23,7 @@ from antibug.compile.utils.naming import (
 )
 
 # Cycle dependency
-# from crytic_compile.utils.natspec import Natspec
+# from antibug_compile.utils.natspec import Natspec
 
 if TYPE_CHECKING:
     from antibug.compile.antibug_compile import AntibugCompile
@@ -35,7 +35,7 @@ LOGGER.setLevel(logging.ERROR)
 def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
     contracts = {}
 
-    libraries_to_update = compilation_unit.crytic_compile.libraries
+    libraries_to_update = compilation_unit.antibug_compile.libraries
 
     for filename, source_unit in compilation_unit.source_units.items():
         for contract_name in source_unit.contracts_names:
@@ -94,14 +94,14 @@ def export_to_solc_from_compilation_unit(
     return None
 
 
-def export_to_solc(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]:
+def export_to_solc(antibug_compile: "AntibugCompile", **kwargs: str) -> List[str]:
     """Export all the compilation units to the standard solc output format.
     The files generated will be either
     - combined_solc.json, if there is one compilation unit (echidna legacy)
     - $key.json, where $key is the compilation unit identifiant
 
     Args:
-        crytic_compile (AntibugCompile): AntibugCompile object to export
+        antibug_compile (AntibugCompile): AntibugCompile object to export
         **kwargs: optional arguments. Used: "export_dir"
 
     Returns:
@@ -110,15 +110,15 @@ def export_to_solc(crytic_compile: "AntibugCompile", **kwargs: str) -> List[str]
     # Obtain objects to represent each contract
     export_dir = kwargs.get("export_dir", "crytic-export")
 
-    if len(crytic_compile.compilation_units) == 1:
-        compilation_unit = list(crytic_compile.compilation_units.values())[0]
+    if len(antibug_compile.compilation_units) == 1:
+        compilation_unit = list(antibug_compile.compilation_units.values())[0]
         path = export_to_solc_from_compilation_unit(compilation_unit, "combined_solc", export_dir)
         if path:
             return [path]
         return []
 
     paths = []
-    for key, compilation_unit in crytic_compile.compilation_units.items():
+    for key, compilation_unit in antibug_compile.compilation_units.items():
         path = export_to_solc_from_compilation_unit(compilation_unit, key, export_dir)
         if path:
             paths.append(path)
@@ -138,11 +138,11 @@ class Solc():
         self.compiler_version = binary
 
 
-    def compile(self, crytic_compile: "AntibugCompile", **kwargs: str) -> None:
+    def compile(self, antibug_compile: "AntibugCompile", **kwargs: str) -> None:
         """Run the compilation
 
         Args:
-            crytic_compile (AntibugCompile): Associated AntibugCompile object
+            antibug_compile (AntibugCompile): Associated AntibugCompile object
             **kwargs: optional arguments. Used: "solc_working_dir", "solc_force_legacy_json"
 
         Raises:
@@ -151,7 +151,7 @@ class Solc():
 
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
-        compilation_unit = CompilationUnit(crytic_compile, str(self.target), self.compiler_version)
+        compilation_unit = CompilationUnit(antibug_compile, str(self.target), self.compiler_version)
 
         targets_json = _get_targets_json(compilation_unit, self.target, **kwargs)
 
@@ -169,12 +169,12 @@ class Solc():
                     path = convert_filename(
                         self.target,
                         relative_to_short,
-                        crytic_compile,
+                        antibug_compile,
                         working_dir=solc_working_dir,
                     )
                 else:
                     path = convert_filename(
-                        path, relative_to_short, crytic_compile, working_dir=solc_working_dir
+                        path, relative_to_short, antibug_compile, working_dir=solc_working_dir
                     )
                 source_unit = compilation_unit.create_source_unit(path)
                 source_unit.ast = info["AST"]
@@ -279,14 +279,14 @@ def solc_handle_contracts(
                 filename = convert_filename(
                     target,
                     relative_to_short,
-                    compilation_unit.crytic_compile,
+                    compilation_unit.antibug_compile,
                     working_dir=solc_working_dir,
                 )
             else:
                 filename = convert_filename(
                     extract_filename(original_contract_name),
                     relative_to_short,
-                    compilation_unit.crytic_compile,
+                    compilation_unit.antibug_compile,
                     working_dir=solc_working_dir,
                 )
 
@@ -375,7 +375,7 @@ def _run_solc(
     force_legacy_json: bool = False,
 ) -> Dict:
     """Run solc.
-    Ensure that crytic_compile.compiler_version is set prior calling _run_solc
+    Ensure that antibug_compile.compiler_version is set prior calling _run_solc
 
     Args:
         compilation_unit (CompilationUnit): Associated compilation unit

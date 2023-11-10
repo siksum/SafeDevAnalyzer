@@ -8,7 +8,7 @@ def load_evm_cfg_builder():
     try:
         # Avoiding the addition of evm_cfg_builder as permanent dependency
         # pylint: disable=import-outside-toplevel
-        from evm_cfg_builder.cfg import CFG
+        from slither_core.analyses.evm.convert import CFG
 
         return CFG
     except ImportError:

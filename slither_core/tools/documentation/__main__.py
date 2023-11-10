@@ -2,7 +2,7 @@ import argparse
 import logging
 import uuid
 from typing import Optional, Dict, List
-from crytic_compile import cryticparser
+from antibug_compile import cryticparser
 from slither_core import Slither
 from slither_core.core.compilation_unit import SlitherCompilationUnit
 from slither_core.core.declarations import Function

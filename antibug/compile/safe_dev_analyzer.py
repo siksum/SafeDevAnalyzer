@@ -10,7 +10,7 @@ class SafeDevAnalyzer():
     def __init__(self, target: str, **kwargs) -> None:
         self.target_path = os.path.abspath(target)
         self.target_name = []
-        self.crytic_compile = []
+        self.antibug_compile = []
         self.compilation_units: Dict[str, Slither] = {}
         self.target_list = []
         self.abi_list = []
@@ -20,27 +20,27 @@ class SafeDevAnalyzer():
         try:
             if os.path.isdir(self.target_path):
                 self.target_list = self.find_all_solidity_files('.sol')
-                self.crytic_compile.extend(self.get_crytic_compile_list())
-                for crytic, filename in zip(self.crytic_compile, self.target_name):
+                self.antibug_compile.extend(self.get_antibug_compile_list())
+                for crytic, filename in zip(self.antibug_compile, self.target_name):
                     self.compilation_units[filename] = Slither(crytic)
             elif os.path.isfile(self.target_path):
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
                     self.solc_parse = SolcParser(self.target_list[0])
                     self.solc_parse.run_parser()
-                    self.crytic_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
+                    self.antibug_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
                     self.compilation_units[os.path.basename(
-                        self.target_path)] = Slither(self.crytic_compile[0])  
+                        self.target_path)] = Slither(self.antibug_compile[0])  
         except InvalidCompilation:
             return
 
-    def to_deploy(self): 
+    def to_compile(self): 
         file_path = self.target_list
         i = 0
-        for crytic_compile in self.crytic_compile:
-            filename_object = crytic_compile.filename_lookup(file_path[i])
-            self.abi_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
-            self.bytecode_list.append(crytic_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
+        for antibug_compile in self.antibug_compile:
+            filename_object = antibug_compile.filename_lookup(file_path[i])
+            self.abi_list.append(antibug_compile._compilation_units[file_path[i]]._source_units[filename_object].abis)
+            self.bytecode_list.append(antibug_compile._compilation_units[file_path[i]]._source_units[filename_object]._init_bytecodes)
             i += 1
         return self.abi_list, self.bytecode_list
     
@@ -53,7 +53,7 @@ class SafeDevAnalyzer():
                     target_list.append(file_path)
         return target_list
     
-    def get_crytic_compile_list(self):
+    def get_antibug_compile_list(self):
         compilation_units = []
         for file in self.target_list:
             try:

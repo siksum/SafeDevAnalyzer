@@ -15,7 +15,7 @@ contract EtherStore {
         require(sent, "Failed to send Ether");
 
         balances[msg.sender] = 0;
-    }
+    }    
 
     // Helper function to check the balance of this contract
     function getBalance() public view returns (uint) {

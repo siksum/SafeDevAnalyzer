@@ -125,7 +125,7 @@ def _verify_filename_existence(filename: Path, cwd: Path) -> Path:
 def convert_filename(
     used_filename: Union[str, Path],
     relative_to_short: Callable[[Path], Path],
-    crytic_compile: "AntibugCompile",
+    antibug_compile: "AntibugCompile",
     working_dir: Optional[Union[str, Path]] = None,
 ) -> Filename:
     """Convert a filename to AntibugCompile Filename object.
@@ -134,7 +134,7 @@ def convert_filename(
     Args:
         used_filename (Union[str, Path]): Used filename
         relative_to_short (Callable[[Path], Path]): Callback to translate the relative to short
-        crytic_compile (AntibugCompile): Associated AntibugCompile object
+        antibug_compile (AntibugCompile): Associated AntibugCompile object
         working_dir (Optional[Union[str, Path]], optional): Working directory. Defaults to None.
 
     Returns:
@@ -160,9 +160,9 @@ def convert_filename(
         else:
             cwd = Path.cwd().joinpath(Path(working_dir)).resolve()
 
-    # if crytic_compile.package_name:
+    # if antibug_compile.package_name:
     #     try:
-    #         filename = filename.relative_to(Path(crytic_compile.package_name))
+    #         filename = filename.relative_to(Path(antibug_compile.package_name))
     #     except ValueError:
     #         pass
 

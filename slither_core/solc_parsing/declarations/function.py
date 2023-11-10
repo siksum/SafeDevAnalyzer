@@ -1115,8 +1115,8 @@ class FunctionSolc(CallerContextExpression):
     def _parse_cfg(self, cfg: Dict) -> None:
 
         assert cfg[self.get_key()] == "Block"
-
         node = self._new_node(NodeType.ENTRYPOINT, cfg["src"], self.underlying_function)
+        
         self._function.entry_point = node.underlying_node
 
         if self.is_compact_ast:
@@ -1129,6 +1129,7 @@ class FunctionSolc(CallerContextExpression):
         else:
             self._function.is_empty = False
             self._parse_block(cfg, node, self.underlying_function)
+            
             self._remove_incorrect_edges()
             self._remove_alone_endif()
 

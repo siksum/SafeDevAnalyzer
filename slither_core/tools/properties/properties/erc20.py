@@ -3,8 +3,8 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Tuple, List
 
-from crytic_compile.platform.abstract_platform import AbstractPlatform
-from crytic_compile.platform import Type as PlatformType
+from antibug_compile.platform.abstract_platform import AbstractPlatform
+from antibug_compile.platform import Type as PlatformType
 
 from slither_core.core.declarations import Contract
 from slither_core.tools.properties.addresses.address import Addresses
@@ -72,16 +72,16 @@ def generate_erc20(
     :param type_property: One of ERC20_PROPERTIES.keys()
     :return:
     """
-    if contract.compilation_unit.core.crytic_compile is None:
+    if contract.compilation_unit.core.antibug_compile is None:
         logging.error("Please compile with crytic-compile")
         return
-    if contract.compilation_unit.core.crytic_compile.type not in [
+    if contract.compilation_unit.core.antibug_compile.type not in [
         PlatformType.TRUFFLE,
         PlatformType.SOLC,
         PlatformType.BUILDER,
     ]:
         logging.error(
-            f"{contract.compilation_unit.core.crytic_compile.type} not yet supported by slither-prop"
+            f"{contract.compilation_unit.core.antibug_compile.type} not yet supported by slither-prop"
         )
         return
 
@@ -98,7 +98,7 @@ def generate_erc20(
     properties = erc_properties.properties
 
     # Generate the output directory
-    output_dir = _platform_to_output_dir(contract.compilation_unit.core.crytic_compile.platform)
+    output_dir = _platform_to_output_dir(contract.compilation_unit.core.antibug_compile.platform)
     output_dir.mkdir(exist_ok=True)
 
     # Get the properties
@@ -122,13 +122,13 @@ def generate_erc20(
 
     # Generate Echidna config file
     echidna_config_filename = generate_echidna_config(
-        Path(contract.compilation_unit.core.crytic_compile.target).parent, addresses
+        Path(contract.compilation_unit.core.antibug_compile.target).parent, addresses
     )
 
     unit_test_info = ""
 
     # If truffle, generate unit tests
-    if contract.compilation_unit.core.crytic_compile.type == PlatformType.TRUFFLE:
+    if contract.compilation_unit.core.antibug_compile.type == PlatformType.TRUFFLE:
         unit_test_info = generate_truffle_test(contract, type_property, unit_tests, addresses)
 
     logger.info("################################################")
@@ -138,7 +138,7 @@ def generate_erc20(
         logger.info(green(unit_test_info))
 
     logger.info(green("To run Echidna:"))
-    txt = f"\t echidna-test {contract.compilation_unit.core.crytic_compile.target} "
+    txt = f"\t echidna-test {contract.compilation_unit.core.antibug_compile.target} "
     txt += f"--contract {contract_name} --config {echidna_config_filename}"
     logger.info(green(txt))
 
@@ -199,7 +199,7 @@ def _check_compatibility(contract):
 def _get_properties(contract, properties: List[Property]) -> Tuple[str, List[Property]]:
     solidity_properties = ""
 
-    if contract.compilation_unit.crytic_compile.type == PlatformType.TRUFFLE:
+    if contract.compilation_unit.antibug_compile.type == PlatformType.TRUFFLE:
         solidity_properties += "\n".join([property_to_solidity(p) for p in ERC20_CONFIG])
 
     solidity_properties += "\n".join([property_to_solidity(p) for p in properties])

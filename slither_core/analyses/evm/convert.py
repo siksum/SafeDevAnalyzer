@@ -19,7 +19,7 @@ def get_evm_instructions(obj):
 
         slither = obj.slither
 
-        if not slither.crytic_compile:
+        if not slither.antibug_compile:
             raise SlitherError("EVM features require to compile with crytic-compile")
 
         contract_info = {}
@@ -34,19 +34,19 @@ def get_evm_instructions(obj):
             contract_info["contract"] = obj
 
         # Get contract runtime bytecode, srcmap and cfg
-        contract_info["bytecode_runtime"] = slither.crytic_compile.bytecode_runtime(
+        contract_info["bytecode_runtime"] = slither.antibug_compile.bytecode_runtime(
             contract_info["contract"].name
         )
-        contract_info["srcmap_runtime"] = slither.crytic_compile.srcmap_runtime(
+        contract_info["srcmap_runtime"] = slither.antibug_compile.srcmap_runtime(
             contract_info["contract"].name
         )
         contract_info["cfg"] = CFG(contract_info["bytecode_runtime"])
 
         # Get contract init bytecode, srcmap and cfg
-        contract_info["bytecode_init"] = slither.crytic_compile.bytecode_init(
+        contract_info["bytecode_init"] = slither.antibug_compile.bytecode_init(
             contract_info["contract"].name
         )
-        contract_info["srcmap_init"] = slither.crytic_compile.srcmap_init(
+        contract_info["srcmap_init"] = slither.antibug_compile.srcmap_init(
             contract_info["contract"].name
         )
         contract_info["cfg_init"] = CFG(contract_info["bytecode_init"])

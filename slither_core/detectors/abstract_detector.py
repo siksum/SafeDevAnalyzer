@@ -3,7 +3,7 @@ import re
 from logging import Logger
 from typing import Optional, List, TYPE_CHECKING, Dict, Union, Callable
 
-from slither_core.core.compilation_unit import SlitherCompilationUnit, Language
+from slither_core.core.compilation_unit import SlitherCompilationUnit#, Language
 from slither_core.core.declarations import Contract
 from slither_core.formatters.exceptions import FormatImpossible
 from slither_core.formatters.utils.patches import apply_patch, create_diff
@@ -136,13 +136,13 @@ class AbstractDetector(metaclass=abc.ABCMeta):
                 f"VULNERABLE_SOLC_VERSIONS should not be an empty list {self.__class__.__name__}"
             )
 
-        if self.LANGUAGE is not None and self.LANGUAGE not in [
-            Language.SOLIDITY.value,
-            Language.VYPER.value,
-        ]:
-            raise IncorrectDetectorInitialization(
-                f"LANGUAGE should not be either 'solidity' or 'vyper' {self.__class__.__name__}"
-            )
+        # if self.LANGUAGE is not None and self.LANGUAGE not in [
+        #     Language.SOLIDITY.value,
+        #     Language.VYPER.value,
+        # ]:
+        #     raise IncorrectDetectorInitialization(
+        #         f"LANGUAGE should not be either 'solidity' or 'vyper' {self.__class__.__name__}"
+        #     )
 
         if re.match("^[a-zA-Z0-9_-]*$", self.ARGUMENT) is None:
             raise IncorrectDetectorInitialization(

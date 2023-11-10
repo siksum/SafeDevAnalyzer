@@ -3,7 +3,6 @@ from typing import Union, List, ValuesView, Type, Dict, Optional
 
 from antibug.compile.antibug_compile import AntibugCompile
 from antibug.compile.exceptions import InvalidCompilation
-from antibug.compile.parse_version_and_install_solc import SolcParser
 
 # pylint: disable= no-name-in-module
 from slither_core.core.compilation_unit import SlitherCompilationUnit
@@ -22,17 +21,17 @@ logger_detector = logging.getLogger("Detectors")
 logger_printer = logging.getLogger("Printers")
 
 
-def _check_common_things(
-    thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
-) -> None:
+# def _check_common_things(
+#     thing_name: str, cls: Type, base_cls: Type, instances_list: List[Type[AbstractDetector]]
+# ) -> None:
 
-    if not issubclass(cls, base_cls) or cls is base_cls:
-        raise Exception(
-            f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
-        )
+#     if not issubclass(cls, base_cls) or cls is base_cls:
+#         raise Exception(
+#             f"You can't register {cls!r} as a {thing_name}. You need to pass a class that inherits from {base_cls.__name__}"
+#         )
 
-    if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
-        raise Exception(f"You can't register {cls!r} twice.")
+#     if any(type(obj) == cls for obj in instances_list):  # pylint: disable=unidiomatic-typecheck
+#         raise Exception(f"You can't register {cls!r} twice.")
 
 
 def _update_file_scopes(candidates: ValuesView[FileScope]):
@@ -48,7 +47,6 @@ def _update_file_scopes(candidates: ValuesView[FileScope]):
         if not learned_something:
             break
         learned_something = False
-
 
 class Slither(
     SlitherCore
@@ -91,12 +89,12 @@ class Slither(
         self._parsers: List[SlitherCompilationUnitSolc] = []
         try:
             if isinstance(target, AntibugCompile):
-                crytic_compile = target
-            self._crytic_compile = crytic_compile
+                antibug_compile = target
+            self._antibug_compile = antibug_compile
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
-        for compilation_unit in crytic_compile.compilation_units.values():
+        for compilation_unit in antibug_compile.compilation_units.values():
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
             sol_parser = SlitherCompilationUnitSolc(compilation_unit_slither)
@@ -104,7 +102,6 @@ class Slither(
             for path, ast in compilation_unit.asts.items():
                 sol_parser.parse_top_level_items(ast, path)
                 self.add_source_code(path)
-
             _update_file_scopes(compilation_unit_slither.scopes.values())
 
         if kwargs.get("generate_patches", False):
@@ -115,22 +112,22 @@ class Slither(
         self._detectors = []
         self._printers = []
 
-        filter_paths = kwargs.get("filter_paths", [])
-        for p in filter_paths:
-            self.add_path_to_filter(p)
+        # filter_paths = kwargs.get("filter_paths", [])
+        # for p in filter_paths:
+        #     self.add_path_to_filter(p)
 
-        self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
+        # self._exclude_dependencies = kwargs.get("exclude_dependencies", False)
 
         triage_mode = kwargs.get("triage_mode", False)
         self._triage_mode = triage_mode
 
-        printers_to_run = kwargs.get("printers_to_run", "")
-        if printers_to_run == "echidna":
-            self.skip_data_dependency = True
-        self._init_parsing_and_analyses(kwargs.get("skip_analyze", False))
+        # printers_to_run = kwargs.get("printers_to_run", "")
+        # if printers_to_run == "echidna":
+        #     self.skip_data_dependency = True
+        self._init_parsing_and_analyses()
+        
 
-    def _init_parsing_and_analyses(self, skip_analyze: bool) -> None:
-
+    def _init_parsing_and_analyses(self) -> None:
         for parser in self._parsers:
             try:
                 parser.parse_contracts()
@@ -140,14 +137,13 @@ class Slither(
                 raise e
 
         # skip_analyze is only used for testing
-        if not skip_analyze:
-            for parser in self._parsers:
-                try:
-                    parser.analyze_contracts()
-                except Exception as e:
-                    if self.no_fail:
-                        continue
-                    raise e
+        for parser in self._parsers:
+            try:
+                parser.analyze_contracts()
+            except Exception as e:
+                if self.no_fail:
+                    continue
+                raise e
     @property
     def detectors(self):
         return self._detectors
@@ -176,7 +172,7 @@ class Slither(
         """
         :param detector_class: Class inheriting from `AbstractDetector`.
         """
-        _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
+        # _check_common_things("detector", detector_class, AbstractDetector, self._detectors)
 
         for compilation_unit in self.compilation_units:
             instance = detector_class(compilation_unit, self, logger_detector)
@@ -196,7 +192,7 @@ class Slither(
         """
         :param printer_class: Class inheriting from `AbstractPrinter`.
         """
-        _check_common_things("printer", printer_class, AbstractPrinter, self._printers)
+        # _check_common_things("printer", printer_class, AbstractPrinter, self._printers)
 
         instance = printer_class(self, logger_printer)
         self._printers.append(instance)
@@ -228,7 +224,7 @@ class Slither(
         :return: List of registered printers outputs.
         """
 
-        return [p.output(self._crytic_compile.target).data for p in self._printers]
+        return [p.output(self._antibug_compile.target).data for p in self._printers]
 
     @property
     def triage_mode(self) -> bool:

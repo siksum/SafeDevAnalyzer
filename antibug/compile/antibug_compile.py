@@ -128,7 +128,7 @@ class AntibugCompile:
         return filenames
 
     def filename_lookup(self, filename: str) -> Filename:
-        """Return a crytic_compile.naming.Filename from a any filename
+        """Return a antibug_compile.naming.Filename from a any filename
 
         Args:
             filename (str): filename (used/absolute/relative)

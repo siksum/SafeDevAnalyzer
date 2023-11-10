@@ -175,9 +175,9 @@ class PrinterHumanSummary(AbstractPrinter):
         return total_asm_lines
 
     def _compilation_type(self):
-        if self.slither.crytic_compile is None:
+        if self.slither.antibug_compile is None:
             return "Compilation non standard\n"
-        return f"Compiled with {str(self.slither.crytic_compile.type)}\n"
+        return f"Compiled with {str(self.slither.antibug_compile.type)}\n"
 
     def _number_contracts(self) -> Tuple[int, int, int]:
         contracts = self.slither.contracts

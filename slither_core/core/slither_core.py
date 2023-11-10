@@ -63,7 +63,7 @@ class SlitherCore(Context):
         self._currently_seen_resuts: Set[str] = set()
         self._paths_to_filter: Set[str] = set()
 
-        self._crytic_compile: Optional[AntibugCompile] = None
+        self._antibug_compile: Optional[AntibugCompile] = None
 
         self._generate_patches = False
         self._exclude_dependencies = False
@@ -173,11 +173,11 @@ class SlitherCore(Context):
         :param path:
         :return:
         """
-        if self.crytic_compile and path in self.crytic_compile.src_content:
-            self.source_code[path] = self.crytic_compile.src_content[path]
-        else:
-            with open(path, encoding="utf8", newline="") as f:
-                self.source_code[path] = f.read()
+        if self.antibug_compile and path in self.antibug_compile.src_content:
+            self.source_code[path] = self.antibug_compile.src_content[path]
+        # else:
+        #     with open(path, encoding="utf8", newline="") as f:
+        #         self.source_code[path] = f.read()
 
         self.parse_ignore_comments(path)
 
@@ -197,11 +197,11 @@ class SlitherCore(Context):
     def offset_to_objects(self, filename_str: str, offset: int) -> Set[SourceMapping]:
         if self._offset_to_objects is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        filename: Filename = self.antibug_compile.filename_lookup(filename_str)
         return self._offset_to_objects[filename][offset]
 
     def _compute_offsets_from_thing(self, thing: SourceMapping):
-        definition = get_definition(thing, self.crytic_compile)
+        definition = get_definition(thing, self.antibug_compile)
         references = get_references(thing)
         implementation = get_implementation(thing)
 
@@ -281,19 +281,19 @@ class SlitherCore(Context):
     def offset_to_references(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_references is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        filename: Filename = self.antibug_compile.filename_lookup(filename_str)
         return self._offset_to_references[filename][offset]
 
     def offset_to_implementations(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_implementations is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        filename: Filename = self.antibug_compile.filename_lookup(filename_str)
         return self._offset_to_implementations[filename][offset]
 
     def offset_to_definitions(self, filename_str: str, offset: int) -> Set[Source]:
         if self._offset_to_definitions is None:
             self._compute_offsets_to_ref_impl_decl()
-        filename: Filename = self.crytic_compile.filename_lookup(filename_str)
+        filename: Filename = self.antibug_compile.filename_lookup(filename_str)
         return self._offset_to_definitions[filename][offset]
 
     # endregion
@@ -303,22 +303,23 @@ class SlitherCore(Context):
     ###################################################################################
     ###################################################################################
 
-    def parse_ignore_comments(self, file: str) -> None:
+    def parse_ignore_comments(self, file: str) -> None: #ok
         # The first time we check a file, find all start/end ignore comments and memoize them.
         line_number = 1
         while True:
 
-            line_text = self.crytic_compile.get_code_from_line(file, line_number)
+            line_text = self.antibug_compile.get_code_from_line(file, line_number)
             if line_text is None:
                 break
 
-            start_regex = r"^\s*//\s*slither-disable-start\s*([a-zA-Z0-9_,-]*)"
-            end_regex = r"^\s*//\s*slither-disable-end\s*([a-zA-Z0-9_,-]*)"
+            start_regex = r"^\s*//\s*antibug-disable-start\s*([a-zA-Z0-9_,-]*)"
+            end_regex = r"^\s*//\s*antibug-disable-end\s*([a-zA-Z0-9_,-]*)"
             start_match = re.findall(start_regex, line_text.decode("utf8"))
             end_match = re.findall(end_regex, line_text.decode("utf8"))
 
             if start_match:
                 ignored = start_match[0].split(",")
+                
                 if ignored:
                     for check in ignored:
                         vals = self._ignore_ranges[file][check]
@@ -327,7 +328,7 @@ class SlitherCore(Context):
                             self._ignore_ranges[file][check].append((line_number, float("inf")))
                         else:
                             logger.error(
-                                f"Consecutive slither-disable-starts without slither-disable-end in {file}#{line_number}"
+                                f"Consecutive antibug-disable-starts without antibug-disable-end in {file}#{line_number}"
                             )
                             return
 
@@ -338,7 +339,7 @@ class SlitherCore(Context):
                         vals = self._ignore_ranges[file][check]
                         if len(vals) == 0 or vals[-1][1] != float("inf"):
                             logger.error(
-                                f"slither-disable-end without slither-disable-start in {file}#{line_number}"
+                                f"antibug-disable-end without antibug-disable-start in {file}#{line_number}"
                             )
                             return
                         self._ignore_ranges[file][check][-1] = (vals[-1][0], line_number)
@@ -350,7 +351,7 @@ class SlitherCore(Context):
         Check if the result has an ignore comment in the file or on the preceding line, in which
         case, it is not valid
         """
-        if not self.crytic_compile:
+        if not self.antibug_compile:
             return False
         mapping_elements_with_lines = (
             (
@@ -375,7 +376,7 @@ class SlitherCore(Context):
 
             # Check for next-line matchers.
             ignore_line_index = min(lines) - 1
-            ignore_line_text = self.crytic_compile.get_code_from_line(file, ignore_line_index)
+            ignore_line_text = self.antibug_compile.get_code_from_line(file, ignore_line_index)
             if ignore_line_text:
                 match = re.findall(
                     r"^\s*//\s*slither-disable-next-line\s*([a-zA-Z0-9_,-]*)",
@@ -506,8 +507,8 @@ class SlitherCore(Context):
     ###################################################################################
 
     @property
-    def crytic_compile(self) -> AntibugCompile:
-        return self._crytic_compile  # type: ignore
+    def antibug_compile(self) -> AntibugCompile:
+        return self._antibug_compile  # type: ignore
 
     # endregion
     ###################################################################################

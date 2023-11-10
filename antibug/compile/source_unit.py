@@ -4,9 +4,8 @@ Each source unit represents one file so may be associated with
 One or more source units are associated with each compilation unit
 """
 import re
-from typing import Dict, List, Optional, Union, Tuple, TYPE_CHECKING
 import cbor2
-
+from typing import Dict, List, Optional, Union, Tuple, TYPE_CHECKING
 from Crypto.Hash import keccak
 
 from antibug.compile.utils.naming import Filename

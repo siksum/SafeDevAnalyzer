@@ -127,10 +127,10 @@ def _compute_line(
     Not done in an efficient way
     """
 
-    start_line, starting_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+    start_line, starting_column = compilation_unit.core.antibug_compile.get_line_from_offset(
         filename, start
     )
-    end_line, ending_column = compilation_unit.core.crytic_compile.get_line_from_offset(
+    end_line, ending_column = compilation_unit.core.antibug_compile.get_line_from_offset(
         filename, start + length
     )
     return list(range(start_line, end_line + 1)), starting_column, ending_column
@@ -164,10 +164,10 @@ def _convert_source_mapping(
     filename_used = sourceUnits[f]
 
     # If possible, convert the filename to its absolute/relative version
-    assert compilation_unit.core.crytic_compile
+    assert compilation_unit.core.antibug_compile
 
-    filename: Filename = compilation_unit.core.crytic_compile.filename_lookup(filename_used)
-    # is_dependency = compilation_unit.core.crytic_compile.is_dependency(filename.absolute)
+    filename: Filename = compilation_unit.core.antibug_compile.filename_lookup(filename_used)
+    # is_dependency = compilation_unit.core.antibug_compile.is_dependency(filename.absolute)
 
     (lines, starting_column, ending_column) = _compute_line(compilation_unit, filename, s, l)
 

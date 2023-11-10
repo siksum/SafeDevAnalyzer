@@ -2,7 +2,7 @@ import argparse
 import sys
 import argparse
 
-from antibug.utils.convert_to_json import convert_to_deploy_info_json, convert_to_detect_result_json, convert_to_blacklist_result_json, remove_all_json_files
+from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files
 from antibug.run_detectors.detectors import RunDetector
 
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
@@ -47,9 +47,9 @@ def parse_arguments():
     )
 
     # 'deploy' sub-command
-    deploy_parser = subparsers.add_parser(
-        'deploy', help='antibug compiler, defaults to all')
-    deploy_parser.add_argument('target', help='ath to the rule file')
+    compile_parser = subparsers.add_parser(
+        'compile', help='antibug compiler, defaults to all')
+    compile_parser.add_argument('target', help='ath to the rule file')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -89,10 +89,10 @@ def main():
         else:
             print("Error: Invalid command.")
             return
-    elif args.command == 'deploy':
+    elif args.command == 'compile':
         analyzer = SafeDevAnalyzer(args.target)
-        abi_list, bytecode_list = analyzer.to_deploy()
-        convert_to_deploy_info_json(abi_list, bytecode_list, analyzer)
+        abi_list, bytecode_list = analyzer.to_compile()
+        convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
     elif args.command == 'remove':
         remove_all_json_files()
     else:

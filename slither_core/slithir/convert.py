@@ -550,7 +550,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
 
     if ir.variable_right == "creationCode":
         bytecode = scope.bytecode_init(
-            ir.node.compilation_unit.crytic_compile_compilation_unit, contract.name
+            ir.node.compilation_unit.antibug_compile_compilation_unit, contract.name
         )
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)
@@ -559,7 +559,7 @@ def _convert_type_contract(ir: Member) -> Assignment:
         return assignment
     if ir.variable_right == "runtimeCode":
         bytecode = scope.bytecode_runtime(
-            ir.node.compilation_unit.crytic_compile_compilation_unit, contract.name
+            ir.node.compilation_unit.antibug_compile_compilation_unit, contract.name
         )
         assignment = Assignment(ir.lvalue, Constant(str(bytecode)), ElementaryType("bytes"))
         assignment.set_expression(ir.expression)

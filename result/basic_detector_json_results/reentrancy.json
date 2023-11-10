@@ -4,8 +4,8 @@
   "results": [
     {
       "elements": [],
-      "description": "Pragma version^0.7.0 (test/reentrancy.sol#2) allows old versions\n",
-      "id": "593699192b8e84cac2b610871b39f8f8dbd6b2a1cf30ef85feaa027ecd32f145",
+      "description": "Pragma version^0.7.0 (reentrancy.sol#2) allows old versions\n",
+      "id": "354380edff6fff7d5a43906b1ffd749766093eda166bb86ac474617ad18e8ca0",
       "check": "solc-version",
       "impact": "Informational",
       "confidence": "High"
@@ -24,7 +24,7 @@
           "type": "function",
           "name": "withdraw",
           "source_mapping": {
-            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/printer/reentrancy.sol",
             "is_dependency": false,
             "lines": [
               10,
@@ -51,7 +51,7 @@
           "type": "node",
           "name": "(sent) = msg.sender.call{value: bal}()",
           "source_mapping": {
-            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/printer/reentrancy.sol",
             "is_dependency": false,
             "lines": [
               14
@@ -72,7 +72,7 @@
           "type": "node",
           "name": "balances[msg.sender] = 0",
           "source_mapping": {
-            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/printer/reentrancy.sol",
             "is_dependency": false,
             "lines": [
               17
@@ -91,8 +91,8 @@
           }
         }
       ],
-      "description": "Reentrancy in EtherStore.withdraw() (test/reentrancy.sol#10-18):\n\tExternal calls:\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#14)\n\tState variables written after the call(s):\n\t- balances[msg.sender] = 0 (test/reentrancy.sol#17)\n\tEtherStore.balances (test/reentrancy.sol#5) can be used in cross function reentrancies:\n\t- EtherStore.balances (test/reentrancy.sol#5)\n\t- EtherStore.deposit() (test/reentrancy.sol#6-8)\n\t- EtherStore.withdraw() (test/reentrancy.sol#10-18)\n",
-      "id": "582014837221f86e2add2cc7b3a7012567215b306b06599e3345e17c5fbb130e",
+      "description": "Reentrancy in EtherStore.withdraw() (reentrancy.sol#10-18):\n\tExternal calls:\n\t- (sent) = msg.sender.call{value: bal}() (reentrancy.sol#14)\n\tState variables written after the call(s):\n\t- balances[msg.sender] = 0 (reentrancy.sol#17)\n\tEtherStore.balances (reentrancy.sol#5) can be used in cross function reentrancies:\n\t- EtherStore.balances (reentrancy.sol#5)\n\t- EtherStore.deposit() (reentrancy.sol#6-8)\n\t- EtherStore.withdraw() (reentrancy.sol#10-18)\n",
+      "id": "cce72c924bddb09f3d9de4ae13df85d462e035afcbafb1915c887bc1b997cd39",
       "check": "reentrancy-eth",
       "impact": "High",
       "confidence": "Medium"
@@ -103,7 +103,7 @@
           "type": "function",
           "name": "withdraw",
           "source_mapping": {
-            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/printer/reentrancy.sol",
             "is_dependency": false,
             "lines": [
               10,
@@ -130,7 +130,7 @@
           "type": "node",
           "name": "(sent) = msg.sender.call{value: bal}()",
           "source_mapping": {
-            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/reentrancy.sol",
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/printer/reentrancy.sol",
             "is_dependency": false,
             "lines": [
               14
@@ -145,8 +145,8 @@
           }
         }
       ],
-      "description": "Low level call in EtherStore.withdraw() (test/reentrancy.sol#10-18):\n\t- (sent) = msg.sender.call{value: bal}() (test/reentrancy.sol#14)\n",
-      "id": "a79ee44a79e418b4df0a83c0eb15b48dc8dcaed27345acc417bdedaf4fa920ce",
+      "description": "Low level call in EtherStore.withdraw() (reentrancy.sol#10-18):\n\t- (sent) = msg.sender.call{value: bal}() (reentrancy.sol#14)\n",
+      "id": "08aa5ea3d7c2c3f7ef52dd59b6ab259d7a24179943bcab5156badc218842cdc6",
       "check": "low-level-calls",
       "impact": "Informational",
       "confidence": "High"

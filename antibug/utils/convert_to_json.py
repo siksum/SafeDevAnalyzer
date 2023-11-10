@@ -42,7 +42,7 @@ def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
         print(f"Failed to write to {output_path}. Reason: {e}")
 
 
-def convert_to_deploy_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
+def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
     output_dir_path = output_dir("deploy_json_results")
     
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):

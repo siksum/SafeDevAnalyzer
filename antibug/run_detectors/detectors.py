@@ -83,3 +83,16 @@ class RunDetector(SafeDevAnalyzer):
         self.json_results = results_detectors
         return self.json_results
         
+    @property
+    def detector_high(self):
+        return [len(compilation_unit.detectors_high) for compilation_unit in self.compilation_units.values()]
+            
+    
+    @property
+    def detector_medium(self):
+        return [len(compilation_unit.detectors_medium) for compilation_unit in self.compilation_units.values()]
+
+        
+    @property
+    def detector_low(self):
+        return [len(compilation_unit.detectors_low) for compilation_unit in self.compilation_units.values()]

@@ -5,7 +5,7 @@ import logging
 import sys
 from typing import List, Any, Type, Dict, Tuple, Union, Sequence, Optional
 
-from crytic_compile import cryticparser
+from antibug_compile import cryticparser
 
 
 from slither_core import Slither

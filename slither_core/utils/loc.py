@@ -98,8 +98,8 @@ def compute_loc_metrics(slither: Slither) -> LoC:
     for filename, source_code in slither.source_code.items():
         current_lines = source_code.splitlines()
         is_dep = False
-        if slither.crytic_compile:
-            is_dep = slither.crytic_compile.is_dependency(filename)
+        if slither.antibug_compile:
+            is_dep = slither.antibug_compile.is_dependency(filename)
         loc_type = loc.dep if is_dep else loc.test if is_test_file(Path(filename)) else loc.src
         _update_lines(loc_type, current_lines)
     return loc

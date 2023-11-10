@@ -21,7 +21,7 @@ class Declaration(AbstractPrinter):
             txt += "\n# Contracts\n"
             for contract in compilation_unit.contracts:
                 txt += f"# {contract.name}\n"
-                txt += f"\t- Declaration: {get_definition(contract, compilation_unit.core.crytic_compile).to_detailed_str()}\n"
+                txt += f"\t- Declaration: {get_definition(contract, compilation_unit.core.antibug_compile).to_detailed_str()}\n"
                 txt += f"\t- Implementation: {get_implementation(contract).to_detailed_str()}\n"
                 txt += (
                     f"\t- References: {[x.to_detailed_str() for x in get_references(contract)]}\n"
@@ -31,7 +31,7 @@ class Declaration(AbstractPrinter):
 
                 for func in contract.functions:
                     txt += f"\t\t- {func.canonical_name}\n"
-                    txt += f"\t\t\t- Declaration: {get_definition(func, compilation_unit.core.crytic_compile).to_detailed_str()}\n"
+                    txt += f"\t\t\t- Declaration: {get_definition(func, compilation_unit.core.antibug_compile).to_detailed_str()}\n"
                     txt += f"\t\t\t- Implementation: {get_implementation(func).to_detailed_str()}\n"
                     txt += f"\t\t\t- References: {[x.to_detailed_str() for x in get_references(func)]}\n"
 
@@ -39,7 +39,7 @@ class Declaration(AbstractPrinter):
 
                 for var in contract.state_variables:
                     txt += f"\t\t- {var.name}\n"
-                    txt += f"\t\t\t- Declaration: {get_definition(var, compilation_unit.core.crytic_compile).to_detailed_str()}\n"
+                    txt += f"\t\t\t- Declaration: {get_definition(var, compilation_unit.core.antibug_compile).to_detailed_str()}\n"
                     txt += f"\t\t\t- Implementation: {get_implementation(var).to_detailed_str()}\n"
                     txt += f"\t\t\t- References: {[x.to_detailed_str() for x in get_references(var)]}\n"
 
@@ -47,7 +47,7 @@ class Declaration(AbstractPrinter):
 
                 for st in contract.structures:
                     txt += f"\t\t- {st.name}\n"
-                    txt += f"\t\t\t- Declaration: {get_definition(st, compilation_unit.core.crytic_compile).txt}\n"
+                    txt += f"\t\t\t- Declaration: {get_definition(st, compilation_unit.core.antibug_compile).txt}\n"
                     txt += f"\t\t\t- Implementation: {get_implementation(st).to_detailed_str()}\n"
                     txt += (
                         f"\t\t\t- References: {[x.to_detailed_str() for x in get_references(st)]}\n"

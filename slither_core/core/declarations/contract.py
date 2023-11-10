@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Optional, List, Dict, Callable, Tuple, TYPE_CHECKING, Union, Set, Any
 
-from crytic_compile.platform import Type as PlatformType
+# from antibug_compile.platform import Type as PlatformType
 
 from slither_core.core.cfg.scope import Scope
 from slither_core.core.solidity_types.type import Type
@@ -175,31 +175,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     @is_library.setter
     def is_library(self, is_library: bool) -> None:
         self._is_library = is_library
-
-    @property
-    def comments(self) -> Optional[str]:
-        """
-        Return the comments associated with the contract.
-
-        When using comments, avoid strict text matching, as the solc behavior might change.
-        For example, for old solc version, the first space after the * is not kept, i.e:
-
-          * @title Test Contract
-          * @dev Test comment
-
-        Returns
-        - " @title Test Contract\n @dev Test comment" for newest versions
-        - "@title Test Contract\n@dev Test comment" for older versions
-
-
-        Returns:
-            the comment as a string
-        """
-        return self._comments
-
-    @comments.setter
-    def comments(self, comments: str):
-        self._comments = comments
 
     @property
     def is_fully_implemented(self) -> bool:
@@ -1287,7 +1262,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     def is_from_dependency(self) -> bool:
-        return self.compilation_unit.core.crytic_compile.is_dependency(
+        return self.compilation_unit.core.antibug_compile.is_dependency(
             self.source_mapping.filename.absolute
         )
 
@@ -1304,7 +1279,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
         Return true if the contract is the Migrations contract needed for Truffle
         :return:
         """
-        if self.compilation_unit.core.crytic_compile.platform == PlatformType.TRUFFLE:
+        if self.compilation_unit.core.antibug_compile.platform == PlatformType.TRUFFLE:
             if self.name == "Migrations":
                 paths = Path(self.source_mapping.filename.absolute).parts
                 if len(paths) >= 2:

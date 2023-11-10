@@ -7,7 +7,7 @@ from slither_core.core.variables.variable import Variable
 from slither_core.exceptions import SlitherError
 
 
-def get_definition(target: SourceMapping, crytic_compile: AntibugCompile) -> Source:
+def get_definition(target: SourceMapping, antibug_compile: AntibugCompile) -> Source:
     if isinstance(target, (Contract, Function, Enum, Event, Structure, Variable)):
         # Add " " to look after the first solidity keyword
         pattern = " " + target.name
@@ -20,18 +20,18 @@ def get_definition(target: SourceMapping, crytic_compile: AntibugCompile) -> Sou
     else:
         raise SlitherError(f"get_definition_generic not implemented for {type(target)}")
 
-    file_content = crytic_compile.src_content_for_file(target.source_mapping.filename.absolute)
+    file_content = antibug_compile.src_content_for_file(target.source_mapping.filename.absolute)
     txt = file_content[
         target.source_mapping.start : target.source_mapping.start + target.source_mapping.length
     ]
 
     start_offset = txt.find(pattern) + 1  # remove the space
 
-    starting_line, starting_column = crytic_compile.get_line_from_offset(
+    starting_line, starting_column = antibug_compile.get_line_from_offset(
         target.source_mapping.filename, target.source_mapping.start + start_offset
     )
 
-    ending_line, ending_column = crytic_compile.get_line_from_offset(
+    ending_line, ending_column = antibug_compile.get_line_from_offset(
         target.source_mapping.filename, target.source_mapping.start + start_offset + len(pattern)
     )
 

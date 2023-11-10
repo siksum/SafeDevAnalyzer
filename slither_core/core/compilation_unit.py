@@ -29,18 +29,18 @@ if TYPE_CHECKING:
     from slither_core.core.slither_core import SlitherCore
 
 
-class Language(Enum):
-    SOLIDITY = "solidity"
-    VYPER = "vyper"
+# class Language(Enum):
+#     SOLIDITY = "solidity"
+#     VYPER = "vyper"
 
-    @staticmethod
-    def from_str(label: str):
-        if label == "solc":
-            return Language.SOLIDITY
-        if label == "vyper":
-            return Language.VYPER
+#     @staticmethod
+#     def from_str(label: str):
+#         if label == "solc":
+#             return Language.SOLIDITY
+#         if label == "vyper":
+#             return Language.VYPER
 
-        raise ValueError(f"Unknown language: {label}")
+#         raise ValueError(f"Unknown language: {label}")
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -49,7 +49,7 @@ class SlitherCompilationUnit(Context):
         super().__init__()
 
         self._core = core
-        self._crytic_compile_compilation_unit = crytic_compilation_unit
+        self._antibug_compile_compilation_unit = crytic_compilation_unit
         # self._language = Language.from_str(crytic_compilation_unit.compiler_version.compiler)
 
         # Top level object
@@ -98,20 +98,20 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
     # @property
     # def compiler_version(self) -> CompilerVersion:
-    #     return self._crytic_compile_compilation_unit.compiler_version
+    #     return self._antibug_compile_compilation_unit.compiler_version
 
     @property
     def compiler_version(self) -> str:
         # TODO: make version a non optional argument of compiler version in cc
-        return self._crytic_compile_compilation_unit.compiler_version  # type:ignore
+        return self._antibug_compile_compilation_unit.compiler_version  # type:ignore
 
     @property
-    def crytic_compile_compilation_unit(self) -> CompilationUnit:
-        return self._crytic_compile_compilation_unit
+    def antibug_compile_compilation_unit(self) -> CompilationUnit:
+        return self._antibug_compile_compilation_unit
 
     @property
-    def crytic_compile(self) -> AntibugCompile:
-        return self._crytic_compile_compilation_unit.crytic_compile
+    def antibug_compile(self) -> AntibugCompile:
+        return self._antibug_compile_compilation_unit.antibug_compile
 
     # endregion
     ###################################################################################
@@ -260,7 +260,7 @@ class SlitherCompilationUnit(Context):
     ###################################################################################
 
     def get_scope(self, filename_str: str) -> FileScope:
-        filename = self._crytic_compile_compilation_unit.crytic_compile.filename_lookup(
+        filename = self._antibug_compile_compilation_unit.antibug_compile.filename_lookup(
             filename_str
         )
 

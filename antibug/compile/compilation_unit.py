@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 class CompilationUnit:
     """CompilationUnit class"""
 
-    def __init__(self, crytic_compile: "AntibugCompile", unique_id: str, binary: str):
+    def __init__(self, antibug_compile: "AntibugCompile", unique_id: str, binary: str):
         """Init the object
 
         Args:
-            crytic_compile (AntibugCompile): Associated AntibugCompile object
+            antibug_compile (AntibugCompile): Associated AntibugCompile object
             unique_id (str): Unique ID used to identify the compilation unit
         """
 
@@ -46,12 +46,12 @@ class CompilationUnit:
         # store the implementation address
         self._implementation_address: Optional[str] = None
 
-        self._crytic_compile: "AntibugCompile" = crytic_compile
+        self._antibug_compile: "AntibugCompile" = antibug_compile
 
         if unique_id == ".":
             unique_id = str(uuid.uuid4())
 
-        crytic_compile.compilation_units[unique_id] = self  # type: ignore
+        antibug_compile.compilation_units[unique_id] = self  # type: ignore
 
         self._unique_id = unique_id
 
@@ -65,13 +65,13 @@ class CompilationUnit:
         return self._unique_id
 
     @property
-    def crytic_compile(self) -> "AntibugCompile":
+    def antibug_compile(self) -> "AntibugCompile":
         """Return the AntibugCompile object
 
         Returns:
             AntibugCompile: Associated AntibugCompile object
         """
-        return self._crytic_compile
+        return self._antibug_compile
 
     @property
     def source_units(self) -> Dict[Filename, SourceUnit]:
@@ -196,7 +196,7 @@ class CompilationUnit:
         """
         # Note: we could memoize this function if the third party end up using it heavily
         # If used_filename is already an absolute path no need to lookup
-        if used_filename in self._crytic_compile.filenames:
+        if used_filename in self._antibug_compile.filenames:
             return used_filename
         d_file = {f.used: f.absolute for f in self._filenames}
         if used_filename not in d_file:
@@ -221,7 +221,7 @@ class CompilationUnit:
         return d_file[absolute_filename]
 
     def filename_lookup(self, filename: str) -> Filename:
-        """Return a crytic_compile.naming.Filename from a any filename
+        """Return a antibug_compile.naming.Filename from a any filename
 
         Args:
             filename (str): filename (used/absolute/relative)
