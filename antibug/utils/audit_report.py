@@ -7,7 +7,6 @@ import json
 def write_to_markdown(output_dir_path, payload, target: Optional[str] = None):
     if target is not None:      
         output_path= get_output_path(target, output_dir_path, "md")
-
     try:
         with open(output_path, "w") as f:
             f.write(payload)
@@ -25,6 +24,7 @@ def export_to_markdown(filename, language):
     detector=json_data['results']['detector']
     impact=json_data['results']['impact']
     confidence=json_data['results']['confidence']
+    reference=json_data['results']['reference']
     
     if language == "english":
         description=json_data['results']['info']
@@ -36,7 +36,6 @@ def export_to_markdown(filename, language):
         recommendation=json_data['results']['recommendation_korean']
         description = json_data['results']['info_korean']
         info=json_data['results']['description_korean']
-        
     
     payload = f"# Audit Report \n\n"
     payload += f"> 🔍 `Filename`: {filename}\n"
@@ -46,7 +45,6 @@ def export_to_markdown(filename, language):
     payload += f"## Detect Results\n\n"
     payload += f"| Detector | Impact | Confidence | Description | \n"
     payload += f"| --- | --- | --- | --- | \n"
-
     payload += f"| {detector} | {impact} | {confidence} | {description} | \n\n\n"
     payload+= "<br></br>\n"
     
@@ -59,11 +57,16 @@ def export_to_markdown(filename, language):
         
     payload += f"{info}\n\n"
     payload+= "<br></br>\n"
+    
     payload += f"## Exploit scenario: \n\n"
     payload += f"{exploit_scenario}\n\n"
     payload+= "<br></br>\n"
+    
     payload += f"## Recommendation: \n\n"
     payload += f"{recommendation}\n\n"
+    
+    payload += f"## Reference: \n\n"
+    payload += f"{reference}\n\n"
 
     write_to_markdown(output_dir_path, payload, filename)
   

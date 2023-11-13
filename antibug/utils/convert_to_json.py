@@ -4,7 +4,6 @@ import os
 import shutil
 from typing import Optional
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
-from antibug.compile.antibug_compile import AntibugCompile
 
 
 def get_root_dir():
@@ -74,6 +73,7 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
             combined_data['impact'] = data["impact"]
             combined_data['confidence'] = data["confidence"]
             combined_data['element'] = []
+            
             for element in data["elements"]:
                 source_mapping = instance.antibug_compile[0].get_code_from_line(filename, element['source_mapping']['lines'][0])
                 element_data = {
@@ -93,10 +93,13 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
             combined_data['description'] = data["description"]
             combined_data['exploit_scenario'] = data["exploit_scenario"]
             combined_data['recommendation'] = data["recommendation"]
+            
             combined_data['info_korean'] = data["info_korean"]
             combined_data['description_korean'] = data["description_korean"]
             combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
             combined_data['recommendation_korean'] = data["recommendation_korean"]
+            
+            combined_data['reference'] = data["reference"]
                         
             if language == "korean":
                 del combined_data["info"]
@@ -113,14 +116,6 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
         json_result = {"success": error is None, "error": error, "results": combined_data}
         combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
         write_to_json(output_dir_path, combined_json, filename)
-
-
-def convert_to_blacklist_result_json(result, contract, function):
-    output_dir_path = output_dir("blacklist_json_results")
-    combined_json = json.dumps(result, indent=2)
-    output_path = os.path.join(output_dir_path, f"{contract}_{function}.json")
-    
-    write_to_json(output_path, combined_json)
 
 
 def remove_all_json_files():

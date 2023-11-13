@@ -61,3 +61,7 @@ The function will return 6 bytes starting from offset 5, instead of returning a 
 
 Use the `leave` statement.
 
+## Reference: 
+
+https://blog.ethereum.org/2019/12/03/ef-supported-teams-research-and-development-update-2019-pt-2#solidity-060:~:text=Add%20%22leave%22%20statement%20to%20Yul%20/%20Inline%20Assembly%20to%20return%20from%20current%20function
+
