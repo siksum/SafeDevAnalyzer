@@ -722,7 +722,6 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
                 v.full_name: v
                 for v in getter_available(father)
                 if v.contract not in contracts_visited
-                and v.function_language
                 != FunctionLanguage.Yul  # Yul functions are not propagated in the inheritance
             }
             contracts_visited.append(father)

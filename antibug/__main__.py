@@ -75,7 +75,7 @@ def detect_vuln_action(target, detector):
     else:
         print("Detecting specific vulnerabilities")
         instance = RunDetector(target, detector)
-        result_list = instance.register_and_run_detectors()
+        result_list, target_list, error_list  = instance.register_and_run_detectors()
   
     return result_list, target_list, error_list
 

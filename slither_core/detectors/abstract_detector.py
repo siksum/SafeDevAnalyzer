@@ -69,11 +69,14 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     CONFIDENCE: DetectorClassification = DetectorClassification.UNIMPLEMENTED
 
     WIKI = ""
-
     WIKI_TITLE = ""
     WIKI_DESCRIPTION = ""
     WIKI_EXPLOIT_SCENARIO = ""
     WIKI_RECOMMENDATION = ""
+    
+    WIKI_DESCRIPTION_KOREAN = ""
+    WIKI_EXPLOIT_SCENARIO_KOREAN = ""
+    WIKI_RECOMMENDATION_KOREAN = ""
 
     STANDARD_JSON = True
 
@@ -271,10 +274,20 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def generate_result(
         self,
         info: DETECTOR_INFO,
+        exploit_scenario,
+        recommendation,
+        description_korean,
+        exploit_scenario_korean,
+        recommendation_korean,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(
             info,
+            exploit_scenario,
+            recommendation,
+            description_korean,
+            exploit_scenario_korean,
+            recommendation_korean,
             additional_fields,
             standard_format=self.STANDARD_JSON,
             markdown_root=self.slither.markdown_root,

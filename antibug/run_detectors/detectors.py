@@ -51,7 +51,10 @@ class RunDetector(SafeDevAnalyzer):
                             for item in filtered_list:
                                 compilnation_unit.register_detector(item)
                             results=compilnation_unit.run_detectors()
-                            
+                        elif detector in self.available_detector_list:
+                            compilnation_unit.register_detector(
+                                self.import_list[8+self.available_detector_list.index(detector)])
+                            results=compilnation_unit.run_detectors()
                         else:
                             print(f'Error: {self.selected_detectors} is not available')
                             return

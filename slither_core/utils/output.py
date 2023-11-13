@@ -238,6 +238,11 @@ class Output:
     def __init__(
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
+        exploit_scenario: Optional[str] = None,
+        recommendation: Optional[str] = None,
+        description_korean: Optional[str] = None,
+        exploit_scenario_korean: Optional[str] = None,
+        recommendation_korean: Optional[str] = None,
         additional_fields: Optional[Dict] = None,
         markdown_root: str = "",
         standard_format: bool = True,
@@ -252,13 +257,20 @@ class Output:
         else:
             info = info_
 
+      
+      
         self._data = OrderedDict()
         self._data["elements"] = []
         self._data["description"] = "".join(_convert_to_description(d) for d in info)
         # self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
         # self._data["first_markdown_element"] = ""
         # self._markdown_root = markdown_root
-
+        self._data["exploit_scenario"] = exploit_scenario
+        self._data["recommendation"] = recommendation
+        self._data["description_korean"] = description_korean
+        self._data["exploit_scenario_korean"] = exploit_scenario_korean
+        self._data["recommendation_korean"] = recommendation_korean
+        
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()
 

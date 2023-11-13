@@ -1,0 +1,72 @@
+{
+  "DelegateProxy": {
+    "abis": [
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "proxyType",
+        "outputs": [
+          {
+            "name": "proxyTypeId",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "implementation",
+        "outputs": [
+          {
+            "name": "codeAddr",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ],
+    "bytecodes": "0x"
+  },
+  "ERCProxy": {
+    "abis": [
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "proxyType",
+        "outputs": [
+          {
+            "name": "proxyTypeId",
+            "type": "uint256"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "implementation",
+        "outputs": [
+          {
+            "name": "codeAddr",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ],
+    "bytecodes": "0x"
+  },
+  "IsContract": {
+    "abis": [],
+    "bytecodes": "0x6080604052348015600f57600080fd5b50603580601d6000396000f3006080604052600080fd00a165627a7a72305820cb22b8ba8bac98d6c869bbf662c150cf6d8b99321c315e0fcf6bcc72c74b433f0029"
+  }
+}

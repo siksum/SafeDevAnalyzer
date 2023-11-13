@@ -1,0 +1,84 @@
+{
+  "success": true,
+  "error": null,
+  "results": [
+    {
+      "elements": [
+        {
+          "type": "function",
+          "name": "foo",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/incorrect-return/blockingFunction.sol",
+            "is_dependency": false,
+            "lines": [
+              14,
+              15,
+              16,
+              17,
+              18
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "contract",
+              "name": "Foo",
+              "source_mapping": {}
+            },
+            "signature": "foo()"
+          }
+        },
+        {
+          "type": "function",
+          "name": "blockingFunction",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/incorrect-return/blockingFunction.sol",
+            "is_dependency": false,
+            "lines": [
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "contract",
+              "name": "Bar",
+              "source_mapping": {}
+            },
+            "signature": "blockingFunction()"
+          }
+        },
+        {
+          "type": "node",
+          "name": "return(uint256,uint256)(0,0x20)",
+          "source_mapping": {
+            "filename_absolute": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/incorrect-return/blockingFunction.sol",
+            "is_dependency": false,
+            "lines": [
+              7
+            ]
+          },
+          "type_specific_fields": {
+            "parent": {
+              "type": "function",
+              "name": "blockingFunction",
+              "source_mapping": {}
+            }
+          }
+        }
+      ],
+      "description": "Foo.foo() (blockingFunction.sol#14-18) calls Bar.blockingFunction() (blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (blockingFunction.sol#7)\n",
+      "exploit_scenario": "\n```solidity\ncontract C {\n    function f() internal returns (uint a, uint b) {\n        assembly {\n            return (5, 6)\n        }\n    }\n\n    function g() returns (bool){\n        f();\n        return true;\n    }\n}\n```\nThe return statement in `f` will cause execution in `g` to halt.\nThe function will return 6 bytes starting from offset 5, instead of returning a boolean.",
+      "recommendation": "Use the `leave` statement.",
+      "description_korean": "inline assembly block에 return이 사용되어 예기치 않은 실행 흐름이 중단될 수 있습니다.",
+      "exploit_scenario_korean": "\n    ```solidity\n        contract C {\n            function f() internal returns (uint a, uint b) {\n                assembly {\n                    return (5, 6)\n                }\n            }\n\n            function g() returns (bool){\n                f();\n                return true;\n            }\n        }\n    ```\n    f 함수의 return 문은 g 함수의 실행을 중단시킵니다.\n    g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수에서 5번째 offset부터 6바이트를 반환한 뒤 실행이 중단됩니다.",
+      "recommendation_korean": "0.6.0 이상 버전부터 leave 키워드가 등장하였습니다. 만약 이전 버전을 사용한다면, 0.6.0 이상 버전으로 변경한 후, solidity의 leave 문을 사용하세요.",
+      "id": "306b8ea781c4207f51c3a9fe5d07b86b007f3cdab26594369decb4fda59a7f57",
+      "check": "incorrect-return",
+      "impact": "High",
+      "confidence": "Medium"
+    }
+  ]
+}
