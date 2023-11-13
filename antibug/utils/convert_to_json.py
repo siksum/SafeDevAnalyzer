@@ -4,6 +4,7 @@ import os
 import shutil
 from typing import Optional
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
+from antibug.compile.antibug_compile import AntibugCompile
 
 
 def get_root_dir():
@@ -63,19 +64,23 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
     output_dir_path = output_dir("detector_json_results")
     combined_data = {}
+    
     for result, filename, error in zip(result_list, filename_list, error_list):
+        instance =SafeDevAnalyzer(filename)
+        
         for data in result:
             combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
             combined_data['detector'] = data["check"]
             combined_data['impact'] = data["impact"]
             combined_data['confidence'] = data["confidence"]
             combined_data['element'] = []
-
             for element in data["elements"]:
+                source_mapping = instance.antibug_compile[0].get_code_from_line(filename, element['source_mapping']['lines'][0])
                 element_data = {
                     'type': element['type'],
                     'name': element['name'],
                     'line': element['source_mapping']['lines'][0],
+                    'code': source_mapping.decode("utf-8"),
                 }
                 if "type_specific_fields" in element and "parent" in element["type_specific_fields"]:
                     parent = element["type_specific_fields"]["parent"]
@@ -84,19 +89,23 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
                 
                 combined_data['element'].append(element_data)
                 
+            combined_data['info'] = data["info"]
             combined_data['description'] = data["description"]
             combined_data['exploit_scenario'] = data["exploit_scenario"]
             combined_data['recommendation'] = data["recommendation"]
+            combined_data['info_korean'] = data["info_korean"]
             combined_data['description_korean'] = data["description_korean"]
             combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
             combined_data['recommendation_korean'] = data["recommendation_korean"]
                         
             if language == "korean":
+                del combined_data["info"]
                 del combined_data["description"]
                 del combined_data["exploit_scenario"]
                 del combined_data["recommendation"]
                     
             elif language == "english":
+                del combined_data["info_korean"]
                 del combined_data["description_korean"]
                 del combined_data["exploit_scenario_korean"]
                 del combined_data["recommendation_korean"]

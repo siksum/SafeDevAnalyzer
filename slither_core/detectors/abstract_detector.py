@@ -276,8 +276,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     def generate_result(
         self,
         info: DETECTOR_INFO,
+        description,
         exploit_scenario,
         recommendation,
+        info_kr,
         description_korean,
         exploit_scenario_korean,
         recommendation_korean,
@@ -286,8 +288,10 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     ) -> Output:
         output = Output(
             info,
+            description,
             exploit_scenario,
             recommendation,
+            info_kr,
             description_korean,
             exploit_scenario_korean,
             recommendation_korean,

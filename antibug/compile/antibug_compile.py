@@ -237,7 +237,7 @@ class AntibugCompile:
         source_code_encoded = source_code.encode("utf-8")
         source_code_list = source_code_encoded.splitlines(True)
         self._cached_line_to_code[file] = source_code_list
-
+    
     def get_code_from_line(self, filename: Union[Filename, str], line: int) -> Optional[bytes]:
         """Return the code from the line. Start at line = 1.
         Return None if the line is not in the file

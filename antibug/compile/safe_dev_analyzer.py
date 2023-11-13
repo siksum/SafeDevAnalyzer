@@ -27,10 +27,11 @@ class SafeDevAnalyzer():
                 if self.target_path.endswith('.sol'):
                     self.target_list.append(self.target_path)
                     self.solc_parse = SolcParser(self.target_list[0])
-                    self.solc_parse.run_parser()
+                    self.solc_parse.run_parser()                    
                     self.antibug_compile.append(AntibugCompile(self.target_list[0], self.solc_parse._solc_binary_version))
+                    
                     self.compilation_units[os.path.basename(
-                        self.target_path)] = Slither(self.antibug_compile[0])  
+                        self.target_path)] = Slither(self.antibug_compile[0]) 
         except InvalidCompilation:
             return
 

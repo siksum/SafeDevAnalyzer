@@ -94,14 +94,15 @@ class Slither(
         except InvalidCompilation as e:
             # pylint: disable=raise-missing-from
             raise SlitherError(f"Invalid compilation: \n{str(e)}")
-        for compilation_unit in antibug_compile.compilation_units.values():
+        for compilation_unit in antibug_compile.compilation_units.values():            
             compilation_unit_slither = SlitherCompilationUnit(self, compilation_unit)
             self._compilation_units.append(compilation_unit_slither)
             sol_parser = SlitherCompilationUnitSolc(compilation_unit_slither)
-            self._parsers.append(sol_parser)
+            self._parsers.append(sol_parser)  
             for path, ast in compilation_unit.asts.items():
                 sol_parser.parse_top_level_items(ast, path)
                 self.add_source_code(path)
+            
             _update_file_scopes(compilation_unit_slither.scopes.values())
 
         if kwargs.get("generate_patches", False):

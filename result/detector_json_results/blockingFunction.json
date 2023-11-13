@@ -11,6 +11,7 @@
         "type": "function",
         "name": "foo",
         "line": 14,
+        "code": "    function foo() public pure returns(bool) {\n",
         "parent_type": "contract",
         "parent_name": "Foo"
       },
@@ -18,6 +19,7 @@
         "type": "function",
         "name": "blockingFunction",
         "line": 5,
+        "code": "    function blockingFunction() public pure returns (bool) {\n",
         "parent_type": "contract",
         "parent_name": "Bar"
       },
@@ -25,11 +27,13 @@
         "type": "node",
         "name": "return(uint256,uint256)(0,0x20)",
         "line": 7,
+        "code": "            return(0,0x20)\n",
         "parent_type": "function",
         "parent_name": "blockingFunction"
       }
     ],
-    "description": "Foo.foo() (test/detector/incorrect-return/blockingFunction.sol#14-18) calls Bar.blockingFunction() (test/detector/incorrect-return/blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (test/detector/incorrect-return/blockingFunction.sol#7)\n",
+    "info": "Foo.foo() (test/detector/incorrect-return/blockingFunction.sol#14-18) calls Bar.blockingFunction() (test/detector/incorrect-return/blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (test/detector/incorrect-return/blockingFunction.sol#7)\n",
+    "description": "Detect if `return` in an assembly block halts unexpectedly the execution.",
     "exploit_scenario": "\n```solidity\ncontract C {\n    function f() internal returns (uint a, uint b) {\n        assembly {\n            return (5, 6)\n        }\n    }\n\n    function g() returns (bool){\n        f();\n        return true;\n    }\n}\n```\nThe return statement in `f` will cause execution in `g` to halt.\nThe function will return 6 bytes starting from offset 5, instead of returning a boolean.",
     "recommendation": "Use the `leave` statement."
   }
