@@ -3,6 +3,7 @@ import sys
 import argparse
 
 from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files
+from antibug.utils.audit_report import export_to_markdown
 from antibug.run_detectors.detectors import RunDetector
 
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
@@ -24,12 +25,15 @@ def parse_arguments():
     subparsers = parser.add_subparsers(dest='command', required=False)
 
     # Detector (Vulnerability/Logic)
-    detect_parser = subparsers.add_parser('detect')
-    # detect_subparser = detect_parser.add_subparsers(dest='detect_command', required=True)
+    detect_parser = subparsers.add_parser('detect')    
     detect_parser.add_argument('language', help='Language of the description', nargs='?')
     detect_parser.add_argument('detector', help='Target rule', nargs='*')
     detect_parser.add_argument('target', help='Path to the rule file')
-    # detect_parser.add_argument('markdown', help='export to markdown', nargs='?', required=False)
+    # detect_subparser = detect_parser.add_subparsers(dest='export', required=False)
+    # detect_subparser.add_parser('markdown', help='export to markdown')
+
+    
+    
     remove_parser = subparsers.add_parser('remove')
     
     # blacklist_parser = detect_subparser.add_parser('blacklist')
@@ -81,10 +85,17 @@ def detect_vuln_action(target, detector):
 
 def main():
     args = parse_arguments()
+    print(args)
     if args.command == 'detect':
         try:
             result_list, target_list, error_list = detect_vuln_action(args.target, args.detector)
             convert_to_detect_result_json(result_list, target_list, error_list, args.language)
+            export_to_markdown(args.target)
+            
+            # if args.export == 'markdown':
+            #     print("a")
+            #     export_to_markdown(args.target)
+                
         except Exception as e:
             print(str(e)) 
             

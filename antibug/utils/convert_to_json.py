@@ -26,14 +26,17 @@ def output_dir(filename):
 
     return output_dir
 
-def get_output_path(target, output_dir_path):
+def get_output_path(target, output_dir_path, language_type):
     filename=os.path.basename(target)[:-4]
-    output_path = os.path.join(output_dir_path, f"{filename}.json")
+    if language_type == "json":
+        output_path = os.path.join(output_dir_path, f"{filename}.json")
+    elif language_type == "md":
+        output_path = os.path.join(output_dir_path, f"{filename}.md")
     return output_path
 
 def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
     if target is not None:      
-        output_path= get_output_path(target, output_dir_path)
+        output_path= get_output_path(target, output_dir_path, "json")
 
     try:
         with open(output_path, "w") as f:
@@ -59,22 +62,42 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
     output_dir_path = output_dir("detector_json_results")
-    
+    combined_data = {}
     for result, filename, error in zip(result_list, filename_list, error_list):
         for data in result:
+            combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
+            combined_data['element'] = []
+
+            for element in data["elements"]:
+                element_data = {
+                    'type': element['type'],
+                    'name': element['name'],
+                    'line': element['source_mapping']['lines'][0],
+                }
+                if "type_specific_fields" in element and "parent" in element["type_specific_fields"]:
+                    parent = element["type_specific_fields"]["parent"]
+                    element_data["parent_type"] = parent.get("type", None)
+                    element_data["parent_name"] = parent.get("name", None)
+                
+                combined_data['element'].append(element_data)   
+            combined_data['description'] = data["description"]
+            combined_data['exploit_scenario'] = data["exploit_scenario"]
+            combined_data['recommendation'] = data["recommendation"]
+            combined_data['description_korean'] = data["description_korean"]
+            combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
+            combined_data['recommendation_korean'] = data["recommendation_korean"]
+                        
             if language == "korean":
-                del data["description"]
-                del data["exploit_scenario"]
-                del data["recommendation"]
-                del data["id"]
+                del combined_data["description"]
+                del combined_data["exploit_scenario"]
+                del combined_data["recommendation"]
                     
             elif language == "english":
-                del data["description_korean"]
-                del data["exploit_scenario_korean"]
-                del data["recommendation_korean"]
-                del data["id"]
+                del combined_data["description_korean"]
+                del combined_data["exploit_scenario_korean"]
+                del combined_data["recommendation_korean"]
                 
-        json_result = {"success": error is None, "error": error, "results": result}
+        json_result = {"success": error is None, "error": error, "results": combined_data}
         combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
         write_to_json(output_dir_path, combined_json, filename)
 
