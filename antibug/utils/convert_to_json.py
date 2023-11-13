@@ -66,6 +66,9 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
     for result, filename, error in zip(result_list, filename_list, error_list):
         for data in result:
             combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
+            combined_data['detector'] = data["check"]
+            combined_data['impact'] = data["impact"]
+            combined_data['confidence'] = data["confidence"]
             combined_data['element'] = []
 
             for element in data["elements"]:
@@ -79,7 +82,8 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
                     element_data["parent_type"] = parent.get("type", None)
                     element_data["parent_name"] = parent.get("name", None)
                 
-                combined_data['element'].append(element_data)   
+                combined_data['element'].append(element_data)
+                
             combined_data['description'] = data["description"]
             combined_data['exploit_scenario'] = data["exploit_scenario"]
             combined_data['recommendation'] = data["recommendation"]

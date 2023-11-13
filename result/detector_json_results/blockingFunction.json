@@ -3,6 +3,9 @@
   "error": null,
   "results": {
     "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/incorrect-return/blockingFunction.sol",
+    "detector": "incorrect-return",
+    "impact": "High",
+    "confidence": "Medium",
     "element": [
       {
         "type": "function",
