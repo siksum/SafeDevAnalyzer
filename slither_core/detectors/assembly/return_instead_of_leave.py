@@ -25,17 +25,17 @@ class ReturnInsteadOfLeave(AbstractDetector):
     WIKI_TITLE = "Return instead of leave in assembly"
     WIKI_DESCRIPTION = "Detect if a `return` is used where a `leave` should be used."
     WIKI_EXPLOIT_SCENARIO = """
-```solidity
-contract C {
-    function f() internal returns (uint a, uint b) {
-        assembly {
-            return (5, 6)
-        }
-    }
+        ```solidity
+        contract C {
+            function f() internal returns (uint a, uint b) {
+                assembly {
+                    return (5, 6)
+                }
+            }
 
-}
-```
-The function will halt the execution, instead of returning a two uint."""
+        }
+        ```
+        The function will halt the execution, instead of returning a two uint."""
 
     WIKI_RECOMMENDATION = "Use the `leave` statement."
 
@@ -57,7 +57,6 @@ The function will halt the execution, instead of returning a two uint."""
         results: List[Output] = []
         for c in self.contracts:
             for f in c.functions_declared:
-
                 if (
                     len(f.returns) == 2
                     and f.contains_assembly

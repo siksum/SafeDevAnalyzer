@@ -43,7 +43,7 @@ def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
 
 
 def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
-    output_dir_path = output_dir("deploy_json_results")
+    output_dir_path = output_dir("compile_json_results")
     
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
         combined_data = {}
@@ -58,7 +58,7 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 
 def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
-    output_dir_path = output_dir("basic_detector_json_results")
+    output_dir_path = output_dir("detector_json_results")
     
     for result, filename, error in zip(result_list, filename_list, error_list):
         for data in result:

@@ -69,9 +69,10 @@
           }
         }
       ],
-      "description": "Foo.foo() (blockingFunction.sol#14-18) calls Bar.blockingFunction() (blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (blockingFunction.sol#7)\n",
+      "description": "Foo.foo() (test/detector/incorrect-return/blockingFunction.sol#14-18) calls Bar.blockingFunction() (test/detector/incorrect-return/blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (test/detector/incorrect-return/blockingFunction.sol#7)\n",
       "exploit_scenario": "\n```solidity\ncontract C {\n    function f() internal returns (uint a, uint b) {\n        assembly {\n            return (5, 6)\n        }\n    }\n\n    function g() returns (bool){\n        f();\n        return true;\n    }\n}\n```\nThe return statement in `f` will cause execution in `g` to halt.\nThe function will return 6 bytes starting from offset 5, instead of returning a boolean.",
       "recommendation": "Use the `leave` statement.",
+      "reference": "https://blog.ethereum.org/2019/12/03/ef-supported-teams-research-and-development-update-2019-pt-2#solidity-060:~:text=Add%20%22leave%22%20statement%20to%20Yul%20/%20Inline%20Assembly%20to%20return%20from%20current%20function",
       "check": "incorrect-return",
       "impact": "High",
       "confidence": "Medium"

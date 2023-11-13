@@ -77,6 +77,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
     WIKI_DESCRIPTION_KOREAN = ""
     WIKI_EXPLOIT_SCENARIO_KOREAN = ""
     WIKI_RECOMMENDATION_KOREAN = ""
+    
+    WIKI_REFERENCE = ""
 
     STANDARD_JSON = True
 
@@ -279,6 +281,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
         description_korean,
         exploit_scenario_korean,
         recommendation_korean,
+        reference,
         additional_fields: Optional[Dict] = None,
     ) -> Output:
         output = Output(
@@ -288,6 +291,7 @@ class AbstractDetector(metaclass=abc.ABCMeta):
             description_korean,
             exploit_scenario_korean,
             recommendation_korean,
+            reference,
             additional_fields,
             standard_format=self.STANDARD_JSON,
             markdown_root=self.slither.markdown_root,

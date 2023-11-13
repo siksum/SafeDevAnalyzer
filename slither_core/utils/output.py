@@ -243,6 +243,7 @@ class Output:
         description_korean: Optional[str] = None,
         exploit_scenario_korean: Optional[str] = None,
         recommendation_korean: Optional[str] = None,
+        reference: Optional[str] = None,
         additional_fields: Optional[Dict] = None,
         markdown_root: str = "",
         standard_format: bool = True,
@@ -270,6 +271,7 @@ class Output:
         self._data["description_korean"] = description_korean
         self._data["exploit_scenario_korean"] = exploit_scenario_korean
         self._data["recommendation_korean"] = recommendation_korean
+        self._data["reference"] = reference
         
         id_txt = "".join(_convert_to_id(d) for d in info)
         self._data["id"] = hashlib.sha3_256(id_txt.encode("utf-8")).hexdigest()

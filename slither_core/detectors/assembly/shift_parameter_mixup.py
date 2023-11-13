@@ -29,16 +29,16 @@ class ShiftParameterMixup(AbstractDetector):
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
-```solidity
-contract C {
-    function f() internal returns (uint a) {
-        assembly {
-            a := shr(a, 8)
+        ```solidity
+        contract C {
+            function f() internal returns (uint a) {
+                assembly {
+                    a := shr(a, 8)
+                }
+            }
         }
-    }
-}
-```
-The shift statement will right-shift the constant 8 by `a` bits"""
+        ```
+        The shift statement will right-shift the constant 8 by `a` bits"""
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."

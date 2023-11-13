@@ -177,7 +177,6 @@ class Slither(
         for compilation_unit in self.compilation_units:
             instance = detector_class(compilation_unit, self, logger_detector)
             self._detectors.append(instance)
-            print(self._detectors)
 
     def unregister_detector(self, detector_class: Type[AbstractDetector]) -> None:
         """
