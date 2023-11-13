@@ -25,26 +25,26 @@ def parse_arguments():
 
     # Detector (Vulnerability/Logic)
     detect_parser = subparsers.add_parser('detect')
-    detect_subparser = detect_parser.add_subparsers(dest='detect_command', required=True)
-
-    basic_parser = detect_subparser.add_parser('basic')
-    basic_parser.add_argument('detector', help='Target rule', nargs='*')
-    basic_parser.add_argument('target', help='Path to the rule file')
+    # detect_subparser = detect_parser.add_subparsers(dest='detect_command', required=True)
+    detect_parser.add_argument('language', help='Language of the description', nargs='?')
+    
+    detect_parser.add_argument('detector', help='Target rule', nargs='*')
+    detect_parser.add_argument('target', help='Path to the rule file')
 
     remove_parser = subparsers.add_parser('remove')
     
-    blacklist_parser = detect_subparser.add_parser('blacklist')
-    blacklist_parser.add_argument("model", help="model.bin")
-    blacklist_parser.add_argument("filename", action="store", help="contract.sol")
-    blacklist_parser.add_argument("fname", action="store", help="Target function")
-    blacklist_parser.add_argument("input", action="store", help="File or directory used as input")
-    blacklist_parser.add_argument(
-        "--ntop",
-        action="store",
-        type=int,
-        default=10,
-        help="Number of more similar contracts to show for testing",
-    )
+    # blacklist_parser = detect_subparser.add_parser('blacklist')
+    # blacklist_parser.add_argument("model", help="model.bin")
+    # blacklist_parser.add_argument("filename", action="store", help="contract.sol")
+    # blacklist_parser.add_argument("fname", action="store", help="Target function")
+    # blacklist_parser.add_argument("input", action="store", help="File or directory used as input")
+    # blacklist_parser.add_argument(
+    #     "--ntop",
+    #     action="store",
+    #     type=int,
+    #     default=10,
+    #     help="Number of more similar contracts to show for testing",
+    # )
 
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
@@ -82,13 +82,15 @@ def detect_vuln_action(target, detector):
 
 def main():
     args = parse_arguments()
+    print(args)
     if args.command == 'detect':
-        if args.detect_command == 'basic':
+        try:
             result_list, target_list, error_list = detect_vuln_action(args.target, args.detector)
-            convert_to_detect_result_json(result_list, target_list, error_list)
-        else:
-            print("Error: Invalid command.")
-            return
+            print(args.language)
+            convert_to_detect_result_json(result_list, target_list, error_list, args.language)
+        except Exception as e:
+            print(str(e)) 
+            
     elif args.command == 'compile':
         analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_compile()

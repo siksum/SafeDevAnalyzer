@@ -57,10 +57,23 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 
 
-def convert_to_detect_result_json(result_list, filename_list, error_list) -> None:
+def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
     output_dir_path = output_dir("basic_detector_json_results")
     
     for result, filename, error in zip(result_list, filename_list, error_list):
+        for data in result:
+            if language == "korean":
+                del data["description"]
+                del data["exploit_scenario"]
+                del data["recommendation"]
+                del data["id"]
+                    
+            elif language == "english":
+                del data["description_korean"]
+                del data["exploit_scenario_korean"]
+                del data["recommendation_korean"]
+                del data["id"]
+                
         json_result = {"success": error is None, "error": error, "results": result}
         combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
         write_to_json(output_dir_path, combined_json, filename)
