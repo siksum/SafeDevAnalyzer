@@ -41,6 +41,7 @@ class StateVariable(ContractLevel, Variable):
         """
         name, parameters, _ = self.signature
         return name + "(" + ",".join(parameters) + ")"
+    
 
     # endregion
     ###################################################################################

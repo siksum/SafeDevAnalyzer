@@ -351,7 +351,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def type_aliases(self) -> List["TypeAliasContract"]:
+    def type_aliases(self) -> List["TypeAliasContract"]: # 에러가 안나옴
         """
         list(TypeAliasContract): List of the contract's custom errors
         """
@@ -478,6 +478,7 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
             self._state_variables_used_in_reentrant_targets = variables_used
         return self._state_variables_used_in_reentrant_targets
 
+    
     # endregion
     ###################################################################################
     ###################################################################################
@@ -1274,21 +1275,8 @@ class Contract(SourceMapping):  # pylint: disable=too-many-public-methods
     ###################################################################################
 
     @property
-    def is_truffle_migration(self) -> bool:
-        """
-        Return true if the contract is the Migrations contract needed for Truffle
-        :return:
-        """
-        if self.compilation_unit.core.antibug_compile.platform == PlatformType.TRUFFLE:
-            if self.name == "Migrations":
-                paths = Path(self.source_mapping.filename.absolute).parts
-                if len(paths) >= 2:
-                    return paths[-2] == "contracts" and paths[-1] == "migrations.sol"
-        return False
-
-    @property
     def is_test(self) -> bool:
-        return is_test_contract(self) or self.is_truffle_migration  # type: ignore
+        return is_test_contract(self)  # type: ignore
 
     # endregion
     ###################################################################################

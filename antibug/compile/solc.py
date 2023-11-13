@@ -334,7 +334,7 @@ def is_optimized(solc_arguments: Optional[str]) -> bool:
 def _build_options(compiler_version: SolcParser, force_legacy_json: bool) -> str:
     """
     Build the solc command line options
-
+    
     Args:
         compiler_version (CompilerVersion): compiler version
         force_legacy_json (bool): true if the legacy json must be used
@@ -353,13 +353,13 @@ def _build_options(compiler_version: SolcParser, force_legacy_json: bool) -> str
     )
     assert compiler_version
     if compiler_version in old_04_versions or compiler_version.startswith("0.3"):
-        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
+        return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
     if force_legacy_json:
-        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
+        return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
     if compiler_version in explicit_compact_format:
-        return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
+        return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
 
-    return "abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
+    return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
 
 
 # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements

@@ -4,9 +4,8 @@ Tool to read on-chain storage from EVM
 import json
 import argparse
 
-from antibug_compile import cryticparser
-
 from slither_core import Slither
+from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.tools.read_storage.read_storage import SlitherReadStorage, RpcInfo
 
 
@@ -110,8 +109,6 @@ def parse_args() -> argparse.Namespace:
         help="Include unstructured storage slots",
     )
 
-    cryticparser.init(parser)
-
     return parser.parse_args()
 
 
@@ -121,12 +118,13 @@ def main() -> None:
     if len(args.contract_source) == 2:
         # Source code is file.sol or project directory
         source_code, target = args.contract_source
-        slither = Slither(source_code, **vars(args))
+        compilation_units = SafeDevAnalyzer(source_code, **vars(args))
     else:
         # Source code is published and retrieved via etherscan
         target = args.contract_source[0]
-        slither = Slither(target, **vars(args))
-
+        compilation_units = SafeDevAnalyzer(target, **vars(args))
+    for compilation_unit in compilation_units.compilation_units.values():
+        slither= compilation_unit
     if args.contract_name:
         contracts = slither.get_contract_from_name(args.contract_name)
     else:

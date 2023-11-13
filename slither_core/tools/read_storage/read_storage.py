@@ -196,7 +196,7 @@ class SlitherReadStorage:
 
     # TODO: remove this pylint exception (montyly)
     # pylint: disable=too-many-locals
-    def get_storage_slot(
+    def   get_storage_slot(
         self,
         target_variable: StateVariable,
         contract: Contract,
@@ -288,6 +288,8 @@ class SlitherReadStorage:
             slot_info = self.get_storage_slot(var, contract, **kwargs)
             if slot_info:
                 self._slot_info[f"{contract.name}.{var.name}"] = slot_info
+            get_stroage_data = self.get_slot_values(slot_info)
+            print("ad",get_stroage_data)
 
     def find_constant_slot_storage_type(
         self, var: StateVariable
@@ -377,10 +379,10 @@ class SlitherReadStorage:
         Fetches the slot value of `SlotInfo` object
         :param slot_info:
         """
-        assert self.rpc_info is not None
+        # assert self.rpc_info is not None
         hex_bytes = get_storage_data(
-            self.rpc_info.web3,
-            self.checksum_address,
+            # self.rpc_info.web3,
+            # self.checksum_address,
             int.to_bytes(slot_info.slot, 32, byteorder="big"),
             self.rpc_info.block,
         )
@@ -397,15 +399,17 @@ class SlitherReadStorage:
         """
         for contract in self.contracts:
             for var in contract.state_variables_ordered:
-                if func(var):
-                    if not var.is_constant and not var.is_immutable:
-                        self._target_variables.append((contract, var))
-                    elif (
-                        self.unstructured
-                        and var.is_constant
-                        and var.type == ElementaryType("bytes32")
-                    ):
-                        self._constant_storage_slots.append((contract, var))
+                # if func(var):
+                #     print("a")
+                if not var.is_constant and not var.is_immutable:
+                    self._target_variables.append((contract, var))
+                
+                elif (
+                    self.unstructured
+                    and var.is_constant
+                    and var.type == ElementaryType("bytes32")
+                ):
+                    self._constant_storage_slots.append((contract, var))
             if self.unstructured:
                 hardcoded_slot = self.find_hardcoded_slot_in_fallback(contract)
                 if hardcoded_slot is not None:

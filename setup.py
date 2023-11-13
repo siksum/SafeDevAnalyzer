@@ -12,6 +12,7 @@ setup(
 
     # ],
     entry_points={
-        'console_scripts': ['antibug=antibug.__main__:main', 'antibug-flat=antibug.run_flat.__main__:main'],
+        'console_scripts': ['antibug=antibug.__main__:main', 
+                            'antibug-read-storage=slither_core.tools.read_storage.__main__:main'],
     },
 )
