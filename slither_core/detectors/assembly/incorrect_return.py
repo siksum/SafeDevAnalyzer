@@ -10,6 +10,24 @@ from slither_core.slithir.operations import SolidityCall
 from slither_core.utils.output import Output
 
 
+def _assembly_node(function: Function) -> Optional[SolidityCall]:
+    """
+    Check if there is a node that use return in assembly
+
+    Args:
+        function:
+
+    Returns:
+
+    """
+
+    for ir in function.all_slithir_operations():
+        if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
+            "return(uint256,uint256)"
+        ):
+            return ir
+    return None
+
 
 class IncorrectReturn(AbstractDetector):
     """
@@ -67,27 +85,6 @@ g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수�
     WIKI_RECOMMENDATION_KOREAN = "0.6.0 이상 버전부터 leave 키워드가 등장하였습니다. 만약 이전 버전을 사용한다면, 0.6.0 이상 버전으로 변경한 후, solidity의 leave 문을 사용하세요."
     WIKI_REFERENCE ="https://blog.ethereum.org/2019/12/03/ef-supported-teams-research-and-development-update-2019-pt-2#solidity-060:~:text=Add%20%22leave%22%20statement%20to%20Yul%20/%20Inline%20Assembly%20to%20return%20from%20current%20function"
         
-        
-    def _assembly_node(function: Function) -> Optional[SolidityCall]:
-        """
-        Check if there is a node that use return in assembly
-
-        Args:
-            function:
-
-        Returns:
-
-        """
-
-        for ir in function.all_slithir_operations():
-            if isinstance(ir, SolidityCall) and ir.function == SolidityFunction(
-                "return(uint256,uint256)"
-            ):
-                return ir
-        return None
-
-
-        
     # pylint: disable=too-many-nested-blocks
     def _detect(self) -> List[Output]:
         results: List[Output] = []
@@ -98,7 +95,7 @@ g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수�
                     if node.sons:
                         for function_called in node.internal_calls:
                             if isinstance(function_called, Function):
-                                found = self._assembly_node(function_called)
+                                found = _assembly_node(function_called)
                                 if found:
 
                                     info: DETECTOR_INFO = [
