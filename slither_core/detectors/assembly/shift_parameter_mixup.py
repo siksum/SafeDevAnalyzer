@@ -10,7 +10,7 @@ from slither_core.core.declarations.function_contract import FunctionContract
 from slither_core.utils.output import Output
 
 
-class ShiftParameterMixup(AbstractDetector):
+class IncorrectShift(AbstractDetector):
     """
     Check for cases where a return(a,b) is used in an assembly function that also returns two variables
     """

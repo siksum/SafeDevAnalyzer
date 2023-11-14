@@ -1,10 +1,13 @@
-from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
-from slither_core.detectors import all_detectors
+
 import importlib
-from typing import Dict, Any
 import logging
-from slither_core.exceptions import SlitherException
 import traceback
+
+from typing import Dict, Any
+
+from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
+from slither_core.exceptions import SlitherException
+from slither_core.detectors import all_detectors
 
 class RunDetector(SafeDevAnalyzer):
     available_detector_list = []
@@ -24,7 +27,7 @@ class RunDetector(SafeDevAnalyzer):
             key for key in all_detectors.__dict__.keys() if not key.startswith('__')]
         import_list = [value for value in all_detectors.__dict__.values()]
         self.available_detector_list = detector_list
-        category_list = ['Reentrancy', 'Attributes', 'CompilerBugs', 'CustomizedRules',
+        category_list = ['Assembly','Reentrancy', 'Attributes', 'CompilerBugs', 'CustomizedRules',
                          'ERC20', 'ERC721', 'Functions', 'Operations', 'Shadowing', 'Statements', 'Variables']
         for category in category_list:
             self.available_detector_list.append(category)
@@ -50,7 +53,7 @@ class RunDetector(SafeDevAnalyzer):
                                 item for item in self.import_list if f'{category}' in str(item)]
                             for item in filtered_list:
                                 compilnation_unit.register_detector(item)
-                            results=compilnation_unit.run_detectors()
+                            results.append(compilnation_unit.run_detectors())
                         elif detector in self.available_detector_list:
                             compilnation_unit.register_detector(
                                 self.import_list[8+self.available_detector_list.index(detector)])
@@ -68,8 +71,6 @@ class RunDetector(SafeDevAnalyzer):
                     return compilation_units_detect_results, self.target_list, self.output_error, 
                 
                 result = self.detect_result(results)
-
-                # compilation_units_detect_results.append(result)
                 self.output_error.append(None)    
                 
         except SlitherException as e:

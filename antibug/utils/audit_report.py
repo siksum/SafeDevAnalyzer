@@ -1,7 +1,8 @@
-from antibug.utils.convert_to_json import output_dir, get_output_path
 import os
-from typing import Optional
 import json
+
+from typing import Optional
+from antibug.utils.convert_to_json import output_dir, get_output_path
 
 
 def write_to_markdown(output_dir_path, payload, target: Optional[str] = None):
@@ -72,77 +73,7 @@ def export_to_markdown(filename, language):
         payload += f"## Recommendation:\n\n"
         payload += f"{recommendation}\n\n"   
         payload += f"</details>\n\n"
+        
     write_to_markdown(output_dir_path, payload, filename)
-        
-
-# def export_to_markdown(filename, language):
-#     output_dir_path = output_dir("audit_report", "md")
-#     json_path = get_output_path(filename, os.path.join(os.path.dirname(output_dir_path),"detector_json_results"), "json")
-#     with open(json_path, "r") as file:
-#         json_str = file.read()
-#         json_data = json.loads(json_str)
-#     print(json_data)
-#     for detector in json_data['detect_result']:
-#         print(detector)
-#         detector=detector['results']['detector']
-#         impact=detector['results']['impact']
-#         confidence=detector['results']['confidence']
-#         reference=detector['results']['reference']
-#         line=detector['results']['element'][-1]['line']
-#         code=detector['results']['element'][-1]['code']
-        
-#         if language == "english":
-#             description=detector['results']['info']
-#             exploit_scenario=detector['results']['exploit_scenario']
-#             recommendation=detector['results']['recommendation']
-#             info=detector['results']['description']
-#         else:
-#             exploit_scenario=detector['results']['exploit_scenario_korean']
-#             recommendation=detector['results']['recommendation_korean']
-#             description = detector['results']['info_korean']
-#             info=detector['results']['description_korean']
-        
-#         payload = f"# Audit Report \n\n"
-#         payload += f"> 🔍 `Filename`: {filename}\n"
-#         payload += "---\n\n"
-#         # payload += "<br></br>\n"
-        
-#         payload += f"<details>\n"
-#         payload += f"<summary style='font-size: 20px;'>{detector}</summary>\n"
-#         payload += f"<div markdown='1'>\n\n"
-
-#         payload += f"## Detect Results\n\n"
-#         payload += f"| Detector | Impact | Confidence | Description | \n"
-#         payload += f"| --- | --- | --- | --- | \n"
-#         payload += f"| {detector} | {impact} | {confidence} | {description} | \n\n\n"
-#         payload+= "<br></br>\n"
-        
-#         payload += f"## Vulnerabiltiy in code: \n\n"
-#         # for code in detector['results']['element']:
-#             # payload += f"```solidity\n"
-#             # payload += f"line {code['line']}: {code['code']}\n"
-#             # payload += f"```\n"
-#             # payload += f" ---\n\n "
-            
-#         payload += f"```solidity\n"
-#         payload += f"line {line}: {code}\n"
-#         payload += f"```\n"
-#         payload += f" ---\n\n "
-            
-#         payload += f"{info}\n\n"
-#         payload+= "<br></br>\n"
-        
-#         payload += f"## Exploit scenario: \n\n"
-#         payload += f"{exploit_scenario}\n\n"
-#         payload+= "<br></br>\n"
-        
-#         payload += f"## Recommendation: \n\n"
-#         payload += f"{recommendation}\n\n"
-#         payload+= "<br></br>\n"
-        
-#         payload += f"## Reference: \n\n"
-#         payload += f"{reference}\n\n"
-
-#         write_to_markdown(output_dir_path, payload, filename)
   
 
