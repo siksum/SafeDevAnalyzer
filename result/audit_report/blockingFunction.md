@@ -3,12 +3,15 @@
 > 🔍 `Filename`: test/detector/incorrect-return/blockingFunction.sol
 ---
 
-<br></br>
+<details>
+<summary style='font-size: 20px;'>incorrect-return</summary>
+<div markdown='1'>
+
 ## Detect Results
 
 | Detector | Impact | Confidence | Description | 
 | --- | --- | --- | --- | 
-| incorrect-return | High | Medium | Foo.foo() (test/detector/incorrect-return/blockingFunction.sol#14-18) calls Bar.blockingFunction() (test/detector/incorrect-return/blockingFunction.sol#5-9) which halt the execution return(uint256,uint256)(0,0x20) (test/detector/incorrect-return/blockingFunction.sol#7)
+| incorrect-return | High | Medium | 함수 foo가 함수 blockingFunction를 호출하면, EXPRESSION return(uint256,uint256)(0,0x20)으로 인해 실행 흐름이 중단됩니다.
  | 
 
 
@@ -33,33 +36,33 @@ line 7:             return(0,0x20)
 ```
  ---
 
- Detect if `return` in an assembly block halts unexpectedly the execution.
+ inline assembly block에 return이 사용되면 예기치 않은 실행 흐름이 중단될 수 있습니다.
 
 <br></br>
 ## Exploit scenario: 
 
 
 ```solidity
-contract C {
-    function f() internal returns (uint a, uint b) {
-        assembly {
-            return (5, 6)
+    contract C {
+        function f() internal returns (uint a, uint b) {
+            assembly {
+                return (5, 6)
+            }
+        }
+
+        function g() returns (bool){
+            f();
+            return true;
         }
     }
-
-    function g() returns (bool){
-        f();
-        return true;
-    }
-}
 ```
-The return statement in `f` will cause execution in `g` to halt.
-The function will return 6 bytes starting from offset 5, instead of returning a boolean.
+f 함수의 return 문은 g 함수의 실행을 중단시킵니다.
+g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수에서 5번째 offset부터 6바이트를 반환한 뒤 실행이 중단됩니다.
 
 <br></br>
 ## Recommendation: 
 
-Use the `leave` statement.
+0.6.0 이상 버전부터 leave 키워드가 등장하였습니다. 만약 이전 버전을 사용한다면, 0.6.0 이상 버전으로 변경한 후, solidity의 leave 문을 사용하세요.
 
 ## Reference: 
 

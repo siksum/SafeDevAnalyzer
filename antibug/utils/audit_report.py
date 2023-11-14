@@ -40,8 +40,12 @@ def export_to_markdown(filename, language):
     payload = f"# Audit Report \n\n"
     payload += f"> 🔍 `Filename`: {filename}\n"
     payload += "---\n\n"
-    payload+= "<br></br>\n"
+    # payload += "<br></br>\n"
     
+    payload += f"<details>\n"
+    payload += f"<summary style='font-size: 20px;'>{detector}</summary>\n"
+    payload += f"<div markdown='1'>\n\n"
+
     payload += f"## Detect Results\n\n"
     payload += f"| Detector | Impact | Confidence | Description | \n"
     payload += f"| --- | --- | --- | --- | \n"
