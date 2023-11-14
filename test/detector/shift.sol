@@ -4,11 +4,11 @@ pragma solidity ^0.7.0;
 
 contract Bar {
 
-    // function blockingFunction() public pure returns (bool) {
-    //     assembly {
-    //         return(0,0x20)
-    //     }
-    // }
+    function blockingFunction() public pure returns (bool) {
+        assembly {
+            return(0,0x20)
+        }
+    }
 
     function f() internal pure returns (uint a) {
         assembly {
@@ -17,11 +17,11 @@ contract Bar {
     }
 }
 
-// contract Foo is Bar {
+contract Foo is Bar {
 
-//     function foo() public pure returns(bool) {
-//         bool result = blockingFunction();
-//         require(result == true, "msg");
-//         return result;
-//     }
-// }
+    function foo() public pure returns(bool) {
+        bool result = blockingFunction();
+        require(result == true, "msg");
+        return result;
+    }
+}

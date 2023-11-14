@@ -146,7 +146,7 @@ contract VulnerableContract {
             values = self.detect_assembly(c)
             for func, nodes in values:
                 info: DETECTOR_INFO = ["Function ", func, " uses inline-assembly\n"]
-                info_kr = f"함수 `{c}.{func}()`에서 `inline-assembly`가 사용되었습니다.\n"
+                info_kr = f"함수 `{func.canonical_name}`에서 `inline-assembly`가 사용되었습니다.\n"
                 # sort the nodes to get deterministic results
                 # nodes.sort(key=lambda x: x.node_id)
 

@@ -94,6 +94,7 @@ g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수�
                 for node in f.nodes:
                     if node.sons:
                         for function_called in node.internal_calls:
+                            
                             if isinstance(function_called, Function):
                                 found = _assembly_node(function_called)
                                 if found:
@@ -106,10 +107,11 @@ g 함수를 호출하여 true 값을 반환할 것을 기대했으나 f 함수�
                                         found.node,
                                         "\n",
                                     ]
-                                    info_kr= f"함수 {f}가 함수 {function_called}를 호출하면, {found.node}으로 인해 실행 흐름이 중단됩니다.\n"
-                                   
-                                    json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
+           
+                                info_kr= f"함수 `{f.canonical_name}`가 함수 `{function_called.canonical_name}`를 호출하면, `{found.node.expression}`으로 인해 실행 흐름이 중단됩니다.\n"
+                                
+                                json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
 
-                                    results.append(json)
+                                results.append(json)
 
         return results

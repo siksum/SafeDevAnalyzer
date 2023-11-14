@@ -107,7 +107,7 @@ contract C {
                             node,
                             "\n",
                         ]
-                        info_kr=f"{f} 함수는 잘못된 shift 연산을 포함하고 있습니다. {node}"
+                        info_kr=f" `{f.canonical_name}` 함수는 잘못된 shift 연산을 포함하고 있습니다. `{node.expression}`"
                         json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
                         results.append(json)
         return results
