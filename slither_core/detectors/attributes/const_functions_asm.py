@@ -57,7 +57,10 @@ All the calls to `get` revert, breaking Bob's smart contract execution."""
     WIKI_RECOMMENDATION = (
         "Ensure the attributes of contracts compiled prior to Solidity 0.5.0 are correct."
     )
-
+    WIKI_DESCRIPTION_KOREAN=""
+    WIKI_EXPLOIT_SCENARIO_KOREAN=""""""
+    WIKI_RECOMMENDATION_KOREAN=""
+    WIKI_REFERENCE=""
     VULNERABLE_SOLC_VERSIONS = ALL_SOLC_VERSIONS_04
 
     def _detect(self) -> List[Output]:

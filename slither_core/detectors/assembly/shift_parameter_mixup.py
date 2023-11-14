@@ -42,6 +42,12 @@ class ShiftParameterMixup(AbstractDetector):
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = "Swap the order of parameters."
+    
+    WIKI_DESCRIPTION_KOREAN=""
+    WIKI_EXPLOIT_SCENARIO_KOREAN=""""""
+    WIKI_RECOMMENDATION_KOREAN=""
+    WIKI_REFERENCE=""
+    
 
     def _check_function(self, f: FunctionContract) -> List[Output]:
         results = []
@@ -75,5 +81,5 @@ class ShiftParameterMixup(AbstractDetector):
 
                 if f.contains_assembly:
                     results += self._check_function(f)
-
+                    
         return results

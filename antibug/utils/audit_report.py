@@ -15,7 +15,7 @@ def write_to_markdown(output_dir_path, payload, target: Optional[str] = None):
         
 
 def export_to_markdown(filename, language):
-    output_dir_path = output_dir("audit_report")
+    output_dir_path = output_dir("audit_report", "md")
     json_path = get_output_path(filename, os.path.join(os.path.dirname(output_dir_path),"detector_json_results"), "json")
     with open(json_path, "r") as file:
         json_str = file.read()

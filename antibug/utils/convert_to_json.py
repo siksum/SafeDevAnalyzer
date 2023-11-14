@@ -10,9 +10,12 @@ def get_root_dir():
     current_path = os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
     return current_path
 
-def output_dir(filename):
+def output_dir(filename, language_type):
     output_dir = os.path.join(get_root_dir(), f"result/{filename}")
-    print(f"Output directory: {output_dir}")
+    if language_type == "json":
+        print(f"Detect Result Output directory: {output_dir}")
+    elif language_type == "md":
+        print(f"Audit Report Output directory: {output_dir}")
 
     files = glob.glob(os.path.join(output_dir, "*"))
     for f in files:
@@ -46,7 +49,7 @@ def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
 
 
 def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
-    output_dir_path = output_dir("compile_json_results")
+    output_dir_path = output_dir("compile_json_results", "json")
     
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
         combined_data = {}
@@ -61,7 +64,7 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 
 def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
-    output_dir_path = output_dir("detector_json_results")
+    output_dir_path = output_dir("detector_json_results", "json")
     combined_data = {}
     
     for result, filename, error in zip(result_list, filename_list, error_list):

@@ -398,7 +398,7 @@ def _run_solc(
     compiler_version = compilation_unit.compiler_version
     # assert compiler_version
     options = _build_options(compiler_version, force_legacy_json)
-
+    print(solc_remaps)
     cmd = [solc]
     if solc_remaps:
         if isinstance(solc_remaps, str):
