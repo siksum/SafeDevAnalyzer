@@ -63,14 +63,17 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 
 
-def convert_to_detect_result_json(result_list, filename_list, error_list, language) -> None:
+def convert_to_detect_result_json(result_list, filename, error, language) -> None:
     output_dir_path = output_dir("detector_json_results", "json")
-    combined_data = {}
+    combined_data_list = [] 
+    json_result = {}  
+    result_list = [item for item in result_list if item is not None and item != '' and item != []]
     
-    for result, filename, error in zip(result_list, filename_list, error_list):
-        instance =SafeDevAnalyzer(filename)
-        
+    instance =SafeDevAnalyzer(filename)
+    
+    for result in result_list:
         for data in result:
+            combined_data = {}
             combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
             combined_data['detector'] = data["check"]
             combined_data['impact'] = data["impact"]
@@ -115,8 +118,11 @@ def convert_to_detect_result_json(result_list, filename_list, error_list, langua
                 del combined_data["description_korean"]
                 del combined_data["exploit_scenario_korean"]
                 del combined_data["recommendation_korean"]
-                
-        json_result = {"success": error is None, "error": error, "results": combined_data}
+            combined_data_list.append(combined_data)
+    
+    # print(combined_data_list)
+    for combined_data in combined_data_list:
+        json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
         combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
         write_to_json(output_dir_path, combined_json, filename)
 

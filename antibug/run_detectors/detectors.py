@@ -54,7 +54,7 @@ class RunDetector(SafeDevAnalyzer):
                         elif detector in self.available_detector_list:
                             compilnation_unit.register_detector(
                                 self.import_list[8+self.available_detector_list.index(detector)])
-                            results=compilnation_unit.run_detectors()
+                            results.append(compilnation_unit.run_detectors())
                         else:
                             print(f'Error: {self.selected_detectors} is not available')
                             return
@@ -68,15 +68,16 @@ class RunDetector(SafeDevAnalyzer):
                     return compilation_units_detect_results, self.target_list, self.output_error, 
                 
                 result = self.detect_result(results)
-                compilation_units_detect_results.append(result)
+
+                # compilation_units_detect_results.append(result)
                 self.output_error.append(None)    
                 
         except SlitherException as e:
-            self.output_error.append(str(e))
+            self.output_error=str(e)
             traceback.print_exc()
             logging.error(self.output_error)
         
-        return compilation_units_detect_results, self.target_list, self.output_error
+        return result, self.target, self.output_error
 
     def detect_result(self, results):
         results_detectors = []

@@ -69,22 +69,22 @@ def detect_vuln_action(target, detector):
     if not detector:
         print("Detecting all vulnerabilities")
         instance = RunDetector(target)
-        result_list, target_list, error_list = instance.register_and_run_detectors()
+        result_list, filename, error = instance.register_and_run_detectors()
         
     else:
         print("Detecting specific vulnerabilities")
         instance = RunDetector(target, detector)
-        result_list, target_list, error_list  = instance.register_and_run_detectors()
+        result_list, filename, error = instance.register_and_run_detectors()
   
-    return result_list, target_list, error_list
+    return result_list, filename, error
 
 
 def main():
     args = parse_arguments()
     if args.command == 'detect':
         try:
-            result_list, target_list, error_list = detect_vuln_action(args.target, args.detector)
-            convert_to_detect_result_json(result_list, target_list, error_list, args.language)
+            result_list, filename, error = detect_vuln_action(args.target, args.detector)
+            convert_to_detect_result_json(result_list, filename, error, args.language)
             export_to_markdown(args.target, args.language)
             
             # if args.export == 'markdown':

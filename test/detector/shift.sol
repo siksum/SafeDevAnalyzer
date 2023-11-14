@@ -2,22 +2,26 @@
 pragma solidity ^0.7.0;
 
 
-contract Shift{
-    function shift(int val) public pure returns(int) {
-        int res;
-        assembly {
-            let m := mload(0x40)
-            mstore(m, shr(2, val))
-            mstore(0x40, add(m, 0x20))
-            res := mload(m)
-        }
+contract Bar {
 
-        return res;
+    function blockingFunction() public pure returns (bool) {
+        assembly {
+            return(0,0x20)
+        }
     }
-    function f() internal returns (uint a) {
+
+    function f() internal pure returns (uint a) {
         assembly {
             a := shr(a, 8)
         }
     }
+}
 
+contract Foo is Bar {
+
+    function foo() public pure returns(bool) {
+        bool result = blockingFunction();
+        require(result == true, "msg");
+        return result;
+    }
 }
