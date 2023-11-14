@@ -29,7 +29,11 @@ class Assembly(AbstractDetector):
     WIKI_TITLE = "Assembly usage"
     WIKI_DESCRIPTION = "The use of assembly is error-prone and should be avoided."
     WIKI_RECOMMENDATION = "Do not use `evm` assembly."
-
+    WIKI_DESCRIPTION_KOREAN=""
+    WIKI_EXPLOIT_SCENARIO_KOREAN=""""""
+    WIKI_RECOMMENDATION_KOREAN=""
+    WIKI_REFERENCE=""
+    
     @staticmethod
     def _contains_inline_assembly_use(node: Node) -> bool:
         """
@@ -57,14 +61,16 @@ class Assembly(AbstractDetector):
             values = self.detect_assembly(c)
             for func, nodes in values:
                 info: DETECTOR_INFO = [func, " uses assembly\n"]
-
+                info_kr = f"{func}, 어셈블리 사용\n"
                 # sort the nodes to get deterministic results
                 nodes.sort(key=lambda x: x.node_id)
 
                 for node in nodes:
                     info += ["\t- ", node, "\n"]
+                    info_kr += f"{func}, 어셈블리 사용\n"
 
-                res = self.generate_result(info)
-                results.append(res)
+                json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
+
+                results.append(json)
 
         return results

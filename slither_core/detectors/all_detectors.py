@@ -1,6 +1,7 @@
 # pylint: disable=unused-import,relative-beyond-top-level
-from .assembly.shift_parameter_mixup import IncorrectShift
+from .assembly.incorrect_shift import IncorrectShift
 from .assembly.incorrect_return import IncorrectReturn
+from .assembly.assembly import Assembly
 
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
@@ -46,7 +47,6 @@ from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 
 from .statements.tx_origin import TxOrigin
-# from .statements.assembly import Assembly
 from .statements.calls_in_loop import MultipleCallsInLoop
 from .statements.incorrect_strict_equality import IncorrectStrictEquality
 from .statements.deprecated_calls import DeprecatedStandards

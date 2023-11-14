@@ -26,7 +26,7 @@ def export_to_markdown(filename, language):
     payload += f"> 🔍 `Filename`: {filename}\n"
     payload += "---\n\n"
     
-    for detector_type, detector_data in json_data.items():  # 각 취약점 타입별로 반복
+    for detector_type, detector_data in json_data.items(): 
         detector = detector_data["results"]["detector"]
         impact = detector_data["results"]["impact"]
         confidence = detector_data["results"]["confidence"]
@@ -55,15 +55,15 @@ def export_to_markdown(filename, language):
         payload += f"| {detector} | {impact} | {confidence} | {description} |\n\n\n"
         
         payload += f"## Vulnerabiltiy in code:\n\n"
-        payload += f"```solidity\n"
-        payload += f"line {line}: {code}\n"
-        payload += f"```\n"
-        payload += f" ---\n\n"
-        # for code in detector['results']['element']:
-            # payload += f"```solidity\n"
-            # payload += f"line {code['line']}: {code['code']}\n"
-            # payload += f"```\n"
-            # payload += f" ---\n\n "
+        # payload += f"```solidity\n"
+        # payload += f"line {line}: {code}\n"
+        # payload += f"```\n"
+        # payload += f" ---\n\n"
+        for code in detector_data['results']['element']:
+            payload += f"```solidity\n"
+            payload += f"line {code['line']}: {code['code']}\n"
+            payload += f"```\n"
+            payload += f" ---\n\n "
             
         payload += f"{info}\n\n"
         

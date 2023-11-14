@@ -43,11 +43,14 @@ contract C {
 
 `shl(a, 8)`: The variable a is being shifted. The result can vary depending on the value and bit length of a. If a has a sufficiently large value such that left-shifting it would exceed the bit length, unexpected values may occur.
 `shl(8, a)`: The number 8 is a fixed value being used to perform the shift operation. Therefore, the result of the shift operation depends solely on the value of the variable a. Consequently, it's safe to perform an 8-bit left shift on a, regardless of its current value.
+
+`sar(a, 8)`: This operation shifts the bits of variable `a` to the right, so the result depends on the current value of `a`.
+`sar(8, a)`: This operation always performs a bitwise right shift by the constant value 8, regardless of the current value of variable `a`. Therefore, it provides predictable and consistent results.
 """
     # endregion wiki_exploit_scenario
 
     WIKI_RECOMMENDATION = """
-In general, `shl(8, a)` and `shr(8, a)` can be more predictable and safer approaches. However, the choice of method may vary depending on the specific circumstances and the data being used. The decision should be made carefully, taking into account the requirements and goals of the program.
+In general, `sar(8, a)`, `shl(8, a)` and `shr(8, a)` can be more predictable and safer approaches. However, the choice of method may vary depending on the specific circumstances and the data being used. The decision should be made carefully, taking into account the requirements and goals of the program.
 Furthermore, Solidity Yul code does not check for Overflow/Underflow, so you should write your code with these cases in mind and handle them appropriately.
 """
     
@@ -70,10 +73,13 @@ contract C {
     
 `shl(a, 8)`: a 변수가 시프트됩니다. a 변수의 값과 비트 길이에 따라 결과가 달라질 수 있습니다. 만약 a가 충분히 큰 값을 갖고 있어서 왼쪽 시프트로 인해 비트 길이가 넘어가는 경우, 예상치 못한 값이 발생할 수 있습니다.
 `shl(8, a)`: 8이 고정된 값을 시프트하는 것이므로 시프트 연산의 결과는 a 변수의 값에만 의존합니다. 따라서 a 변수가 어떤 값이든 안전하게 8 비트만큼 왼쪽으로 시프트됩니다.
+
+`sar(a, 8)`: 변수 a의 비트를 오른쪽으로 이동시키므로 a의 현재 값에 따라 결과가 달라집니다. 
+`sar(8, a)`: 항상 상수 8의 비트 이동 연산을 수행하므로 a의 현재 값에 영향을 받지 않습니다. 따라서 예측 가능하고 일관된 결과를 얻을 수 있습니다.
 """
 
     WIKI_RECOMMENDATION_KOREAN="""
-보통은 `shl(8, a)`, `shr(8, a)`가 더 예측 가능하고 안전한 방법일 수 있습니다. 하지만 실제 상황과 사용하는 데이터에 따라서 다른 방식이 더 적합할 수 있습니다. 이러한 결정은 프로그램의 요구 사항과 목적에 따라 다르므로 주의 깊게 검토하고 적절한 방법을 선택해야 합니다.
+보통은 `sar(8, a)`, `shl(8, a)`, `shr(8, a)`가 더 예측 가능하고 안전한 방법일 수 있습니다. 하지만 실제 상황과 사용하는 데이터에 따라서 다른 방식이 더 적합할 수 있습니다. 이러한 결정은 프로그램의 요구 사항과 목적에 따라 다르므로 주의 깊게 검토하고 적절한 방법을 선택해야 합니다.
 또한, solidity yul code는 Overflow/Underflow를 검사하지 않으므로, 이러한 케이스를 고려하여 코드를 작성해야 합니다.
     """
     WIKI_REFERENCE="""
@@ -92,7 +98,7 @@ contract C {
                     BinaryType.LEFT_SHIFT,
                     BinaryType.RIGHT_SHIFT,
                 ]:
-                    if isinstance(ir.variable_left, Constant) and not isinstance(
+                    if not isinstance(
                         ir.variable_right, Constant
                     ):
                         info: DETECTOR_INFO = [
