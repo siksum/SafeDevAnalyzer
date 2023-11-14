@@ -14,7 +14,7 @@ from slither_core.detectors.abstract_detector import (
 from slither_core.utils.output import Output
 
 
-class Assembly(AbstractDetector):
+class IncorrectAssembly(AbstractDetector):
     """
     Detect usage of inline assembly
     """

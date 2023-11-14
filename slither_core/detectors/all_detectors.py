@@ -1,7 +1,7 @@
 # pylint: disable=unused-import,relative-beyond-top-level
 from .assembly.incorrect_shift import IncorrectShift
 from .assembly.incorrect_return import IncorrectReturn
-from .assembly.assembly import Assembly
+from .assembly.incorrect_assembly import IncorrectAssembly
 
 from .attributes.constant_pragma import ConstantPragma
 from .attributes.incorrect_solc import IncorrectSolc
