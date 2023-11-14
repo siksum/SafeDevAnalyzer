@@ -259,7 +259,6 @@ class Output:
             info = [info_]
         else:
             info = info_
-
       
       
         self._data = OrderedDict()

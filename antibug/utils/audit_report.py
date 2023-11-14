@@ -13,6 +13,18 @@ def write_to_markdown(output_dir_path, payload, target: Optional[str] = None):
             f.write(payload)
     except Exception as e:
         print(f"Failed to write to {output_path}. Reason: {e}")
+      
+def convert_color_to_markdown(level):
+    if level == "High":
+        return "<span style='color:lightcoral'> High </span>"
+    elif level == "Medium":
+        return "<span style='color:olivedrab'> Medium </span>"
+    elif level == "Low":
+        return "<span style='color:sandybrown'> Low </span>"
+    elif level == "Informational":
+        return "<span style='color:skyblue'> Informational </span>"
+    else:
+        return level     
         
 def export_to_markdown(filename, language):
     output_dir_path = output_dir("audit_report", "md")
@@ -28,8 +40,17 @@ def export_to_markdown(filename, language):
     
     for detector_type, detector_data in json_data.items(): 
         detector = detector_data["results"]["detector"]
-        impact = detector_data["results"]["impact"]
-        confidence = detector_data["results"]["confidence"]
+        impact = convert_color_to_markdown(detector_data["results"]["impact"])
+        confidence = convert_color_to_markdown(detector_data["results"]["confidence"])
+        
+        # if confidence  == "High":
+        #     confidence = "<span style='color:red'> High </span>"
+        # elif confidence == "Medium":
+        #     confidence = "<span style='color:green'> Medium </span>"
+        # elif confidence == "Low":
+        #     confidence = "<span style='color:yellow'> Low </span>"
+        # elif confidence == "Informational":
+        #     confidence = "<span style='color:blue'> Informational </span>"
         reference = detector_data["results"]["reference"]
         line = detector_data["results"]["element"][-1]["line"]
         code = detector_data["results"]["element"][-1]["code"]
@@ -50,9 +71,9 @@ def export_to_markdown(filename, language):
         payload += f"<div markdown='1'>\n\n"
 
         payload += f"## Detect Results\n\n"
-        payload += f"| Detector | Impact | Confidence | Description |\n"
-        payload += f"| --- | --- | --- | --- |\n"
-        payload += f"| {detector} | {impact} | {confidence} | {description} |\n\n\n"
+        payload += f"| Detector | Impact | Confidence | Info |\n"
+        payload += f"|:---:|:---:|:---:|:---:|\n"
+        payload += f"| {detector} | {impact} | {confidence} | {description} |||\n\n\n"
         
         payload += f"## Vulnerabiltiy in code:\n\n"
         # payload += f"```solidity\n"
@@ -71,9 +92,13 @@ def export_to_markdown(filename, language):
         payload += f"{exploit_scenario}\n\n"
         
         payload += f"## Recommendation:\n\n"
-        payload += f"{recommendation}\n\n"   
+        payload += f"{recommendation}\n\n" 
+        
+        payload += f"## Reference:\n\n"
+        payload += f"{reference}\n\n"   
         payload += f"</details>\n\n"
         
+
     write_to_markdown(output_dir_path, payload, filename)
   
 
