@@ -1,7 +1,8 @@
 import json
 import os
 import streamlit as st
-from pathlib import Path
+from streamlit_option_menu import option_menu
+from streamlit_ace import st_ace
 import plotly.express as px
 
 import pandas as pd
@@ -111,7 +112,7 @@ def get_json_data(filename, language):
         json_data = json.loads(json_str)
     return json_data
 
-def write_to_streamlit(filename):
+def audit_report(filename):
     st.title('Report for Audit')
 
     tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
@@ -157,11 +158,42 @@ def write_to_streamlit(filename):
                 json_data= get_json_data(filename, selected_lang.lower())
                 export_to_markdown(detector, json_data, selected_lang.lower())
 
-
+def sidebar():
+    option = st.sidebar.selectbox(
+    'Menu',
+     ('페이지1', '페이지2', '페이지3'))
+    
+    with st.sidebar:
+        choice = option_menu("Menu", ["페이지1", "페이지2", "페이지3"],
+                            icons=['house', 'kanban', 'bi bi-robot'],
+                            menu_icon="app-indicator", default_index=0,
+                            styles={
+            "container": {"padding": "4!important", "background-color": "#fafafa"},
+            "icon": {"color": "black", "font-size": "25px"},
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#fafafa"},
+            "nav-link-selected": {"background-color": "#08c7b4"},
+        }
+        )
+    if choice == "페이지1":
+        st.header("페이지1")
+        code = st_ace(
+            placeholder="Write code here...",
+            language="python",
+            theme="github",
+            key="ace-editor"
+        )
+        if st.button("Run Code"):
+            try:
+                # Evaluate and execute the code entered in the ACE editor
+                st.write(code)
+            except Exception as e:
+                # Handle any exceptions that occur during code execution
+                st.error(f"An error occurred: {e}")
 
 def main(): 
     target="shift.sol"
-    write_to_streamlit(target)
+    sidebar()
+    audit_report(target)
         
         
 if __name__ == "__main__":
