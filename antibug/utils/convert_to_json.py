@@ -10,12 +10,8 @@ def get_root_dir():
     current_path = os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
     return current_path
 
-def output_dir(filename, language_type):
+def output_dir(filename):
     output_dir = os.path.join(get_root_dir(), f"result/{filename}")
-    if language_type == "json":
-        print(f"Detect Result Output directory: {output_dir}")
-    elif language_type == "md":
-        print(f"Audit Report Output directory: {output_dir}")
 
     files = glob.glob(os.path.join(output_dir, "*"))
     for f in files:
@@ -28,6 +24,12 @@ def output_dir(filename, language_type):
         os.makedirs(output_dir)
 
     return output_dir
+
+def print_output_dir(output_dir_path, language_type):
+    if language_type == "json":
+        print(f"Detect Result Output directory: {output_dir_path}")
+    elif language_type == "md":
+        print(f"Audit Report Output directory: {output_dir_path}")
 
 def get_output_path(target, output_dir_path, language_type):
     filename=os.path.basename(target)[:-4]
@@ -62,15 +64,15 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
             write_to_json(output_dir_path, result_json, filename)
 
 
-
 def convert_to_detect_result_json(result_list, filename, error, language) -> None:
-    output_dir_path = output_dir("detector_json_results", "json")
+    output_dir_path = output_dir("detector_json_results")
     combined_data_list = [] 
     json_result = {}  
     result_list = [item for item in result_list if item is not None and item != '' and item != []]
-    
+    if len(result_list) == 0:
+        print("Nothing to detect")
+        return 0   
     instance =SafeDevAnalyzer(filename)
-    
     for result in result_list:
         for data in result:
             combined_data = {}
@@ -125,7 +127,8 @@ def convert_to_detect_result_json(result_list, filename, error, language) -> Non
         json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
         combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
         write_to_json(output_dir_path, combined_json, filename)
-
+    print_output_dir(output_dir_path, "json")
+    
 
 def remove_all_json_files():
     output_dir = os.path.join(get_root_dir(), f"result")

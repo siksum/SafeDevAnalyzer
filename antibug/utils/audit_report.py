@@ -2,12 +2,13 @@ import os
 import json
 
 from typing import Optional
-from antibug.utils.convert_to_json import output_dir, get_output_path
+from antibug.utils.convert_to_json import output_dir, get_output_path, print_output_dir
 
 
 def write_to_markdown(output_dir_path, payload, target: Optional[str] = None):
     if target is not None:      
         output_path= get_output_path(target, output_dir_path, "md")
+        print_output_dir(output_dir_path, "md")
     try:
         with open(output_path, "w") as f:
             f.write(payload)
@@ -27,12 +28,16 @@ def convert_color_to_markdown(level):
         return level     
         
 def export_to_markdown(filename, language):
-    output_dir_path = output_dir("audit_report", "md")
+    output_dir_path = output_dir("audit_report")
     json_path = get_output_path(filename, os.path.join(os.path.dirname(output_dir_path), "detector_json_results"), "json")
     
-    with open(json_path, "r") as file:
-        json_str = file.read()
-        json_data = json.loads(json_str)
+    try:
+        with open(json_path, "r") as file:
+            json_str = file.read()
+            json_data = json.loads(json_str)
+    except Exception as e:
+        print(f"Failed to read {json_path}. Reason: {e}")
+        
     
     payload = f"# Audit Report\n\n"
     payload += f"> 🔍 `Filename`: {filename}\n"

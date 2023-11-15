@@ -84,8 +84,9 @@ def main():
     if args.command == 'detect':
         try:
             result_list, filename, error = detect_vuln_action(args.target, args.detector)
-            convert_to_detect_result_json(result_list, filename, error, args.language)
-            export_to_markdown(args.target, args.language)
+            ret= convert_to_detect_result_json(result_list, filename, error, args.language)
+            if ret != 0:
+                export_to_markdown(args.target, args.language)
             
             # if args.export == 'markdown':
             #     print("a")
