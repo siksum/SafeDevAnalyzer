@@ -1,48 +1,8 @@
-<button class='date-button'>2023-11-15</button>
-
 # Audit Report
 
-> 🔍 `Filename`: /Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/shift.sol
+> 🔍 `Filename`: `/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/antibug/run_detectors/shift.sol`
 ---
 
-[<button class='styled-button'>English</button>](shift_en.md)
-<br />
-
-
-<style>
-    .date-button{
-        color:black;
-        border:none;
-        font-weight: bold;
-        background-color: sand;
-        width: 150px;
-        height: 25px;
-        float: right;
-        border-radius: 20px;
-    }
-    .styled-button{
-        color: black;
-        border: none;
-        font-weight: bold;
-        background-color: lightskyblue;
-        width: 100px;
-        height: 30px;
-        float: right;
-        border-radius: 20px;
-    }
-    .styled-button:hover{
-        color: black;
-        border: none;
-        font-weight: bold;
-        background-color: pink;
-        width: 100px;
-        height: 30px;
-        float: right;
-        cursor: pointer;
-    }
-</style>
-
-               
 <details>
 <summary style='font-size: 20px;'>incorrect-shift</summary>
 <div markdown='1'>

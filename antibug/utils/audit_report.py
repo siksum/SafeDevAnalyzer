@@ -2,9 +2,10 @@ import os
 import json
 
 from typing import Optional
+from datetime import datetime
+
 from antibug.utils.convert_to_json import output_dir, get_output_path, print_output_dir
 
-from datetime import datetime
 
 def write_to_markdown(output_dir_path, payload, language, target: Optional[str] = None):
     if target is not None:      
@@ -47,7 +48,7 @@ def export_to_markdown(filename):
         
         payload = f"<button class='date-button'>{today_date}</button>\n\n"
         payload += f"# Audit Report\n\n"
-        payload += f"> 🔍 `Filename`: {filename}\n"
+        payload += f"> 🔍 `Filename`: {os.path.abspath(filename)}\n"
         payload += "---\n\n"
         if language == "english":
             payload +=f"[<button class='styled-button'>Korean</button>]({another_language_path})\n"
