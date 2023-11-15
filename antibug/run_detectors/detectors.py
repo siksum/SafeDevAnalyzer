@@ -61,6 +61,7 @@ class RunDetector(SafeDevAnalyzer):
                         else:
                             print(f'Error: {self.selected_detectors} is not available')
                             return
+                        
                 else:
                     print(f'Error: {self.selected_detectors} is not available')
                     return

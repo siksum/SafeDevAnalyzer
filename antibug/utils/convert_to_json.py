@@ -83,7 +83,7 @@ def convert_to_detect_result_json(result_list, filename, error, language) -> Non
             combined_data['element'] = []
             
             for element in data["elements"]:
-                source_mapping = instance.antibug_compile[0].get_code_from_line(filename, element['source_mapping']['lines'][0])
+                source_mapping = instance.antibug_compile[0].get_code_from_line(instance.target_path, element['source_mapping']['lines'][0])
                 element_data = {
                     'type': element['type'],
                     'name': element['name'],

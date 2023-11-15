@@ -51,7 +51,6 @@ class SolcParser:
         self._version_list = list(self._release_version_list.keys())
         return self._version_list
 
-
     @property
     def intalled_solc_versions(self) -> List[str]:
         self._intalled_solc_versions = [str(p.name).replace("solc-", "") for p in SOLC_BINARIES_DIR.iterdir() if p.is_dir()]

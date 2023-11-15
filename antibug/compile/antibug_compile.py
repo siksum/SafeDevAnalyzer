@@ -253,6 +253,7 @@ class AntibugCompile:
             file = self.filename_lookup(filename)
         else:
             file = filename
+            
         if file not in self._cached_line_to_code:
             self._get_cached_line_to_code(file)
 
