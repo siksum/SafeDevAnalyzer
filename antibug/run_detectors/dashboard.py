@@ -4,6 +4,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 from streamlit_ace import st_ace
 import plotly.express as px
+import subprocess
 
 import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
@@ -182,14 +183,26 @@ def sidebar():
             theme="github",
             key="ace-editor"
         )
+        result =code
         if st.button("Run Code"):
-            try:
-                # Evaluate and execute the code entered in the ACE editor
-                st.write(code)
-            except Exception as e:
-                # Handle any exceptions that occur during code execution
-                st.error(f"An error occurred: {e}")
+            with open ("shift.py", "w") as f:
+                f.write(result)
+            
+            process = subprocess.Popen(
+            ['python3', 'shift.py'],  
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, 
+            )
+            stdout, stderr = process.stdout.read().decode('utf-8'), process.stderr.read().decode('utf-8')
 
+            st.subheader("Output:")
+            st.code(stdout, language="python")
+
+            if stderr:
+                st.subheader("Error:")
+                st.code(stderr, language="python")
+    
 def main(): 
     target="shift.sol"
     sidebar()
