@@ -31,17 +31,23 @@ def print_output_dir(output_dir_path, language_type):
     elif language_type == "md":
         print(f"Audit Report Output directory: {output_dir_path}")
 
-def get_output_path(target, output_dir_path, language_type):
+def get_output_path(target, output_dir_path, language, language_type):
     filename=os.path.basename(target)[:-4]
-    if language_type == "json":
-        output_path = os.path.join(output_dir_path, f"{filename}.json")
-    elif language_type == "md":
-        output_path = os.path.join(output_dir_path, f"{filename}.md")
+    if language == "korean":
+        if language_type == "json":
+            output_path = os.path.join(output_dir_path, f"{filename}_kr.json")
+        elif language_type == "md":
+            output_path = os.path.join(output_dir_path, f"{filename}_kr.md")
+    if language == "english":
+        if language_type == "json":
+            output_path = os.path.join(output_dir_path, f"{filename}_en.json")
+        elif language_type == "md":
+            output_path = os.path.join(output_dir_path, f"{filename}_en.md")
     return output_path
 
-def write_to_json(output_dir_path, combined_json, target: Optional[str] = None):
+def write_to_json(output_dir_path, combined_json, language, target: Optional[str] = None):
     if target is not None:      
-        output_path= get_output_path(target, output_dir_path, "json")
+        output_path= get_output_path(target, output_dir_path, language, "json")
 
     try:
         with open(output_path, "w") as f:
@@ -64,7 +70,7 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
             write_to_json(output_dir_path, result_json, filename)
 
 
-def convert_to_detect_result_json(result_list, filename, error, language) -> None:
+def convert_to_detect_result_json(result_list, filename, error) -> None:
     output_dir_path = output_dir("detector_json_results")
     combined_data_list = [] 
     json_result = {}  
@@ -73,62 +79,63 @@ def convert_to_detect_result_json(result_list, filename, error, language) -> Non
         print("Nothing to detect")
         return 0   
     instance =SafeDevAnalyzer(filename)
-    for result in result_list:
-        for data in result:
-            combined_data = {}
-            combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
-            combined_data['detector'] = data["check"]
-            combined_data['impact'] = data["impact"]
-            combined_data['confidence'] = data["confidence"]
-            combined_data['element'] = []
-            
-            for element in data["elements"]:
-                source_mapping = instance.antibug_compile[0].get_code_from_line(instance.target_path, element['source_mapping']['lines'][0])
-                element_data = {
-                    'type': element['type'],
-                    'name': element['name'],
-                    'line': element['source_mapping']['lines'][0],
-                    'code': source_mapping.decode("utf-8"),
-                }
-                if "type_specific_fields" in element and "parent" in element["type_specific_fields"]:
-                    parent = element["type_specific_fields"]["parent"]
-                    element_data["parent_type"] = parent.get("type", None)
-                    element_data["parent_name"] = parent.get("name", None)
+    for language in ["korean", "english"]:
+        for result in result_list:
+            for data in result:
+                combined_data = {}
+                combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
+                combined_data['detector'] = data["check"]
+                combined_data['impact'] = data["impact"]
+                combined_data['confidence'] = data["confidence"]
+                combined_data['element'] = []
                 
-                combined_data['element'].append(element_data)
-                
-            combined_data['info'] = data["info"]
-            combined_data['description'] = data["description"]
-            combined_data['exploit_scenario'] = data["exploit_scenario"]
-            combined_data['recommendation'] = data["recommendation"]
-            
-            combined_data['info_korean'] = data["info_korean"]
-            combined_data['description_korean'] = data["description_korean"]
-            combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
-            combined_data['recommendation_korean'] = data["recommendation_korean"]
-            
-            combined_data['reference'] = data["reference"]
-                        
-            if language == "korean":
-                del combined_data["info"]
-                del combined_data["description"]
-                del combined_data["exploit_scenario"]
-                del combined_data["recommendation"]
+                for element in data["elements"]:
+                    source_mapping = instance.antibug_compile[0].get_code_from_line(instance.target_path, element['source_mapping']['lines'][0])
+                    element_data = {
+                        'type': element['type'],
+                        'name': element['name'],
+                        'line': element['source_mapping']['lines'][0],
+                        'code': source_mapping.decode("utf-8"),
+                    }
+                    if "type_specific_fields" in element and "parent" in element["type_specific_fields"]:
+                        parent = element["type_specific_fields"]["parent"]
+                        element_data["parent_type"] = parent.get("type", None)
+                        element_data["parent_name"] = parent.get("name", None)
                     
-            elif language == "english":
-                del combined_data["info_korean"]
-                del combined_data["description_korean"]
-                del combined_data["exploit_scenario_korean"]
-                del combined_data["recommendation_korean"]
-            combined_data_list.append(combined_data)
-    
-    # print(combined_data_list)
-    for combined_data in combined_data_list:
-        json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
-        combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
-        write_to_json(output_dir_path, combined_json, filename)
+                    combined_data['element'].append(element_data)
+                    
+                combined_data['info'] = data["info"]
+                combined_data['description'] = data["description"]
+                combined_data['exploit_scenario'] = data["exploit_scenario"]
+                combined_data['recommendation'] = data["recommendation"]
+                
+                combined_data['info_korean'] = data["info_korean"]
+                combined_data['description_korean'] = data["description_korean"]
+                combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
+                combined_data['recommendation_korean'] = data["recommendation_korean"]
+                
+                combined_data['reference'] = data["reference"]
+                            
+                if language == "korean":
+                    del combined_data["info"]
+                    del combined_data["description"]
+                    del combined_data["exploit_scenario"]
+                    del combined_data["recommendation"]
+                        
+                elif language == "english":
+                    del combined_data["info_korean"]
+                    del combined_data["description_korean"]
+                    del combined_data["exploit_scenario_korean"]
+                    del combined_data["recommendation_korean"]
+                combined_data_list.append(combined_data)
+        
+        # print(combined_data_list)
+        for combined_data in combined_data_list:
+            json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
+            combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
+            write_to_json(output_dir_path, combined_json, language, filename)
     print_output_dir(output_dir_path, "json")
-    
+        
 
 def remove_all_json_files():
     output_dir = os.path.join(get_root_dir(), f"result")

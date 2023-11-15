@@ -26,7 +26,7 @@ def parse_arguments():
 
     # Detector (Vulnerability/Logic)
     detect_parser = subparsers.add_parser('detect')    
-    detect_parser.add_argument('language', help='Language of the description', nargs='?')
+    # detect_parser.add_argument('language', help='Language of the description', nargs='?')
     detect_parser.add_argument('detector', help='Target rule', nargs='*')
     detect_parser.add_argument('target', help='Path to the rule file')
     
@@ -81,12 +81,13 @@ def detect_vuln_action(target, detector):
 
 def main():
     args = parse_arguments()
+
     if args.command == 'detect':
         try:
             result_list, filename, error = detect_vuln_action(args.target, args.detector)
-            ret= convert_to_detect_result_json(result_list, filename, error, args.language)
+            ret= convert_to_detect_result_json(result_list, filename, error)
             if ret != 0:
-                export_to_markdown(args.target, args.language)
+                export_to_markdown(args.target)
             
             # if args.export == 'markdown':
             #     print("a")

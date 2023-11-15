@@ -38,6 +38,7 @@ class RunDetector(SafeDevAnalyzer):
             self.available_detector_list, _, self.import_list = self.get_all_detectors()
             compilation_unit_list = list(self.compilation_units.values())
             results = []
+            result=[]
             compilation_units_detect_results=[]
             for compilnation_unit in compilation_unit_list:
                 if not self.selected_detectors:
@@ -70,8 +71,7 @@ class RunDetector(SafeDevAnalyzer):
                     self.output_error.append("No detection results")
                     compilation_units_detect_results.append(None)
                     return compilation_units_detect_results, self.target_list, self.output_error, 
-                
-                result = self.detect_result(results)
+                result=self.detect_result(results)
                 self.output_error.append(None)    
                 
         except SlitherException as e:
