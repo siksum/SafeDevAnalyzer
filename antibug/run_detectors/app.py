@@ -6,12 +6,13 @@ from streamlit_ace import st_ace
 import plotly.express as px
 import subprocess
 import time
+import openai
+import toml
 
 import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
 from antibug.__main__ import compile
-
-
+from streamlit_chat import message
 
 def export_to_markdown(detector_option, json_data, language):
     for detector_type, detector_data in json_data.items(): 
@@ -68,15 +69,11 @@ def export_to_markdown(detector_option, json_data, language):
                 }
 
                 st.data_editor(df, column_config=column_config)
-                
                 st.markdown("---")                
 
                 st.subheader("Vulnerabiltiy in code:")
-                
                 for code in detector_data['results']['element']:
                     st.code(f"line {code['line']}: {code['code']}")
-                st.markdown("---")    
-                
                 st.write(info)
                 # st.text_area("Info", value=info, height=200, max_chars=None, key=None)            
                 st.markdown("---")
@@ -88,10 +85,8 @@ def export_to_markdown(detector_option, json_data, language):
                     code_end = exploit_scenario.find("```", code_start)
                     if code_end != -1:
                         exploit_scenario_code = exploit_scenario[code_start:code_end].strip()
-
                 exploit_scenario_description = exploit_scenario[code_end + 3:].strip()
 
-                
                 st.code(exploit_scenario_code)
                 st.write(exploit_scenario_description)
                 # st.text_area("Exploit scenario", value=exploit_scenario_description, height=200, max_chars=None, key=exploit_scenario_key)            
@@ -120,6 +115,20 @@ def get_json_data(filename, language):
         json_data = json.loads(json_str)
     return json_data
 
+def generate_response(prompt):
+    print(openai.__version__)
+    completions = openai.Completion.create (
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=1024,
+        stop=None,
+        temperature=0,
+        top_p=1,
+    )
+ 
+    message = completions["choices"][0]["text"].replace("\n", "")
+    return message
+
 def audit_report(filename):
     st.title('Report for Audit')
 
@@ -138,11 +147,47 @@ def audit_report(filename):
     
     with tab2:
         st.header('Security Analysis')
-        html="""
-        <button class='date-button'>2023-05-30</button>\n\n
-        """
-        st.markdown(html, unsafe_allow_html=True)
+        # openai.api_key = st.secrets["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"]
+        # openai.api_key = "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"
         
+        # secrets = toml.load("secrets.toml")
+
+        # st.subheader("🤖 Chat Bot (GPT-3.5)")
+
+        # openai.api_key = secrets["OPENAI_API_KEY"]
+        # # openai.api_key = secrets["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"]
+
+        # if "openai_model" not in st.session_state:
+        #     st.session_state["openai_model"] = "gpt-3.5-turbo"
+
+        # if "messages" not in st.session_state:
+        #     st.session_state.messages = []
+
+        # for message in st.session_state.messages:
+        #     with st.chat_message(message["role"]):
+        #         st.markdown(message["content"])
+
+        # if prompt := st.chat_input("What is up?"):
+        #     st.session_state.messages.append({"role": "user", "content": prompt})
+        #     with st.chat_message("user"):
+        #         st.markdown(prompt)
+
+        #     with st.chat_message("assistant"):
+        #         message_placeholder = st.empty()
+        #         full_response = ""
+        #         for response in openai.ChatCompletion.create(
+        #             model=st.session_state["openai_model"],
+        #             messages=[
+        #                 {"role": m["role"], "content": m["content"]}
+        #                 for m in st.session_state.messages
+        #             ],
+        #             stream=True,
+        #         ):
+        #             full_response += response.choices[0].delta.get("content", "")
+        #             message_placeholder.markdown(full_response + "▌")
+        #         message_placeholder.markdown(full_response)
+        #     st.session_state.messages.append({"role": "assistant", "content": full_response})
+
     with tab3:
         st.title('Audit Report')
         st.write('🔍 `Filename`: `{os.path.abspath(filename)}`\n')

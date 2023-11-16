@@ -30,6 +30,8 @@ def print_output_dir(output_dir_path, language_type):
         print(f"Detect Result Output directory: {output_dir_path}")
     elif language_type == "md":
         print(f"Audit Report Output directory: {output_dir_path}")
+    elif language_type == "compile":
+        print(f"Compile Info Output directory: {output_dir_path}")
 
 def get_output_path(target, output_dir_path, language, language_type):
     filename=os.path.basename(target)[:-4]
@@ -38,16 +40,18 @@ def get_output_path(target, output_dir_path, language, language_type):
             output_path = os.path.join(output_dir_path, f"{filename}_kr.json")
         elif language_type == "md":
             output_path = os.path.join(output_dir_path, f"{filename}_kr.md")
-    if language == "english":
+    elif language == "english":
         if language_type == "json":
             output_path = os.path.join(output_dir_path, f"{filename}_en.json")
         elif language_type == "md":
             output_path = os.path.join(output_dir_path, f"{filename}_en.md")
+    else:
+        output_path = os.path.join(output_dir_path, f"{filename}.json")
     return output_path
 
-def write_to_json(output_dir_path, combined_json, language, target: Optional[str] = None):
-    if target is not None:      
-        output_path= get_output_path(target, output_dir_path, language, "json")
+def write_to_json(output_dir_path, combined_json, language, filename: Optional[str] = None):
+    if filename is not None:      
+        output_path= get_output_path(filename, output_dir_path, language, "json")
 
     try:
         with open(output_path, "w") as f:
@@ -58,6 +62,7 @@ def write_to_json(output_dir_path, combined_json, language, target: Optional[str
 
 def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
     output_dir_path = output_dir("compile_json_results")
+    language = "compile"
     
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
         combined_data = {}
@@ -67,7 +72,8 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
                 "bytecodes": "0x" + bytecode_data
             }
             result_json = json.dumps(combined_data, indent=2)
-            write_to_json(output_dir_path, result_json, filename)
+            write_to_json(output_dir_path, result_json, language, filename)
+    print_output_dir(output_dir_path, "compile")
 
 
 def convert_to_detect_result_json(result_list, filename, error) -> None:
