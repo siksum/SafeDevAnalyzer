@@ -120,7 +120,7 @@ def audit_report(filename):
     tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
     tab1, tab2, tab3 = st.tabs(tab_titles)
     
-    with tab1:
+    with tab3:
         st.header('Contract Analaysis')
         data = {'Sum': [3, 5, 9, 7],
             'Confidence': ['High', 'Medium', 'Low', 'Informational']}
@@ -137,23 +137,25 @@ def audit_report(filename):
         """
         st.markdown(html, unsafe_allow_html=True)
         
-    with tab3:
+    with tab1:
         st.title('Audit Report')
         st.write('🔍 `Filename`: `{os.path.abspath(filename)}`\n')
 
         languages = ['English', 'Korean']
         selected_lang = st.selectbox('언어를 선택해주세요', languages)
+        print(selected_lang)
         detector_list=[]
         json_data= get_json_data(filename, selected_lang.lower())
+        
         for detector_type, detector_data in json_data.items(): 
             detector_list.append(detector_data["results"]["detector"])
+            
         detector_list = list(set(detector_list))
-
         options=st.multiselect('Select detector', detector_list)
+        st.write('Selected detectors:', options)
         
         if selected_lang == 'English':
             for detector in options:
-                print(detector)
                 json_data= get_json_data(filename, selected_lang.lower())
                 export_to_markdown(detector, json_data, selected_lang.lower())
         elif selected_lang == 'Korean':
@@ -163,11 +165,6 @@ def audit_report(filename):
 
 def sidebar(target):
     st.sidebar.title("Antibug")
-    
-    # option = st.sidebar.selectbox(
-    # 'Menu',
-    #  ('Compile & Deploy', 'Security Check', 'Test'))
-    
     
     with st.sidebar:
         choice = option_menu("Menu", ["Compile & Deploy", "Security Check", "Run Testcode"],
@@ -240,8 +237,11 @@ def sidebar(target):
         st.sidebar.subheader("Select Detector")
         st.sidebar.selectbox("Detector", ["Reentrancy", "Integer Overflow/Underflow", "Unprotected Ether Withdrawal", "Unchecked Call Return Value", "Unprotected"])
         
+       
         if st.sidebar.button("Analysis", key="analysis"):
             audit_report(target)
+        else: 
+            st.title("Vulnerability Detection List")
             
         button = """
          <style>
@@ -271,7 +271,7 @@ def sidebar(target):
     elif choice == "Run Testcode":
         st.header("Run Testcode")
         st.subheader("Select Testcode")
-        st.selectbox("Testcode", ["페이지1", "페이지2"])
+        language=st.selectbox("Testcode", ["python", "javascript", "javascript_test"])
         
         code = st_ace(
             placeholder="Write code here...",
@@ -282,24 +282,70 @@ def sidebar(target):
         )
         result =code
         if st.button("Run Code"):
-            with open ("shift.py", "w") as f:
-                f.write(result)
-            
-            process = subprocess.Popen(
-            ['python3', 'shift.py'],  
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, 
-            )
-            stdout, stderr = process.stdout.read().decode('utf-8'), process.stderr.read().decode('utf-8')
+            if language == "python":
+                with open ("shift.py", "w") as f:
+                    f.write(result)
+                
+                process = subprocess.Popen(
+                ['python3', 'shift.py'],  
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, 
+                )
+                stdout, stderr = process.stdout.read().decode('utf-8'), process.stderr.read().decode('utf-8')
 
-            st.subheader("Output:")
-            st.code(stdout, language="python")
+                st.subheader("Output:")
+                st.code(stdout, language="python")
 
-            if stderr:
-                st.subheader("Error:")
-                st.code(stderr, language="python")
-       
+                if stderr:
+                    st.subheader("Error:")
+                    st.code(stderr, language="python")
+            elif language == "javascript":
+                with open ("shift.js", "w") as f:
+                    f.write(result)
+                
+                process = subprocess.Popen(
+                ['node', 'shift.js'],  
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, 
+                )
+                stdout, stderr = process.stdout.read().decode('utf-8'), process.stderr.read().decode('utf-8')
+
+                st.subheader("Output:")
+                st.code(stdout, language="javascript")
+
+                if stderr:
+                    st.subheader("Error:")
+                    st.code(stderr, language="javascript")
+            elif language == "javascript_test":
+                with open ("shift.test.js", "w") as f:
+                    f.write(result)
+                
+                process = subprocess.Popen(
+                ['npm', 'test'],  
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, 
+                text=True
+                )
+                st.subheader("Output:")
+                # st.code(iter(process.stdout.readline, b''), language="javascript")
+                
+                result =""
+                for line in iter(process.stdout.readline, b''):
+                    st.write(result)
+                #     st.code(line, language="javascript")
+                
+                
+                # stdout, stderr = process.stdout.read().decode('utf-8'), process.stderr.read().decode('utf-8')
+
+                
+                if process.stderr:
+                    st.subheader("Error:")
+                    for line in iter(process.stderr.readline, b''):
+                        st.code(line, language="javascript")
+                # return_code = process.returncode
     
 def main(): 
     target="shift.sol"

@@ -1,103 +1,180 @@
-import streamlit as st
-import sys
+import json
 import os
-import time
-from pathlib import Path
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import streamlit as st
+from streamlit_option_menu import option_menu
+from streamlit_ace import st_ace
 import plotly.express as px
+import subprocess
+import time
 
+import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
+from antibug.__main__ import compile
 
-language="korean"
-if language == "korean":
-    language = "kr"
-elif language == "english":
-    language = "en"
+
+
+def export_to_markdown(detector_option, json_data, language):
+    for detector_type, detector_data in json_data.items(): 
+        detector = detector_data["results"]["detector"]
+        exploit_scenario_key = f'exploit_scenario_{detector}'
+        if detector_option == detector:
+            impact = detector_data["results"]["impact"]
+            confidence = detector_data["results"]["confidence"]
+            if confidence=="High":
+                confidence = 100
+            elif confidence=="Medium":
+                confidence = 50
+            elif confidence=="Low":
+                confidence = 25
+            elif confidence=="Informational":
+                confidence = 10
+
+            reference = detector_data["results"]["reference"]
+            line = detector_data["results"]["element"][-1]["line"]
+            code = detector_data["results"]["element"][-1]["code"]
+            
+            if language == "english":
+                description = detector_data["results"]["info"]
+                exploit_scenario = detector_data["results"]["exploit_scenario"]
+                recommendation = detector_data["results"]["recommendation"]
+                info = detector_data["results"]["description"]
+            else:
+                exploit_scenario = detector_data["results"]["exploit_scenario_korean"]
+                recommendation = detector_data["results"]["recommendation_korean"]
+                description = detector_data["results"]["info_korean"]
+                info = detector_data["results"]["description_korean"]
+            st.expander("detector")
+            
+            with st.expander(detector):
+                st.header(detector)
+                st.subheader("Detect Results")
+                df = pd.DataFrame({
+                    'Detector': [detector],
+                    'Impact': [impact],
+                    'Confidence': [confidence],
+                    'Info': [description]
+                })
+                
+                column_config = {
+                    'Detector': {'editable': False},
+                    'Confidence': st.column_config.ProgressColumn(
+                        "Confidence",
+                        min_value=0,
+                        max_value=100,
+                        # format=f"{detector}%",
+                    ),
+                    'Impact': {'editable': False},
+                    'Info': {'editable': False}
+                }
+
+                st.data_editor(df, column_config=column_config)
+                
+                st.markdown("---")                
+
+                st.subheader("Vulnerabiltiy in code:")
+                
+                for code in detector_data['results']['element']:
+                    st.code(f"line {code['line']}: {code['code']}")
+                st.markdown("---")    
+                
+                st.write(info)
+                # st.text_area("Info", value=info, height=200, max_chars=None, key=None)            
+                st.markdown("---")
+                
+                st.subheader("Exploit scenario:")
+                code_start = exploit_scenario.find("```solidity")
+                if code_start != -1:
+                    code_start += len("```solidity")
+                    code_end = exploit_scenario.find("```", code_start)
+                    if code_end != -1:
+                        exploit_scenario_code = exploit_scenario[code_start:code_end].strip()
+
+                exploit_scenario_description = exploit_scenario[code_end + 3:].strip()
+
+                
+                st.code(exploit_scenario_code)
+                st.write(exploit_scenario_description)
+                # st.text_area("Exploit scenario", value=exploit_scenario_description, height=200, max_chars=None, key=exploit_scenario_key)            
+                st.markdown("---")  
+                
+                st.subheader("Recommendation:")
+                st.write(recommendation)
+                # st.text_area("Recommendation", value=recommendation, height=200, max_chars=None, key=None)
+                st.markdown("---")
+                
+                st.subheader("Reference:")
+                st.write(reference)
+                # st.text_area("Reference", value=reference, height=200, max_chars=None, key=None)
+                st.markdown("---")
+        else:
+            continue
+
+def get_json_data(filename, language):
+    if language == "korean":
+        json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_kr.json")
+    elif language == "english":
+        json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_en.json")
+        
+    with open(json_path, "r") as file:
+        json_str = file.read()
+        json_data = json.loads(json_str)
+    return json_data
+
+def audit_report(filename):
+    st.title('Report for Audit')
+
+    tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
+    tab1, tab2, tab3 = st.tabs(tab_titles)
     
-filename = os.path.join(get_root_dir(), "result/detector_json_results", os.path.basename(sys.argv[1])[:-4]+f"_{language}.json")
-filename_md_kr = os.path.join(get_root_dir(), "result/audit_report", os.path.basename(sys.argv[1])[:-4]+f"_kr.md")
-filename_md_en = os.path.join(get_root_dir(), "result/audit_report", os.path.basename(sys.argv[1])[:-4]+f"_en.md")
+    with tab1:
+        st.header('Contract Analaysis')
+        data = {'Sum': [3, 5, 9, 7],
+            'Confidence': ['High', 'Medium', 'Low', 'Informational']}
 
+        df = pd.DataFrame(data)
 
-# 제목
-st.title('Report for Audit')
-
-
-tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
-tab1, tab2, tab3 = st.tabs(tab_titles)
- 
-# 각 탭에 콘텐츠 추가
-with tab1:
-    st.header('주제 A')
-    # st.write('주제 A의 내용')
-    data = {'Sum': [3, 5, 9, 7],
-        'Confidence': ['High', 'Medium', 'Low', 'Informational']}
-
-    df = pd.DataFrame(data)
-
-    fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
-    st.plotly_chart(fig1)
- 
-with tab2:
-    st.header('주제 C')
-    html="""
-    <button class='date-button'>2023-05-30</button>\n\n
-    """
-    st.markdown(html, unsafe_allow_html=True)
+        fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
+        st.plotly_chart(fig1)
     
-with tab3:
+    with tab2:
+        st.header('Security Analysis')
+        html="""
+        <button class='date-button'>2023-05-30</button>\n\n
+        """
+        st.markdown(html, unsafe_allow_html=True)
+        
+    with tab3:
+        st.title('Audit Report')
+        st.write('🔍 `Filename`: `{os.path.abspath(filename)}`\n')
 
-    st.header('Audit Report')
+        languages = ['English', 'Korean']
+        selected_lang = st.selectbox('언어를 선택해주세요', languages)
+        detector_list=[]
+        json_data= get_json_data(filename, selected_lang.lower())
+        
+        for detector_type, detector_data in json_data.items(): 
+            detector_list.append(detector_data["results"]["detector"])
+            
+        detector_list = list(set(detector_list))
+        st.toast(f'Detect {len(detector_list)} Vulnerability! 🐞')
+        time.sleep(1)
+        
+        options=st.multiselect('Select detector', detector_list)
+        
+        if selected_lang == 'English':
+            for detector in options:
+                json_data= get_json_data(filename, selected_lang.lower())
+                export_to_markdown(detector, json_data, selected_lang.lower())
+        elif selected_lang == 'Korean':
+            for detector in options:
+                json_data= get_json_data(filename, selected_lang.lower())
+                export_to_markdown(detector, json_data, selected_lang.lower())
 
-    # st.selectbox('Language', [])
-
-    # 사용법
-    languages = ['English', 'Korean']
-    selected_lang = st.selectbox('언어를 선택해주세요', languages)
-
-    if selected_lang == 'English':
-        ret = st.write(Path(filename_md_en).read_text())
-        st.markdown(ret, unsafe_allow_html=True, )
-    elif selected_lang == 'Korean':
-        ret=  st.write(Path(filename_md_kr).read_text())
-        st.markdown(ret, unsafe_allow_html=True)
-       
-
-
-
-
-# # 텍스트 입력 상자
-# user_input = st.text_input('이름을 입력하세요:', 'John Doe')
-# st.write('안녕하세요,', user_input, '님!')
-
-# # 숫자 입력 상자
-# age = st.number_input('나이를 입력하세요:', min_value=0, max_value=150, value=30)
-# st.write('당신은', age, '살 입니다.')
-
-# # 날짜 선택
-# import datetime
-# today = st.date_input('오늘 날짜를 선택하세요:', datetime.date(2023, 1, 1))
-# st.write('오늘은', today, '입니다.')
-
-# # 그래프 그리기
-
-
-# data = pd.DataFrame({
-#     'x': np.arange(1, 11),
-#     'y': np.random.randn(10)
-# })
-
-# st.line_chart(data.set_index('x'))
-
-# # 데이터 표시
-# st.write('데이터 표:', data)
-
-# # 사진 표시
-# st.image('https://www.streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.png', width=200)
-
-# # 인터랙티브 위젯
-# if st.checkbox('데이터 분석 보기'):
-#     st.write('데이터 분석 결과:')
-#     st.bar_chart(data.set_index('x'))
+def main(): 
+    target="shift.sol"
+    st.set_page_config(page_title="Antibug", layout="wide", page_icon="🐞")
+    audit_report(target)
+        
+        
+if __name__ == "__main__":
+    main()
