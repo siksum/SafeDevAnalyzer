@@ -43,7 +43,7 @@
       "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/shift.sol",
       "detector": "incorrect-return",
       "impact": "High",
-      "confidence": "Medium",
+      "confidence": "High",
       "element": [
         {
           "type": "function",

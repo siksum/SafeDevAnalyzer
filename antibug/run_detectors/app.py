@@ -8,7 +8,8 @@ import subprocess
 import time
 import openai
 import toml
-
+from streamlit.components.v1 import html
+import streamlit.components.v1 as components
 import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
 from antibug.__main__ import compile
@@ -132,27 +133,73 @@ def generate_response(prompt):
 def pie_chart(level, count, color):
     if count == 0:
         return
-    data = {'Vulnerability Level': [level],
-            'Count': [count]}
-    wine_cnt = pd.DataFrame(data)
+    html = f"""
+    <div class="donut" data-percent="{level}"></div>
+    """
+    style = f"""
+    <style>
+    .donut {{
+        width: calc(100% - 16px);
+        padding-bottom: calc(100% - 16px);
+        margin: 0 auto;
+        border-radius: 50%;
+        position: relative;
+        text-align: center;
+        transition: background .3s ease-in-out;
+        background: conic-gradient({color} 0% {count}%, #F2F2F2 {count}% 100%);
+    }}
+    .donut::before {{
+        color: #fff;
+        width: 70%;
+        padding: calc(35% - .64vw) 0;
+        background: #264057;
+        border-radius: 50%;
+        position: absolute;
+        left: 15%;
+        top: 13%;
+        display: block;
+        content: attr(data-percent);
+        transform: skew(-0.03deg);
+        margin: auto;
+        font-size: 1.1vw;
+        font-size: 2vw;
+        padding: calc(35% - 1.3vw) 0;
+    }}
+    .donut {{
+        animation: pie1 0.5s forwards;
+    }}
+    @keyframes pie1{{
+    0%{{background : conic-gradient({color} 0% 0%, #F2F2F2 0% 100%)}}
+    6%{{background : conic-gradient({color} 0% 5%, #F2F2F2 0% 100%)}}
+    12%{{background : conic-gradient({color} 0% 10%, #F2F2F2 0% 100%)}}
+    18%{{background : conic-gradient({color} 0% 15%, #F2F2F2 0% 100%)}}
+    25%{{background : conic-gradient({color} 0% 20%, #F2F2F2 0% 100%)}}
+    33%{{background : conic-gradient({color} 0% 25%, #F2F2F2 0% 100%)}}
+    38%{{background : conic-gradient({color} 0% 30%, #F2F2F2 0% 100%)}}
+    # 44%{{background : conic-gradient({color} 0% 35%, #F2F2F2 0% 100%)}}
+    100%{{background : conic-gradient({color} 0% {count}%, #F2F2F2 0% 100%)}}
+    # 56%{{background : conic-gradient({color} 0% 45%, #F2F2F2 0% 100%)}}
+    # 62%{{background : conic-gradient({color} 0% 50%, #F2F2F2 0% 100%)}}
+    # 68%{{background : conic-gradient({color} 0% 55%, #F2F2F2 0% 100%)}}
+    # 75%{{background : conic-gradient({color} 0% 60%, #F2F2F2 0% 100%)}}
+    # 82%{{background : conic-gradient({color} 0% 65%, #F2F2F2 0% 100%)}}
+    # 88%{{background : conic-gradient({color} 0% 70%, #F2F2F2 0% 100%)}}
+    # 94%{{background : conic-gradient({color} 0% 75%, #F2F2F2 0% 100%)}}
+    # 100%{{background : conic-gradient({color} 0% 80%, #F2F2F2 80% 100%)}}
+    }}
+    </style>
+    """
 
-    fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5, color_discrete_sequence=[color, 'red'])
-    fig.add_annotation(
-        text=level,
-        x=0.5,  
-        y=0.5,
-        showarrow=False,
-        font=dict(size=15),
-        # color="black",
-        # weight="bold"
-    )
-    fig.update_layout(width=300, height=300)
-    st.plotly_chart(fig, use_container_width=True)
+    st.markdown(html, unsafe_allow_html=True)
+    st.markdown(style, unsafe_allow_html=True)
+    
+
+# 위에서 pie_chart 함수 정의
 
 def audit_report(filename):
     st.title('Report for Audit')
 
-    tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
+    tab_titles = ['Contract Analysis', 'Security Analysis', 'Audit Report']
     tab1, tab2, tab3 = st.tabs(tab_titles)
     detector_list=[]
     json_data= get_json_data(filename, "korean")
@@ -169,60 +216,37 @@ def audit_report(filename):
             confidence_count[2] += 1
         elif confidence=="Informational":
             confidence_count[3] += 1
-            
         
     detector_list = list(set(detector_list))
     
     with tab1:
-        st.header('Contract Analaysis')
-
+        st.header('Contract Analysis')
     
     with tab2:
         st.header('Security Analysis')
-        col1, col2, col3, col4, col5 = st.columns([2,1,1,1,1])
-        with col1:
-            data = {'Sum': [3, 5, 9, 7],
-                'Confidence': ['High', 'Medium', 'Low', 'Informational']}
+        col2, col3, col4, col5 = st.columns(4)
+        # with col1:
+        #     data = {'Sum': [3, 5, 9, 7],
+        #         'Confidence': ['High', 'Medium', 'Low', 'Informational']}
 
-            df = pd.DataFrame(data)
+        #     df = pd.DataFrame(data)
 
-            fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
-            fig1.update_layout(width=400, height=400)
+        #     fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
+        #     fig1.update_layout(width=400, height=400)
 
-            st.plotly_chart(fig1)
+        #     st.plotly_chart(fig1)
         with col2:
-            if confidence_count[0] != 0:
-                pie_chart('High', confidence_count[0], '#FF5675')
+            # if confidence_count[0] != 0:
+                pie_chart('High', confidence_count[0]/sum(confidence_count)*100, '#3CA03C')       
         with col3:
-            if confidence_count[1] != 0:
-                pie_chart('Medium', confidence_count[1], '#3CA03C')
+            # if confidence_count[1] != 0:
+                pie_chart('Medium', confidence_count[1]/sum(confidence_count)*100, '#3CA03C')
         with col4:
-            if confidence_count[2] != 0:
-                pie_chart('Low', confidence_count[2], '#FFB400')
+            # if confidence_count[2] != 0:
+                pie_chart('Low', confidence_count[2]/sum(confidence_count)*100, '#3F8BC9')
         with col5:
-            if confidence_count[3] != 0:
-                pie_chart('Informational', confidence_count[3], '#9986EE')
-            # confidence_level =['High', 'Medium', 'Low', 'Informational']
-            # for count, level in zip(confidence_count, confidence_level):
-            #     if count == 0:
-            #         continue
-            #     data = {'Vulnerability Level': [level],
-            #             'Count': [count]}
-            #     wine_cnt = pd.DataFrame(data)
-
-            #     fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5)
-            #     fig.add_annotation(
-            #         text=level,
-            #         x=0.5,  
-            #         y=0.5,
-            #         showarrow=False,
-            #         font=dict(size=20) 
-            #     )
-            #     fig.update_layout(width=300, height=300)
-            #     st.plotly_chart(fig, use_container_width=True)
-
-      
-        
+            # if confidence_count[3] != 0:
+                pie_chart('Informational', confidence_count[3]/sum(confidence_count)*100, '#9986EE')
 
 
     with tab3:
@@ -245,7 +269,7 @@ def audit_report(filename):
             for detector in options:
                 json_data= get_json_data(filename, selected_lang.lower())
                 export_to_markdown(detector, json_data, selected_lang.lower())
-
+  
 def main(): 
     target="shift.sol"
     st.set_page_config(page_title="Antibug", layout="wide", page_icon="🐞")
