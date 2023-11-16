@@ -134,56 +134,61 @@ def audit_report(filename):
 
     tab_titles = ['Contract Analaysis', 'Security Analysis', 'Audit Report']
     tab1, tab2, tab3 = st.tabs(tab_titles)
+    detector_list=[]
+    json_data= get_json_data(filename, "korean")
+    confidence_count = [0, 0, 0, 0]
+    for detector_type, detector_data in json_data.items(): 
+        detector_list.append(detector_data["results"]["detector"])
+        impact = detector_data["results"]["impact"]
+        confidence = detector_data["results"]["confidence"]
+        if confidence=="High":
+            confidence_count[0] += 1
+        elif confidence=="Medium":
+            confidence_count[1] += 1
+        elif confidence=="Low":
+            confidence_count[2] += 1
+        elif confidence=="Informational":
+            confidence_count[3] += 1
+            
+        
+    detector_list = list(set(detector_list))
     
     with tab1:
         st.header('Contract Analaysis')
-        data = {'Sum': [3, 5, 9, 7],
-            'Confidence': ['High', 'Medium', 'Low', 'Informational']}
 
-        df = pd.DataFrame(data)
-
-        fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
-        st.plotly_chart(fig1)
     
     with tab2:
         st.header('Security Analysis')
+        col1, col2 = st.columns([1,4])
+        with col1:
+            data = {'Sum': [3, 5, 9, 7],
+                'Confidence': ['High', 'Medium', 'Low', 'Informational']}
+
+            df = pd.DataFrame(data)
+
+            fig1 = px.pie(df, values='Sum', names='Confidence', title='Detected Bugs')
+            fig1.update_layout(width=400, height=400)
+
+            st.plotly_chart(fig1)
+        with col2:
+            high = {'Vulnerability Level': ['High'],
+                    'Count': [confidence_count[0]]}
+            wine_cnt = pd.DataFrame(high)
+
+            fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5)
+            fig.add_annotation(
+                text="High",
+                x=0.5,  
+                y=0.5,
+                showarrow=False,
+                font=dict(size=20) 
+            )
+            fig1.update_layout(width=400, height=400)
+
+            st.plotly_chart(fig)
+      
         
-        # secrets = toml.load("secrets.toml")
 
-        # st.subheader("🤖 Chat Bot (GPT-3.5)")
-
-        # openai.api_key = secrets["OPENAI_API_KEY"]
-
-        # if "openai_model" not in st.session_state:
-        #     st.session_state["openai_model"] = "gpt-3.5-turbo"
-
-        # if "messages" not in st.session_state:
-        #     st.session_state.messages = []
-
-        # for message in st.session_state.messages:
-        #     with st.chat_message(message["role"]):
-        #         st.markdown(message["content"])
-
-        # if prompt := st.chat_input("What is up?"):
-        #     st.session_state.messages.append({"role": "user", "content": prompt})
-        #     with st.chat_message("user"):
-        #         st.markdown(prompt)
-
-        #     with st.chat_message("assistant"):
-        #         message_placeholder = st.empty()
-        #         full_response = ""
-        #         for response in openai.ChatCompletion.create(
-        #             model=st.session_state["openai_model"],
-        #             messages=[
-        #                 {"role": m["role"], "content": m["content"]}
-        #                 for m in st.session_state.messages
-        #             ],
-        #             stream=True,
-        #         ):
-        #             full_response += response.choices[0].delta.get("content", "")
-        #             message_placeholder.markdown(full_response + "▌")
-        #         message_placeholder.markdown(full_response)
-        #     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
     with tab3:
         st.title('Audit Report')
@@ -191,13 +196,7 @@ def audit_report(filename):
 
         languages = ['English', 'Korean']
         selected_lang = st.selectbox('언어를 선택해주세요', languages)
-        detector_list=[]
-        json_data= get_json_data(filename, selected_lang.lower())
-        
-        for detector_type, detector_data in json_data.items(): 
-            detector_list.append(detector_data["results"]["detector"])
-            
-        detector_list = list(set(detector_list))
+
         st.toast(f'Detect {len(detector_list)} Vulnerability! 🐞')
         time.sleep(1)
         
