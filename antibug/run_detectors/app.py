@@ -147,15 +147,12 @@ def audit_report(filename):
     
     with tab2:
         st.header('Security Analysis')
-        # openai.api_key = st.secrets["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"]
-        # openai.api_key = "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"
         
         # secrets = toml.load("secrets.toml")
 
         # st.subheader("🤖 Chat Bot (GPT-3.5)")
 
         # openai.api_key = secrets["OPENAI_API_KEY"]
-        # # openai.api_key = secrets["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"]
 
         # if "openai_model" not in st.session_state:
         #     st.session_state["openai_model"] = "gpt-3.5-turbo"
