@@ -1,4 +1,1 @@
-def hi():
-    print("hello world")
-    
-hi()
+print("Aaa")

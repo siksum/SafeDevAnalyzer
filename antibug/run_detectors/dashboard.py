@@ -8,6 +8,7 @@ import subprocess
 
 import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
+from antibug.__main__ import compile
 
 def convert_color_to_markdown(level):
     if level == "High":
@@ -152,6 +153,7 @@ def audit_report(filename):
         
         if selected_lang == 'English':
             for detector in options:
+                print(detector)
                 json_data= get_json_data(filename, selected_lang.lower())
                 export_to_markdown(detector, json_data, selected_lang.lower())
         elif selected_lang == 'Korean':
@@ -159,13 +161,16 @@ def audit_report(filename):
                 json_data= get_json_data(filename, selected_lang.lower())
                 export_to_markdown(detector, json_data, selected_lang.lower())
 
-def sidebar():
-    option = st.sidebar.selectbox(
-    'Menu',
-     ('페이지1', '페이지2', '페이지3'))
+def sidebar(target):
+    st.sidebar.title("Antibug")
+    
+    # option = st.sidebar.selectbox(
+    # 'Menu',
+    #  ('Compile & Deploy', 'Security Check', 'Test'))
+    
     
     with st.sidebar:
-        choice = option_menu("Menu", ["페이지1", "페이지2", "페이지3"],
+        choice = option_menu("Menu", ["Compile & Deploy", "Security Check", "Run Testcode"],
                             icons=['house', 'kanban', 'bi bi-robot'],
                             menu_icon="app-indicator", default_index=0,
                             styles={
@@ -175,13 +180,105 @@ def sidebar():
             "nav-link-selected": {"background-color": "#08c7b4"},
         }
         )
-    if choice == "페이지1":
-        st.header("페이지1")
+    
+    if choice == "Compile & Deploy":
+        filename =""
+        st.sidebar.header("Compile & Deploy")
+        st.sidebar.subheader("Compile")
+        uploaded_file=st.sidebar.file_uploader("Upload Solidity File", type="sol")
+        
+        if uploaded_file is not None:
+            filename=uploaded_file.name
+        button=st.sidebar.markdown("""
+            <style>
+            .compile-button {
+            background-color: skyblue;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            }
+            .compile-button:hover {
+            opacity: 0.8;
+            }
+            </style>
+            <button class="compile-button">Compile</button>
+            """, unsafe_allow_html=True)
+        
+        
+        st.sidebar.subheader("Interaction")
+        st.sidebar.selectbox("Chian", ["MainNet"])
+        st.sidebar.selectbox("From Address", ["0xf76ecb39df4a43321721a0add89af2ff57b018f9"])
+        st.sidebar.number_input('Gas Limit', min_value=0, max_value=9000000)
+        st.sidebar.number_input('Value', min_value=0, max_value=9000000)
+        
+        st.sidebar.subheader("Deploy")
+        st.sidebar.selectbox("Contract", ["EtherStore"])
+        
+        button=st.sidebar.markdown("""
+            <style>
+            .deploy-button {
+            background-color: skyblue;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            }
+            .deploy-button:hover {
+            opacity: 0.8;
+            }
+            </style>
+            <button class="deploy-button">Deploy</button>
+            """, unsafe_allow_html=True)
+    
+    elif choice == "Security Check":
+        st.sidebar.header("Security Check")
+        st.sidebar.subheader("Select Detector")
+        st.sidebar.selectbox("Detector", ["Reentrancy", "Integer Overflow/Underflow", "Unprotected Ether Withdrawal", "Unchecked Call Return Value", "Unprotected"])
+        
+        if st.sidebar.button("Analysis", key="analysis"):
+            audit_report(target)
+            
+        button = """
+         <style>
+        [data-testid="baseButton-secondary"] {
+            background-color: skyblue;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%; 
+        }
+        [data-testid="baseButton-secondary"]:active {
+            background-color: pink;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%; 
+        }
+        </style>
+        """
+            
+        st.sidebar.markdown(button, unsafe_allow_html=True)
+
+    elif choice == "Run Testcode":
+        st.header("Run Testcode")
+        st.subheader("Select Testcode")
+        st.selectbox("Testcode", ["페이지1", "페이지2"])
+        
         code = st_ace(
             placeholder="Write code here...",
             language="python",
             theme="github",
-            key="ace-editor"
+            key="ace-editor",
+            show_gutter=False,
         )
         result =code
         if st.button("Run Code"):
@@ -202,11 +299,13 @@ def sidebar():
             if stderr:
                 st.subheader("Error:")
                 st.code(stderr, language="python")
+       
     
 def main(): 
     target="shift.sol"
-    sidebar()
-    audit_report(target)
+    st.set_page_config(page_title="Antibug", layout="wide", page_icon="🐞")
+    
+    sidebar(target)
         
         
 if __name__ == "__main__":

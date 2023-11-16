@@ -57,7 +57,7 @@ def write_to_json(output_dir_path, combined_json, language, target: Optional[str
 
 
 def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
-    output_dir_path = output_dir("compile_json_results", "json")
+    output_dir_path = output_dir("compile_json_results")
     
     for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
         combined_data = {}

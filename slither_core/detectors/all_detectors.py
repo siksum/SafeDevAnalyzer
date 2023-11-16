@@ -3,11 +3,11 @@ from .assembly.incorrect_shift import IncorrectShift
 from .assembly.incorrect_return import IncorrectReturn
 from .assembly.incorrect_assembly import IncorrectAssembly
 
-from .attributes.constant_pragma import ConstantPragma
-from .attributes.incorrect_solc import IncorrectSolc
+# from .attributes.constant_pragma import ConstantPragma
+# from .attributes.incorrect_solc import IncorrectSolc
 from .attributes.locked_ether import LockedEther
-from .attributes.const_functions_asm import ConstantFunctionsAsm
-from .attributes.const_functions_state import ConstantFunctionsState
+# from .attributes.const_functions_asm import ConstantFunctionsAsm
+# from .attributes.const_functions_state import ConstantFunctionsState
 from .attributes.unimplemented_interface import MissingInheritance
 
 from .examples.backdoor import Backdoor

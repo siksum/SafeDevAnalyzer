@@ -106,6 +106,11 @@ def main():
         print("Error: Invalid command.")
         return
 
+def compile(filename):
+    analyzer = SafeDevAnalyzer(filename)
+    abi_list, bytecode_list = analyzer.to_compile()
+    convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
+
 
 if __name__ == '__main__':
     main()
