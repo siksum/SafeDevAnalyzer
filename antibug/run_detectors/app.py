@@ -129,6 +129,26 @@ def generate_response(prompt):
     message = completions["choices"][0]["text"].replace("\n", "")
     return message
 
+def pie_chart(level, count, color):
+    if count == 0:
+        return
+    data = {'Vulnerability Level': [level],
+            'Count': [count]}
+    wine_cnt = pd.DataFrame(data)
+
+    fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5, color_discrete_sequence=[color, 'red'])
+    fig.add_annotation(
+        text=level,
+        x=0.5,  
+        y=0.5,
+        showarrow=False,
+        font=dict(size=15),
+        # color="black",
+        # weight="bold"
+    )
+    fig.update_layout(width=300, height=300)
+    st.plotly_chart(fig, use_container_width=True)
+
 def audit_report(filename):
     st.title('Report for Audit')
 
@@ -159,7 +179,7 @@ def audit_report(filename):
     
     with tab2:
         st.header('Security Analysis')
-        col1, col2 = st.columns([1,4])
+        col1, col2, col3, col4, col5 = st.columns([2,1,1,1,1])
         with col1:
             data = {'Sum': [3, 5, 9, 7],
                 'Confidence': ['High', 'Medium', 'Low', 'Informational']}
@@ -171,21 +191,36 @@ def audit_report(filename):
 
             st.plotly_chart(fig1)
         with col2:
-            high = {'Vulnerability Level': ['High'],
-                    'Count': [confidence_count[0]]}
-            wine_cnt = pd.DataFrame(high)
+            if confidence_count[0] != 0:
+                pie_chart('High', confidence_count[0], '#FF5675')
+        with col3:
+            if confidence_count[1] != 0:
+                pie_chart('Medium', confidence_count[1], '#3CA03C')
+        with col4:
+            if confidence_count[2] != 0:
+                pie_chart('Low', confidence_count[2], '#FFB400')
+        with col5:
+            if confidence_count[3] != 0:
+                pie_chart('Informational', confidence_count[3], '#9986EE')
+            # confidence_level =['High', 'Medium', 'Low', 'Informational']
+            # for count, level in zip(confidence_count, confidence_level):
+            #     if count == 0:
+            #         continue
+            #     data = {'Vulnerability Level': [level],
+            #             'Count': [count]}
+            #     wine_cnt = pd.DataFrame(data)
 
-            fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5)
-            fig.add_annotation(
-                text="High",
-                x=0.5,  
-                y=0.5,
-                showarrow=False,
-                font=dict(size=20) 
-            )
-            fig1.update_layout(width=400, height=400)
+            #     fig = px.pie(wine_cnt, values='Count', names='Vulnerability Level', hole=0.5)
+            #     fig.add_annotation(
+            #         text=level,
+            #         x=0.5,  
+            #         y=0.5,
+            #         showarrow=False,
+            #         font=dict(size=20) 
+            #     )
+            #     fig.update_layout(width=300, height=300)
+            #     st.plotly_chart(fig, use_container_width=True)
 
-            st.plotly_chart(fig)
       
         
 
