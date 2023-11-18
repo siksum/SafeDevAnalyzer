@@ -58,6 +58,13 @@ def write_to_json(output_dir_path, combined_json, language, filename: Optional[s
             f.write(combined_json)
     except Exception as e:
         print(f"Failed to write to {output_path}. Reason: {e}")
+        
+        
+def read_to_json(json_path):
+    with open(json_path, "r") as file:
+        json_str = file.read()
+        json_data = json.loads(json_str)
+    return json_data
 
 
 def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnalyzer):
@@ -74,6 +81,10 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
             result_json = json.dumps(combined_data, indent=2)
             write_to_json(output_dir_path, result_json, language, filename)
     print_output_dir(output_dir_path, "compile")
+
+
+# def parse_to_json(result_list, filename, error) -> None:
+
 
 
 def convert_to_detect_result_json(result_list, filename, error) -> None:

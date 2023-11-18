@@ -90,7 +90,6 @@ def export_to_markdown(filename):
     }}
 </style>\n\n               
 """
-        
         for detector_type, detector_data in json_data.items(): 
             detector = detector_data["results"]["detector"]
             impact = convert_color_to_markdown(detector_data["results"]["impact"])

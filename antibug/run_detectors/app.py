@@ -1,19 +1,13 @@
 import json
 import os
 import streamlit as st
-from streamlit_option_menu import option_menu
-from streamlit_ace import st_ace
-import plotly.express as px
-import subprocess
 import time
 import openai
-import toml
-from streamlit.components.v1 import html
-import streamlit.components.v1 as components
 import pandas as pd
 from antibug.utils.convert_to_json import get_root_dir
-from antibug.__main__ import compile
-from streamlit_chat import message
+from PIL import Image
+from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
+from antibug.utils.convert_to_json import get_output_path, read_to_json
 
 def export_to_markdown(detector_option, json_data, language):
     for detector_type, detector_data in json_data.items(): 
@@ -105,16 +99,16 @@ def export_to_markdown(detector_option, json_data, language):
         else:
             continue
 
-def get_json_data(filename, language):
-    if language == "korean":
-        json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_kr.json")
-    elif language == "english":
-        json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_en.json")
+# def get_json_data(filename, language):
+#     if language == "korean":
+#         json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_kr.json")
+#     elif language == "english":
+#         json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_en.json")
         
-    with open(json_path, "r") as file:
-        json_str = file.read()
-        json_data = json.loads(json_str)
-    return json_data
+#     with open(json_path, "r") as file:
+#         json_str = file.read()
+#         json_data = json.loads(json_str)
+#     return json_data
 
 def generate_response(prompt):
     print(openai.__version__)
@@ -192,9 +186,16 @@ def pie_chart(level, count, color):
 
     st.markdown(html, unsafe_allow_html=True)
     st.markdown(style, unsafe_allow_html=True)
-    
 
-# 위에서 pie_chart 함수 정의
+def func_summary():
+    instance = SafeDevAnalyzer('reentrancy.sol')
+    (name, inheritance, var, func_summaries, modif_summaries) ="", "", "", "", ""
+    for compilation_unit in instance.compilation_units.values():
+        print(compilation_unit.contracts)
+        for contract in compilation_unit.contracts:
+            (name, inheritance, var, func_summaries, modif_summaries) = contract.get_summary()
+    
+    return (name, inheritance, var, func_summaries, modif_summaries)
 
 def audit_report(filename):
     st.title('Report for Audit')
@@ -202,28 +203,45 @@ def audit_report(filename):
     tab_titles = ['Contract Analysis', 'Security Analysis', 'Audit Report']
     tab1, tab2, tab3 = st.tabs(tab_titles)
     detector_list=[]
-    json_data= get_json_data(filename, "korean")
+    json_path= get_output_path(filename, "korean")
+    json_data= read_to_json(json_path)
     confidence_count = [0, 0, 0, 0]
     for detector_type, detector_data in json_data.items(): 
         detector_list.append(detector_data["results"]["detector"])
         impact = detector_data["results"]["impact"]
         confidence = detector_data["results"]["confidence"]
-        if confidence=="High":
-            confidence_count[0] += 1
-        elif confidence=="Medium":
-            confidence_count[1] += 1
-        elif confidence=="Low":
-            confidence_count[2] += 1
-        elif confidence=="Informational":
-            confidence_count[3] += 1
+    #     if confidence=="High":
+    #         confidence_count[0] += 1
+    #     elif confidence=="Medium":
+    #         confidence_count[1] += 1
+    #     elif confidence=="Low":
+    #         confidence_count[2] += 1
+    #     elif confidence=="Informational":
+    #         confidence_count[3] += 1
         
-    detector_list = list(set(detector_list))
+    # detector_list = list(set(detector_list))
     
     with tab1:
         st.header('Contract Analysis')
+        st.subheader('Call Graph')
+        image = Image.open('call-graph.png')
+        st.image(image, caption='Sunrise by the mountains', use_column_width=True)
+        
+        st.subheader('Function Summary')
+        name, inheritance, var, func_summaries, modif_summaries=func_summary()
     
+        data = {
+            'Contract': [name],
+            'Inheritance': [inheritance],
+            'Variable': [var],
+            'Function': [func_summaries],
+            'Modifier': [modif_summaries]
+        }
+        function_summary = pd.DataFrame(data)
+        st.dataframe(function_summary)
     with tab2:
         st.header('Security Analysis')
+        
         col2, col3, col4, col5 = st.columns(4)
         # with col1:
         #     data = {'Sum': [3, 5, 9, 7],

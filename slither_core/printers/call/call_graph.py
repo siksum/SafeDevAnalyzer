@@ -236,7 +236,7 @@ class PrinterCallGraph(AbstractPrinter):
                 filename = ""
             else:
                 filename += "."
-            all_contracts_filename = f"{filename}all_contracts.call-graph.dot"
+            all_contracts_filename = f"all_contracts.call-graph.dot"
 
         if filename == ".dot":
             all_contracts_filename = "all_contracts.dot"
@@ -263,7 +263,7 @@ class PrinterCallGraph(AbstractPrinter):
             results.append((all_contracts_filename, content))
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = f"{filename}{derived_contract.name}.call-graph.dot"
+            derived_output_filename = f"call-graph.dot"
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(

@@ -1,0 +1,16 @@
+strict digraph {
+subgraph cluster_69_EtherStore {
+label = "EtherStore"
+"69_withdraw" [label="withdraw"]
+"69_deposit" [label="deposit"]
+"69_getBalance" [label="getBalance"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool)" 
+"balance(address)" 
+"require(bool,string)" 
+"69_getBalance" -> "balance(address)"
+"69_withdraw" -> "require(bool,string)"
+"69_withdraw" -> "require(bool)"
+}
+}
