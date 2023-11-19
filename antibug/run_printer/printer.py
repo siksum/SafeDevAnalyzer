@@ -42,40 +42,53 @@ from slither_core.utils.function import get_function_id
         
 
 def contract_analysis(safe_dev_analyzer: "SafeDevAnalyzer"):
-    combined_data = {}
+    results= []
     for compilation_unit in safe_dev_analyzer.compilation_units.values():
         for contract in compilation_unit.contracts:
-            (name, inheritance, var, func_summaries, modif_summaries) = contract.get_summary()
-            print(name)
-            combined_data[name] = { 
-                "Inheritance": inheritance,
-                "Variable": var,
-                "Function Summary": func_summaries,
-                "Modifier Summary": modif_summaries
-            }
-            print(combined_data)
-            print()
+            combined_data={}
+            (name, inheritance, _, func_summaries, _) = contract.get_summary()
+                
+            combined_data["Contract Name"]=name
+            combined_data["Inheritance"]=inheritance
+            combined_data["State Variables"]={}
+            combined_data["State Variables"]["Name"]=[x.name for x in contract.state_variables]
+            combined_data["Function Summaries"]={}
             
+            for function_summary in func_summaries:
+                function_name= function_summary[1]
+                function_visibility = function_summary[2]
+                if function_visibility in ["public", "external"]:
+                    function_id = get_function_id(function_name)
+                function_modifier = function_summary[3]
+                function_internal_calls = function_summary[6]
+                function_external_calls = function_summary[7]
+                combined_data["Function Summaries"][function_name]={
+                    "Name": function_name,
+                    "Signature": f"{function_id:#0{10}x}",
+                    "Visibility": function_visibility,
+                    "Modifiers": function_modifier,
+                    "Internal Calls": function_internal_calls,
+                    "External Calls": function_external_calls
+                }
+                
             for function, state_variable in zip(contract.functions, contract.state_variables_ordered):
                 if function.is_shadowed or function.is_constructor_variables:
                     continue
-                if function.visibility in ["public", "external"]:
-                    function_id = get_function_id(function.solidity_signature)
-                    # combined_data[contract]["Function ID"] = f"{function_id:#0{10}x}"
                 if not state_variable.is_constant and not state_variable.is_immutable:
                     slot, offset = contract.compilation_unit.storage_layout_of(contract, state_variable)
-                    # combined_data[contract]["Slot"] = slot
-                    # combined_data[contract]["Offset"] = offset
-                    print(state_variable.canonical_name, str(state_variable.type), slot, offset)
+                    combined_data["State Variables"]["Slot"] = slot
+                    combined_data["State Variables"]["Offset"] = offset
+        
             for variable in contract.state_variables:
                 if variable.visibility in ["public"]:
                     sig = variable.solidity_signature
                     function_id = get_function_id(sig)
-                    # combined_data[contract]["Function ID"] = f"{function_id:#0{10}x}"
-                    # combined_data[contract]["Signature"] = sig
+                    combined_data["State Variables"]["Name"] = sig
+                    combined_data["State Variables"]["Signature"] = f"{function_id:#0{10}x}"
 
+            results.append(combined_data)
             
-    return combined_data
+    return results
         
         
 

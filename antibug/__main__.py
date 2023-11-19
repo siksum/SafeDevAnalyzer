@@ -3,7 +3,7 @@ import sys
 import argparse
 import subprocess
 
-from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files
+from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files, convert_to_contract_analysis_info_json
 from antibug.utils.audit_report import export_to_markdown
 from antibug.run_detectors.detectors import RunDetector
 
@@ -94,7 +94,7 @@ def main():
         
     elif args.command == 'analysis':
         combined_data = contract_analysis(analyzer)
-        print(combined_data)
+        convert_to_contract_analysis_info_json(combined_data, analyzer)
         
     elif args.command == 'remove':
         remove_all_json_files()

@@ -32,6 +32,8 @@ def print_output_dir(output_dir_path, language_type):
         print(f"Audit Report Output directory: {output_dir_path}")
     elif language_type == "compile":
         print(f"Compile Info Output directory: {output_dir_path}")
+    elif language_type == "analysis":
+        print(f"Contract Analysis Info Output directory: {output_dir_path}")
 
 def get_output_path(target, output_dir_path, language, language_type):
     filename=os.path.basename(target)[:-4]
@@ -50,6 +52,7 @@ def get_output_path(target, output_dir_path, language, language_type):
     return output_path
 
 def write_to_json(output_dir_path, combined_json, language, filename: Optional[str] = None):
+    
     if filename is not None:      
         output_path= get_output_path(filename, output_dir_path, language, "json")
 
@@ -154,20 +157,14 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
     print_output_dir(output_dir_path, "json")
 
 
-def convert_to_contract_analysis_info_json(name, inheritance, var, func_summaries, modif_summaries, function_id, slot, offset, sig):
+def convert_to_contract_analysis_info_json(combined_json_list, safe_dev_analyzer:"SafeDevAnalyzer"):
     output_dir_path = output_dir("contract_analysis_json_results")
-    combined_data = {}
-    combined_data['name'] = name
-    combined_data['inheritance'] = inheritance
-    combined_data['var'] = var
-    combined_data['func_summaries'] = func_summaries
-    combined_data['modif_summaries'] = modif_summaries
-    combined_data['function_id'] = function_id
-    combined_data['slot'] = slot
-    combined_data['offset'] = offset
-    combined_data['sig'] = sig
-    combined_json = json.dumps(combined_data, indent=2)
-    write_to_json(output_dir_path, combined_json, "analysis")
+    json_result = {}
+    for combined_data in combined_json_list:
+        json_result[combined_data["Contract Name"]] = combined_data    
+        combined_json = json.dumps(json_result, indent=2)
+        # combined_json += "\n"
+        write_to_json(output_dir_path, combined_json, "analysis", safe_dev_analyzer.file_basename)
     print_output_dir(output_dir_path, "json")
 
 

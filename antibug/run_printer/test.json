@@ -1,7 +1,33 @@
-
-{"Bar": 
-    {"Inheritance": [], 
-    "Variable": [], 
-    "Function Summary": [("Bar", "blockingFunction()", "public", [], [], [], ["return(uint256,uint256)"], [], 1), ("Bar", "f()", "internal", [], [], [], [], [], 1)], 
-    "Modifier Summary": []}, 
-    "Foo": {"Inheritance": ["Bar"], "Variable": [], "Function Summary": [("Bar", "blockingFunction()", "public", [], [], [], ["return(uint256,uint256)"], [], 1), ("Bar", "f()", "internal", [], [], [], [], [], 1), ("Foo", "foo()", "public", [], [], [], ["blockingFunction", "require(bool,string)"], [], 1)], "Modifier Summary": []}}
+{
+  "Contract Name": "EtherStore",
+  "Inheritance": [],
+  "State Variables": {
+    "Name": "balances(address)",
+    "Slot": 0,
+    "Offset": 0,
+    "Signature": "0x27e235e3"
+  },
+  "Function Summaries": {
+    "deposit()": {
+      "Signature": "0xd0e30db0",
+      "Visibility": "public",
+      "Modifiers": [],
+      "Internal Calls": [],
+      "External Calls": []
+    },
+    "withdraw()": {
+      "Signature": "0x3ccfd60b",
+      "Visibility": "public",
+      "Modifiers": [],
+      "Internal Calls": ["require(bool,string)", "require(bool)"],
+      "External Calls": ["msg.sender.call{value: bal}()"]
+    },
+    "getBalance()": {
+      "Signature": "0x12065fe0",
+      "Visibility": "public",
+      "Modifiers": [],
+      "Internal Calls": ["balance(address)"],
+      "External Calls": []
+    }
+  }
+}
