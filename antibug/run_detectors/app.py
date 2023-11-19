@@ -99,17 +99,6 @@ def export_to_markdown(detector_option, json_data, language):
         else:
             continue
 
-# def get_json_data(filename, language):
-#     if language == "korean":
-#         json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_kr.json")
-#     elif language == "english":
-#         json_path = os.path.join(get_root_dir(), "antibug/run_detectors", os.path.basename(filename)[:-4]+f"_en.json")
-        
-#     with open(json_path, "r") as file:
-#         json_str = file.read()
-#         json_data = json.loads(json_str)
-#     return json_data
-
 def generate_response(prompt):
     print(openai.__version__)
     completions = openai.Completion.create (

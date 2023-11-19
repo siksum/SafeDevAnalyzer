@@ -9,8 +9,10 @@ from antibug.run_detectors.detectors import RunDetector
 
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
-from antibug.security_analysis_report.audit_report import main as audit_report
+from antibug.security_analysis_report.app import main as audit_report
 
+
+from streamlit.web.cli import main_run
 
 def parse_arguments():
     usage = 'antibug target [<args>]\n\n'
@@ -34,19 +36,6 @@ def parse_arguments():
     
     remove_parser = subparsers.add_parser('remove')
     
-    # blacklist_parser = detect_subparser.add_parser('blacklist')
-    # blacklist_parser.add_argument("model", help="model.bin")
-    # blacklist_parser.add_argument("filename", action="store", help="contract.sol")
-    # blacklist_parser.add_argument("fname", action="store", help="Target function")
-    # blacklist_parser.add_argument("input", action="store", help="File or directory used as input")
-    # blacklist_parser.add_argument(
-    #     "--ntop",
-    #     action="store",
-    #     type=int,
-    #     default=10,
-    #     help="Number of more similar contracts to show for testing",
-    # )
-
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
         'compile', help='antibug compiler, defaults to all')
@@ -90,8 +79,8 @@ def main():
             ret= convert_to_detect_result_json(result_list, filename, error)
             if ret != 0:
                 export_to_markdown(args.target)
-            audit_report()
-            # subprocess.call(["streamlit", "run", "antibug/security_analysis_report/audit_report.py"])
+            # audit_report()
+
             # if args.export == 'markdown':
             #     print("a")
             #     export_to_markdown(args.target)
