@@ -27,7 +27,6 @@ class SafeDevAnalyzer():
             elif os.path.isfile(self.file_path):
                 if self.file_path.endswith('.sol'):
                     self.file_list.append(self.file_path)
-                    print(self.solc_parse)
                     if self.solc_parse is None:
                         self.solc_parse = SolcParser(self.file_list[0])
                     self.solc_parse.run_parser()                    

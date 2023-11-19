@@ -152,7 +152,25 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
             combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
             write_to_json(output_dir_path, combined_json, language, filename)
     print_output_dir(output_dir_path, "json")
-        
+
+
+def convert_to_contract_analysis_info_json(name, inheritance, var, func_summaries, modif_summaries, function_id, slot, offset, sig):
+    output_dir_path = output_dir("contract_analysis_json_results")
+    combined_data = {}
+    combined_data['name'] = name
+    combined_data['inheritance'] = inheritance
+    combined_data['var'] = var
+    combined_data['func_summaries'] = func_summaries
+    combined_data['modif_summaries'] = modif_summaries
+    combined_data['function_id'] = function_id
+    combined_data['slot'] = slot
+    combined_data['offset'] = offset
+    combined_data['sig'] = sig
+    combined_json = json.dumps(combined_data, indent=2)
+    write_to_json(output_dir_path, combined_json, "analysis")
+    print_output_dir(output_dir_path, "json")
+
+
 
 def remove_all_json_files():
     output_dir = os.path.join(get_root_dir(), f"result")

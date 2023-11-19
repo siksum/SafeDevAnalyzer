@@ -1,0 +1,7 @@
+
+{"Bar": 
+    {"Inheritance": [], 
+    "Variable": [], 
+    "Function Summary": [("Bar", "blockingFunction()", "public", [], [], [], ["return(uint256,uint256)"], [], 1), ("Bar", "f()", "internal", [], [], [], [], [], 1)], 
+    "Modifier Summary": []}, 
+    "Foo": {"Inheritance": ["Bar"], "Variable": [], "Function Summary": [("Bar", "blockingFunction()", "public", [], [], [], ["return(uint256,uint256)"], [], 1), ("Bar", "f()", "internal", [], [], [], [], [], 1), ("Foo", "foo()", "public", [], [], [], ["blockingFunction", "require(bool,string)"], [], 1)], "Modifier Summary": []}}

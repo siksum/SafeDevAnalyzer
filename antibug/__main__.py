@@ -10,7 +10,7 @@ from antibug.run_detectors.detectors import RunDetector
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
 from antibug.security_analysis_report.app import main as audit_report
-# from antibug.run_printer.printer import ContractAnalysis, RunPrinter
+from antibug.run_printer.printer import contract_analysis
 
 
 from streamlit.web.cli import main_run
@@ -37,6 +37,7 @@ def parse_arguments():
     
     remove_parser = subparsers.add_parser('remove')
     analysis_parser = subparsers.add_parser('analysis')
+    analysis_parser.add_argument('target', help='Path to the rule file')
     
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
@@ -83,11 +84,6 @@ def main():
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:
                 export_to_markdown(args.target)
-            # audit_report()
-
-            # if args.export == 'markdown':
-            #     print("a")
-            #     export_to_markdown(args.target)
                 
         except Exception as e:
             print(str(e)) 
@@ -96,8 +92,10 @@ def main():
         abi_list, bytecode_list = analyzer.to_compile()
         convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
         
-    # elif args.command == 'analysis':
-    #     ContractAnalysis(analyzer)
+    elif args.command == 'analysis':
+        combined_data = contract_analysis(analyzer)
+        print(combined_data)
+        
     elif args.command == 'remove':
         remove_all_json_files()
         

@@ -1,3 +1,5 @@
+
+
 """
     Module printing summary of the contract
 """
