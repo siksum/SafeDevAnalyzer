@@ -66,11 +66,10 @@ class RunDetector():
                 else:
                     print(f'Error: {self.selected_detectors} is not available')
                     return
-                
-                if all(not sublst for sublst in results):
+                if all(not sublst for sublst in results if results is not None):
                     self.output_error.append("No detection results")
                     compilation_units_detect_results.append(None)
-                    return compilation_units_detect_results, self.file_list, self.output_error, 
+                    return compilation_units_detect_results, self.safe_dev_analyzer.file_list, self.output_error, 
                 result=self.detect_result(results)
                 self.output_error.append(None)    
                 

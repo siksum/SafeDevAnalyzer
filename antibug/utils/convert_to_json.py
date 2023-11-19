@@ -10,9 +10,9 @@ def get_root_dir():
     current_path = os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
     return current_path
 
+
 def output_dir(filename):
     output_dir = os.path.join(get_root_dir(), f"result/{filename}")
-
     files = glob.glob(os.path.join(output_dir, "*"))
     for f in files:
         try:
@@ -22,8 +22,8 @@ def output_dir(filename):
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-
     return output_dir
+
 
 def print_output_dir(output_dir_path, language_type):
     if language_type == "json":
@@ -34,6 +34,7 @@ def print_output_dir(output_dir_path, language_type):
         print(f"Compile Info Output directory: {output_dir_path}")
     elif language_type == "analysis":
         print(f"Contract Analysis Info Output directory: {output_dir_path}")
+
 
 def get_output_path(target, output_dir_path, language, language_type):
     filename=os.path.basename(target)[:-4]
@@ -51,11 +52,10 @@ def get_output_path(target, output_dir_path, language, language_type):
         output_path = os.path.join(output_dir_path, f"{filename}.json")
     return output_path
 
+
 def write_to_json(output_dir_path, combined_json, language, filename: Optional[str] = None):
-    
     if filename is not None:      
         output_path= get_output_path(filename, output_dir_path, language, "json")
-
     try:
         with open(output_path, "w") as f:
             f.write(combined_json)
@@ -74,7 +74,7 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
     output_dir_path = output_dir("compile_json_results")
     language = "compile"
     
-    for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.target_list):
+    for abi, bytecode, filename in zip(abi_list, bytecode_list, analyzer.file_list):
         combined_data = {}
         for (contract, abi_data), bytecode_data in zip(abi.items(), bytecode.values()):
             combined_data[contract] = {
@@ -84,10 +84,6 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
             result_json = json.dumps(combined_data, indent=2)
             write_to_json(output_dir_path, result_json, language, filename)
     print_output_dir(output_dir_path, "compile")
-
-
-# def parse_to_json(result_list, filename, error) -> None:
-
 
 
 def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyzer:"SafeDevAnalyzer") -> None:
@@ -149,7 +145,6 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
                     del combined_data["recommendation_korean"]
                 combined_data_list.append(combined_data)
         
-        # print(combined_data_list)
         for combined_data in combined_data_list:
             json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
             combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
@@ -163,10 +158,8 @@ def convert_to_contract_analysis_info_json(combined_json_list, safe_dev_analyzer
     for combined_data in combined_json_list:
         json_result[combined_data["Contract Name"]] = combined_data    
         combined_json = json.dumps(json_result, indent=2)
-        # combined_json += "\n"
         write_to_json(output_dir_path, combined_json, "analysis", safe_dev_analyzer.file_basename)
     print_output_dir(output_dir_path, "json")
-
 
 
 def remove_all_json_files():

@@ -3,8 +3,8 @@ import time
 import pandas as pd
 from PIL import Image
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
-from antibug.security_analysis_report.utils import get_json_data, parse_json_data_overview
-from antibug.security_analysis_report.utils import parse_json_data_details
+from antibug.run_security_report.utils import get_json_data, parse_json_data_overview
+from antibug.run_security_report.utils import parse_json_data_details
 
 
 

@@ -2,7 +2,7 @@ import os
 import glob
 import json
 from antibug.utils.convert_to_json import get_root_dir
-from antibug.security_analysis_report.write_page import write_audit_report
+from antibug.run_security_report.write_page import write_audit_report
 
 
 

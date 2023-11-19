@@ -9,7 +9,7 @@ from antibug.run_detectors.detectors import RunDetector
 
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
-from antibug.security_analysis_report.app import main as audit_report
+from antibug.run_security_report.app import main as audit_report
 from antibug.run_printer.printer import contract_analysis
 
 
@@ -36,8 +36,6 @@ def parse_arguments():
     detect_parser.add_argument('target', help='Path to the rule file')
     
     remove_parser = subparsers.add_parser('remove')
-    analysis_parser = subparsers.add_parser('analysis')
-    analysis_parser.add_argument('target', help='Path to the rule file')
     
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
@@ -77,25 +75,21 @@ def main():
     args = parse_arguments()
     analyzer = SafeDevAnalyzer(args.target)
     
-
-    if args.command == 'detect':
+    if args.command == 'compile':
+        abi_list, bytecode_list = analyzer.to_compile()
+        convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
+        
+    elif args.command == 'detect':
         try:
+            combined_data = contract_analysis(analyzer)
+            convert_to_contract_analysis_info_json(combined_data, analyzer)
             result_list, filename, error = detect_vuln_action(analyzer, args.detector)
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:
                 export_to_markdown(args.target)
-                
         except Exception as e:
             print(str(e)) 
-            
-    elif args.command == 'compile':
-        abi_list, bytecode_list = analyzer.to_compile()
-        convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
-        
-    elif args.command == 'analysis':
-        combined_data = contract_analysis(analyzer)
-        convert_to_contract_analysis_info_json(combined_data, analyzer)
-        
+
     elif args.command == 'remove':
         remove_all_json_files()
         
