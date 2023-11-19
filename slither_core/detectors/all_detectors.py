@@ -3,9 +3,24 @@ from .assembly.incorrect_shift import IncorrectShift
 from .assembly.incorrect_return import IncorrectReturn
 from .assembly.incorrect_assembly import IncorrectAssembly
 
+from .calculation.incorrect_strict_equality import IncorrectStrictEquality
+from .calculation.divide_before_multiply import DivideBeforeMultiply
+from .calculation.incorrect_exp import IncorrectOperatorExponentiation
+from .calculation.write_after_write import WriteAfterWrite
+from .calculation.msg_value_in_loop import MsgValueInLoop
+
+from .delegatecall.controlled_delegatecall import ControlledDelegateCall
+from .delegatecall.delegatecall_in_loop import DelegatecallInLoop
+# from .delegatecall.unchecked_low_level_return_values import UncheckedLowLevel
+
+from .randomness.block_timestamp import Timestamp
+from .randomness.bad_prng import BadPRNG
+
+
+
 # from .attributes.constant_pragma import ConstantPragma
 # from .attributes.incorrect_solc import IncorrectSolc
-from .attributes.locked_ether import LockedEther
+# from .attributes.locked_ether import LockedEther
 # from .attributes.const_functions_asm import ConstantFunctionsAsm
 # from .attributes.const_functions_state import ConstantFunctionsState
 from .attributes.unimplemented_interface import MissingInheritance
@@ -23,7 +38,7 @@ from .variables.function_init_state_variables import FunctionInitializedState
 from .variables.predeclaration_usage_local import PredeclarationUsageLocal
 
 from .functions.arbitrary_send_eth import ArbitrarySendEth
-from .functions.suicidal import Suicidal
+from .suicide.suicidal import Suicidal
 from .functions.external_function import ExternalFunction
 from .functions.unimplemented import UnimplementedFunctionDetection
 from .functions.modifier import ModifierDefaultDetection
@@ -46,26 +61,26 @@ from .reentrancy.reentrancy_eth import ReentrancyEth
 from .reentrancy.reentrancy_no_gas import ReentrancyNoGas
 from .reentrancy.reentrancy_events import ReentrancyEvent
 
-from .statements.tx_origin import TxOrigin
+from .ownership.tx_origin import TxOrigin
 from .statements.calls_in_loop import MultipleCallsInLoop
-from .statements.incorrect_strict_equality import IncorrectStrictEquality
-from .statements.deprecated_calls import DeprecatedStandards
+from .calculation.incorrect_strict_equality import IncorrectStrictEquality
+from .suicide.deprecated_calls import DeprecatedStandards
 from .statements.too_many_digits import TooManyDigits
 from .statements.type_based_tautology import TypeBasedTautology
 from .statements.boolean_constant_equality import BooleanEquality
 from .statements.boolean_constant_misuse import BooleanConstantMisuse
-from .statements.divide_before_multiply import DivideBeforeMultiply
-from .statements.unprotected_upgradeable import UnprotectedUpgradeable
+from .calculation.divide_before_multiply import DivideBeforeMultiply
+from .suicide.unprotected_upgradeable import UnprotectedUpgradeable
 from .statements.mapping_deletion import MappingDeletionDetection
 from .statements.array_length_assignment import ArrayLengthAssignment
 from .statements.redundant_statements import RedundantStatements
 from .statements.costly_operations_in_loop import CostlyOperationsInLoop
 from .statements.assert_state_change import AssertStateChange
-from .statements.controlled_delegatecall import ControlledDelegateCall
+from .delegatecall.controlled_delegatecall import ControlledDelegateCall
 from .statements.unary import IncorrectUnaryExpressionDetection
-from .statements.write_after_write import WriteAfterWrite
-from .statements.msg_value_in_loop import MsgValueInLoop
-from .statements.delegatecall_in_loop import DelegatecallInLoop
+from .calculation.write_after_write import WriteAfterWrite
+from .calculation.msg_value_in_loop import MsgValueInLoop
+from .delegatecall.delegatecall_in_loop import DelegatecallInLoop
 from .statements.incorrect_using_for import IncorrectUsingFor
 from .statements.tautological_compare import TautologicalCompare
 from .statements.return_bomb import ReturnBomb
@@ -73,16 +88,14 @@ from .statements.return_bomb import ReturnBomb
 from .operations.low_level_calls import LowLevelCalls
 from .operations.unused_return_values import UnusedReturnValues
 from .operations.unchecked_transfer import UncheckedTransfer
-from .operations.block_timestamp import Timestamp
 from .operations.unchecked_low_level_return_values import UncheckedLowLevel
 from .operations.unchecked_send_return_value import UncheckedSend
 from .operations.void_constructor import VoidConstructor
-from .operations.bad_prng import BadPRNG
 from .operations.missing_events_access_control import MissingEventsAccessControl
 from .operations.missing_events_arithmetic import MissingEventsArithmetic
-from .operations.missing_zero_address_validation import MissingZeroAddressValidation
+from .ownership.missing_zero_address_validation import MissingZeroAddressValidation
 from .operations.encode_packed import EncodePackedCollision
-from .operations.incorrect_exp import IncorrectOperatorExponentiation
+from .calculation.incorrect_exp import IncorrectOperatorExponentiation
 from .operations.cache_array_length import CacheArrayLength
 
 from .compiler_bugs.storage_signed_integer_array import StorageSignedIntegerArray

@@ -41,6 +41,12 @@ class RunPrinter(SafeDevAnalyzer):
         graph.render(filename=dot[:-4], format='png', cleanup=True)
         
 
+class ContractAnalysis:
+    def __init__(self, compilation_units :"SafeDevAnalyzer"):
+        self.compilation_units = compilation_units
+        self.contract_list = self.get_contract_list()
+        
+
 instance = RunPrinter("reentrancy.sol")
 instance.choose_printer('call-graph')
 instance.register_and_run_printers()

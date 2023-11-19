@@ -10,6 +10,7 @@ from antibug.run_detectors.detectors import RunDetector
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
 from antibug.security_analysis_report.app import main as audit_report
+# from antibug.run_printer.printer import ContractAnalysis, RunPrinter
 
 
 from streamlit.web.cli import main_run
@@ -35,6 +36,7 @@ def parse_arguments():
     detect_parser.add_argument('target', help='Path to the rule file')
     
     remove_parser = subparsers.add_parser('remove')
+    analysis_parser = subparsers.add_parser('analysis')
     
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
@@ -56,15 +58,15 @@ def version_info():
     return version_info
 
 
-def detect_vuln_action(target, detector):
+def detect_vuln_action(analyzer, detector):
     if not detector:
         print("Detecting all vulnerabilities")
-        instance = RunDetector(target)
+        instance = RunDetector(analyzer)
         result_list, filename, error = instance.register_and_run_detectors()
         
     else:
         print("Detecting specific vulnerabilities")
-        instance = RunDetector(target, detector)
+        instance = RunDetector(analyzer, detector)
         result_list, filename, error = instance.register_and_run_detectors()
   
     return result_list, filename, error
@@ -72,11 +74,13 @@ def detect_vuln_action(target, detector):
 
 def main():
     args = parse_arguments()
+    analyzer = SafeDevAnalyzer(args.target)
+    
 
     if args.command == 'detect':
         try:
-            result_list, filename, error = detect_vuln_action(args.target, args.detector)
-            ret= convert_to_detect_result_json(result_list, filename, error)
+            result_list, filename, error = detect_vuln_action(analyzer, args.detector)
+            ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:
                 export_to_markdown(args.target)
             # audit_report()
@@ -89,19 +93,17 @@ def main():
             print(str(e)) 
             
     elif args.command == 'compile':
-        analyzer = SafeDevAnalyzer(args.target)
         abi_list, bytecode_list = analyzer.to_compile()
         convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
+        
+    # elif args.command == 'analysis':
+    #     ContractAnalysis(analyzer)
     elif args.command == 'remove':
         remove_all_json_files()
+        
     else:
         print("Error: Invalid command.")
         return
-
-def compile(filename):
-    analyzer = SafeDevAnalyzer(filename)
-    abi_list, bytecode_list = analyzer.to_compile()
-    convert_to_compile_info_json(abi_list, bytecode_list, analyzer)
 
 
 if __name__ == '__main__':

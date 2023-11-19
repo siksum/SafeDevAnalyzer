@@ -87,15 +87,15 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
 
 
 
-def convert_to_detect_result_json(result_list, filename, error) -> None:
+def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyzer:"SafeDevAnalyzer") -> None:
     output_dir_path = output_dir("detector_json_results")
     combined_data_list = [] 
     json_result = {}  
     result_list = [item for item in result_list if item is not None and item != '' and item != []]
+
     if len(result_list) == 0:
         print("Nothing to detect")
         return 0   
-    instance =SafeDevAnalyzer(filename)
     for language in ["korean", "english"]:
         for result in result_list:
             for data in result:
@@ -107,7 +107,7 @@ def convert_to_detect_result_json(result_list, filename, error) -> None:
                 combined_data['element'] = []
                 
                 for element in data["elements"]:
-                    source_mapping = instance.antibug_compile[0].get_code_from_line(instance.target_path, element['source_mapping']['lines'][0])
+                    source_mapping = safe_dev_analyzer.antibug_compile[0].get_code_from_line(safe_dev_analyzer.file_path, element['source_mapping']['lines'][0])
                     element_data = {
                         'type': element['type'],
                         'name': element['name'],

@@ -9,17 +9,17 @@ from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.exceptions import SlitherException
 from slither_core.detectors import all_detectors
 
-class RunDetector(SafeDevAnalyzer):
+class RunDetector():
     available_detector_list = []
 
-    def __init__(self, input_file, detectors=None):
+    def __init__(self, safe_dev_analyzer: "SafeDevAnalyzer", detectors=None):
         self._detectors = []
-        self.target = input_file
+        self.file = safe_dev_analyzer.file_basename
         (_, self.category, self.import_list) = self.get_all_detectors()
         self.selected_detectors = detectors if detectors is not None else []
         self.output_error = []
         self.json_results: Dict[str, Any] = {}
-        super().__init__(input_file)
+        self.safe_dev_analyzer = safe_dev_analyzer
 
     def get_all_detectors(self):
         importlib.reload(all_detectors)
@@ -27,7 +27,7 @@ class RunDetector(SafeDevAnalyzer):
             key for key in all_detectors.__dict__.keys() if not key.startswith('__')]
         import_list = [value for value in all_detectors.__dict__.values()]
         self.available_detector_list = detector_list
-        category_list = ['Assembly','Reentrancy', 'Attributes', 'CompilerBugs', 'CustomizedRules',
+        category_list = ['Assembly','Reentrancy', 'Randomness', 'CompilerBugs', 'CustomizedRules',
                          'ERC20', 'ERC721', 'Functions', 'Operations', 'Shadowing', 'Statements', 'Variables']
         for category in category_list:
             self.available_detector_list.append(category)
@@ -36,7 +36,7 @@ class RunDetector(SafeDevAnalyzer):
     def register_and_run_detectors(self):
         try: 
             self.available_detector_list, _, self.import_list = self.get_all_detectors()
-            compilation_unit_list = list(self.compilation_units.values())
+            compilation_unit_list = list(self.safe_dev_analyzer.compilation_units.values())
             results = []
             result=[]
             compilation_units_detect_results=[]
@@ -57,7 +57,7 @@ class RunDetector(SafeDevAnalyzer):
                             results.append(compilnation_unit.run_detectors())
                         elif detector in self.available_detector_list:
                             compilnation_unit.register_detector(
-                                self.import_list[8+self.available_detector_list.index(detector)])
+                                self.import_list[self.available_detector_list.index(detector)])
                             results.append(compilnation_unit.run_detectors())
                         else:
                             print(f'Error: {self.selected_detectors} is not available')
@@ -70,7 +70,7 @@ class RunDetector(SafeDevAnalyzer):
                 if all(not sublst for sublst in results):
                     self.output_error.append("No detection results")
                     compilation_units_detect_results.append(None)
-                    return compilation_units_detect_results, self.target_list, self.output_error, 
+                    return compilation_units_detect_results, self.file_list, self.output_error, 
                 result=self.detect_result(results)
                 self.output_error.append(None)    
                 
@@ -79,7 +79,7 @@ class RunDetector(SafeDevAnalyzer):
             traceback.print_exc()
             logging.error(self.output_error)
         
-        return result, self.target, self.output_error
+        return result, self.file, self.output_error
 
     def detect_result(self, results):
         results_detectors = []
@@ -89,16 +89,16 @@ class RunDetector(SafeDevAnalyzer):
         self.json_results = results_detectors
         return self.json_results
         
-    @property
-    def detector_high(self):
-        return [len(compilation_unit.detectors_high) for compilation_unit in self.compilation_units.values()]
+    # @property
+    # def detector_high(self):
+    #     return [len(compilation_unit.detectors_high) for compilation_unit in self.compilation_units.values()]
             
     
-    @property
-    def detector_medium(self):
-        return [len(compilation_unit.detectors_medium) for compilation_unit in self.compilation_units.values()]
+    # @property
+    # def detector_medium(self):
+    #     return [len(compilation_unit.detectors_medium) for compilation_unit in self.compilation_units.values()]
 
         
-    @property
-    def detector_low(self):
-        return [len(compilation_unit.detectors_low) for compilation_unit in self.compilation_units.values()]
+    # @property
+    # def detector_low(self):
+    #     return [len(compilation_unit.detectors_low) for compilation_unit in self.compilation_units.values()]
