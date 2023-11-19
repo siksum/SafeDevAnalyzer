@@ -11,6 +11,7 @@ from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.compile.parse_version_and_install_solc import SolcParser
 from antibug.run_security_report.app import main as audit_report
 from antibug.run_printer.printer import contract_analysis
+from antibug.run_printer.printer import RunPrinter
 
 
 from streamlit.web.cli import main_run
@@ -81,8 +82,15 @@ def main():
         
     elif args.command == 'detect':
         try:
+            # contract analysis -> json
             combined_data = contract_analysis(analyzer)
             convert_to_contract_analysis_info_json(combined_data, analyzer)
+            
+            # call graph -> png
+            printer = RunPrinter(analyzer, 'call-graph')
+            printer.register_and_run_printers()
+            printer.convert_dot_to_png()
+            
             result_list, filename, error = detect_vuln_action(analyzer, args.detector)
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:

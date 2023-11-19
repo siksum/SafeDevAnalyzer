@@ -1,68 +1,100 @@
 {
-  "Bar": {
-    "Contract Name": "Bar",
+  "EtherStore": {
+    "Contract Name": "EtherStore",
     "Inheritance": [],
     "State Variables": {
-      "Name": []
+      "balances(address)": {
+        "Name": "balances",
+        "Signature": "0x27e235e3",
+        "Slot": 0,
+        "Offset": 0
+      },
+      "highScores(address)": {
+        "Name": "highScores",
+        "Signature": "0x00d8e104",
+        "Slot": 1,
+        "Offset": 0
+      }
     },
     "Function Summaries": {
-      "blockingFunction()": {
-        "Name": "blockingFunction()",
-        "Signature": "0x04d11bde",
+      "deposit()": {
+        "Name": "deposit()",
+        "Signature": "0xd0e30db0",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      },
+      "withdraw()": {
+        "Name": "withdraw()",
+        "Signature": "0x3ccfd60b",
         "Visibility": "public",
         "Modifiers": [],
         "Internal Calls": [
-          "return(uint256,uint256)"
+          "require(bool,string)",
+          "require(bool)"
         ],
-        "External Calls": []
+        "External Calls": [
+          "msg.sender.call{value: bal}()"
+        ]
       },
-      "f()": {
-        "Name": "f()",
-        "Signature": "0x04d11bde",
-        "Visibility": "internal",
+      "getBalance()": {
+        "Name": "getBalance()",
+        "Signature": "0x12065fe0",
+        "Visibility": "public",
         "Modifiers": [],
-        "Internal Calls": [],
+        "Internal Calls": [
+          "balance(address)"
+        ],
         "External Calls": []
       }
     }
   },
-  "Foo": {
-    "Contract Name": "Foo",
-    "Inheritance": [
-      "Bar"
-    ],
+  "TimeLock": {
+    "Contract Name": "TimeLock",
+    "Inheritance": [],
     "State Variables": {
-      "Name": []
+      "balances(address)": {
+        "Name": "balances",
+        "Signature": "0x27e235e3",
+        "Slot": 0,
+        "Offset": 0
+      },
+      "lockTime(address)": {
+        "Name": "lockTime",
+        "Signature": "0xa4beda63",
+        "Slot": 1,
+        "Offset": 0
+      }
     },
     "Function Summaries": {
-      "blockingFunction()": {
-        "Name": "blockingFunction()",
-        "Signature": "0x04d11bde",
-        "Visibility": "public",
-        "Modifiers": [],
-        "Internal Calls": [
-          "return(uint256,uint256)"
-        ],
-        "External Calls": []
-      },
-      "f()": {
-        "Name": "f()",
-        "Signature": "0x04d11bde",
-        "Visibility": "internal",
+      "deposit()": {
+        "Name": "deposit()",
+        "Signature": "0xd0e30db0",
+        "Visibility": "external",
         "Modifiers": [],
         "Internal Calls": [],
         "External Calls": []
       },
-      "foo()": {
-        "Name": "foo()",
-        "Signature": "0xc2985578",
+      "increaseLockTime(uint256)": {
+        "Name": "increaseLockTime(uint256)",
+        "Signature": "0x79af55e4",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      },
+      "withdraw()": {
+        "Name": "withdraw()",
+        "Signature": "0x3ccfd60b",
         "Visibility": "public",
         "Modifiers": [],
         "Internal Calls": [
-          "blockingFunction",
           "require(bool,string)"
         ],
-        "External Calls": []
+        "External Calls": [
+          "msg.sender.call{value: amount}()"
+        ]
       }
     }
   }

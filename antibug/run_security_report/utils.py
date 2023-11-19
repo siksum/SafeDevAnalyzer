@@ -2,9 +2,17 @@ import os
 import glob
 import json
 from antibug.utils.convert_to_json import get_root_dir
-from antibug.run_security_report.write_page import write_audit_report
+from antibug.run_security_report.write_page import write_audit_report, write_contract_analysis_report
 
+def contract_analysis_path():
+    output_dir = os.path.join(get_root_dir(), f"result/contract_analysis_json_results")
+    json_file = glob.glob(os.path.join(output_dir, '*.json'))
+    return json_file
 
+def call_graph_path():
+    output_dir = os.path.join(get_root_dir(), f"result/call_graph_results")
+    dot_files = glob.glob(os.path.join(output_dir, '*.png'))
+    return dot_files
 
 def get_json_path_list():
     json_files = []
@@ -73,3 +81,21 @@ def parse_json_data_details(json_data, language, detector_option):
             write_audit_report(detector, impact, confidence, reference, code, description, exploit_scenario, recommendation, info)
         else:
             continue
+
+def read_contract_analysis_json():
+    json_file=contract_analysis_path()[0]
+    with open(json_file, "r") as file:
+        json_str = file.read()
+        json_data =json.loads(json_str)
+    return json_data
+
+def parse_contract_analysis_data(selected_contract, json_data):
+    for contract_name, contract_data in json_data.items():
+        if selected_contract == contract_name:
+            inhritance = contract_data["Inheritance"] 
+            state_variable_list = contract_data["State Variables"]
+            function_list = contract_data["Function Summaries"]
+            write_contract_analysis_report(contract_name, inhritance, state_variable_list, function_list)
+        else:
+            continue
+    

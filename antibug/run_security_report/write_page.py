@@ -55,3 +55,65 @@ def write_audit_report(detector, impact, confidence, reference, code, descriptio
         st.subheader("Reference:")
         st.write(reference)
         st.markdown("---")
+        
+def write_contract_analysis_report(contract_name, inheritance, state_variable_list, function_list):
+    
+    with st.expander(contract_name):
+        st.subheader("Inheritance")
+        if inheritance == []:
+            inheritance == "None"
+        st.write(inheritance)
+        st.markdown("---")
+            
+        st.subheader("State Variables")
+        if state_variable_list== []:
+            st.write("None")
+        else:
+            for state_variable in state_variable_list.values():
+                if state_variable["Signature"] == []:
+                    state_variable["Signature"] == "None"
+                if state_variable["Slot"] == []:
+                    state_variable["Slot"] == "None"
+                if state_variable["Offset"] == []:
+                    state_variable["Offset"] == "None"
+                
+                df = pd.DataFrame({
+                    'State Variable': [state_variable["Name"]],
+                    'Signature': [state_variable["Signature"]],
+                    'Slot': [state_variable["Slot"]],
+                    'Offset': [state_variable["Offset"]],
+                })
+                unique_key = f'{contract_name}_{state_variable["Name"]}'
+                st.data_editor(df, key=unique_key, column_config={'State Variable': {'editable': False}})
+            
+            st.markdown("---")
+        
+        st.subheader("Function Summaries")
+        if function_list == []:
+            st.write("None")
+        else:
+            for function in function_list.values():
+                if function["Signature"] == []:
+                    function["Signature"] == "None"
+                if function["Visibility"] == []:
+                    function["Visibility"] == "None"
+                if function["Modifiers"] == []:
+                    function["Modifiers"] == "None"
+                if function["Internal Calls"] == []:
+                    function["Internal Calls"] == "None"
+                if function["External Calls"] == []:
+                    function["External Calls"] == "None"
+                df = pd.DataFrame({
+                    'Function Name': [function["Name"]],
+                    'Signature': [function["Signature"]],
+                    'Visibility': [function["Visibility"]],
+                    'Modifiers': [function["Modifiers"]],
+                    'Internal Calls': [function["Internal Calls"]],
+                    'External Calls': [function["External Calls"]],
+                })
+                
+    
+                st.data_editor(df, column_config={'Function Name': {'editable': False}})
+            st.markdown("---")
+    
+    

@@ -4,7 +4,8 @@ import pandas as pd
 from PIL import Image
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.run_security_report.utils import get_json_data, parse_json_data_overview
-from antibug.run_security_report.utils import parse_json_data_details
+from antibug.run_security_report.utils import parse_json_data_details, call_graph_path, parse_contract_analysis_data, read_contract_analysis_json
+from antibug.run_printer.printer import RunPrinter
 
 
 
@@ -19,8 +20,23 @@ def streamlit_page():
     
     with contract_analysis_tab:
         st.header('Contract Analysis')
-        st.subheader('Call Graph')
-    
+        st.expander('Show Call Graph')
+        with st.expander('Show Call Graph'):
+            st.subheader('Call Graph')
+            st.image(call_graph_path())
+        contract_list = []
+        json_data = read_contract_analysis_json()
+        for contract_name, contract_data in json_data.items():
+            contract_list.append(contract_name)
+        
+        options=st.multiselect('Select contract', contract_list)
+        if options:
+            for contract_name in options:
+                parse_contract_analysis_data(contract_name, json_data)
+        
+            
+            
+
     with security_analysis_tab:
         st.header('Security Analysis')
         

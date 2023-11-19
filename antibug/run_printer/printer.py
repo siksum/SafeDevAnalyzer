@@ -5,14 +5,13 @@ import inspect
 import graphviz
 import os
 from slither_core.utils.function import get_function_id
+from antibug.utils.convert_to_json import get_root_dir
 
-
-class RunPrinter(SafeDevAnalyzer):
-    def __init__(self, input_file):
-        super().__init__(input_file)
+class RunPrinter():
+    def __init__(self, safe_dev_analyzer: "SafeDevAnalyzer", printer_name: str):
         self.printer_list = self.get_all_printers()
-        self.selected_printer = ""
-        self.filename = os.path.basename(input_file)[:-4]
+        self.selected_printer = self.choose_printer(printer_name)
+        self.safe_dev_analyzer = safe_dev_analyzer
         
     def get_all_printers(self):
         printers_ = [getattr(all_printers, name) for name in dir(all_printers)]
@@ -29,16 +28,19 @@ class RunPrinter(SafeDevAnalyzer):
         
     def register_and_run_printers(self):
         results_printers = []
-        for compilation_unit in self.compilation_units.values():
+        for compilation_unit in self.safe_dev_analyzer.compilation_units.values():
             compilation_unit.register_printer(self.selected_printer)
-            result= compilation_unit.run_printers()
-            printer_results = [x for x in result if x]  # remove empty results
-            results_printers.extend(printer_results)
+            compilation_unit.run_printers()
+            # printer_results = [x for x in result if x]  # remove empty results
+            # results_printers.extend(printer_results)
+            
+        # return results_printersx/
     
     def convert_dot_to_png(self):
-        dot = f"call-graph.dot" 
-        graph = graphviz.Source.from_file(dot)
-        graph.render(filename=dot[:-4], format='png', cleanup=True)
+        dot = f"call-graph.dot"
+        output_dir_path = os.path.join(get_root_dir(), f"result/call_graph_results/{dot}")
+        graph = graphviz.Source.from_file(output_dir_path)
+        graph.render(filename=output_dir_path[:-4], format='png', cleanup=True)
         
 
 def contract_analysis(safe_dev_analyzer: "SafeDevAnalyzer"):
@@ -51,7 +53,7 @@ def contract_analysis(safe_dev_analyzer: "SafeDevAnalyzer"):
             combined_data["Contract Name"]=name
             combined_data["Inheritance"]=inheritance
             combined_data["State Variables"]={}
-            combined_data["State Variables"]["Name"]=[x.name for x in contract.state_variables]
+            combined_data["State Variables"]={}
             combined_data["Function Summaries"]={}
             
             for function_summary in func_summaries:
@@ -70,21 +72,20 @@ def contract_analysis(safe_dev_analyzer: "SafeDevAnalyzer"):
                     "Internal Calls": function_internal_calls,
                     "External Calls": function_external_calls
                 }
-                
-            for function, state_variable in zip(contract.functions, contract.state_variables_ordered):
-                if function.is_shadowed or function.is_constructor_variables:
-                    continue
-                if not state_variable.is_constant and not state_variable.is_immutable:
-                    slot, offset = contract.compilation_unit.storage_layout_of(contract, state_variable)
-                    combined_data["State Variables"]["Slot"] = slot
-                    combined_data["State Variables"]["Offset"] = offset
-        
+       
             for variable in contract.state_variables:
                 if variable.visibility in ["public"]:
                     sig = variable.solidity_signature
                     function_id = get_function_id(sig)
-                    combined_data["State Variables"]["Name"] = sig
-                    combined_data["State Variables"]["Signature"] = f"{function_id:#0{10}x}"
+                    slot, offset = contract.compilation_unit.storage_layout_of(contract, variable)
+                    
+                    combined_data["State Variables"][sig] ={
+                        "Name": variable.name,
+                        "Signature": f"{function_id:#0{10}x}",
+                        "Slot": slot,
+                        "Offset": offset
+                    }
+
 
             results.append(combined_data)
             

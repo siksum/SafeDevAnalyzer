@@ -6,6 +6,7 @@
     The output is a dot file named filename.dot
 """
 from collections import defaultdict
+import os
 from typing import Optional, Union, Dict, Set, Tuple, Sequence
 
 from slither_core.core.declarations import Contract, FunctionContract
@@ -14,6 +15,7 @@ from slither_core.core.declarations.solidity_variables import SolidityFunction
 from slither_core.core.variables.variable import Variable
 from slither_core.printers.abstract_printer import AbstractPrinter
 from slither_core.utils.output import Output
+from antibug.utils.convert_to_json import output_dir
 
 
 def _contract_subgraph(contract: Contract) -> str:
@@ -229,6 +231,9 @@ class PrinterCallGraph(AbstractPrinter):
         Args:
             filename(string)
         """
+        output_dir_path =output_dir("call_graph_results")
+        os.chmod(output_dir_path, 0o777)
+        
 
         all_contracts_filename = ""
         if not filename.endswith(".dot"):
@@ -236,10 +241,10 @@ class PrinterCallGraph(AbstractPrinter):
                 filename = ""
             else:
                 filename += "."
-            all_contracts_filename = f"all_contracts.call-graph.dot"
+            all_contracts_filename = os.path.join(output_dir_path, f"all_contracts.call-graph.dot")
 
         if filename == ".dot":
-            all_contracts_filename = "all_contracts.dot"
+            all_contracts_filename = os.path.join(output_dir_path, "all_contracts.dot")
 
         info = ""
         results = []
@@ -260,10 +265,10 @@ class PrinterCallGraph(AbstractPrinter):
                 + ["}"]
             )
             f.write(content)
-            results.append((all_contracts_filename, content))
+            results.append((all_contracts_filename, content))   
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = f"call-graph.dot"
+            derived_output_filename = os.path.join(output_dir_path, f"call-graph.dot")
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
