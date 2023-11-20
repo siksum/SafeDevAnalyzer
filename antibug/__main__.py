@@ -1,9 +1,9 @@
 import argparse
 import sys
 import argparse
-import subprocess
+import os
 
-from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files, convert_to_contract_analysis_info_json
+from antibug.utils.convert_to_json import convert_to_compile_info_json, convert_to_detect_result_json, remove_all_json_files, convert_to_contract_analysis_info_json, get_root_dir
 from antibug.utils.audit_report import export_to_markdown
 from antibug.run_detectors.detectors import RunDetector
 
@@ -95,6 +95,9 @@ def main():
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:
                 export_to_markdown(args.target)
+                streamlit_path_ = get_root_dir()
+                streamlit_path = os.path.join(streamlit_path_+"/antibug/run_security_report/app.py")
+                print(f"Streamlit Path: {streamlit_path} ")
         except Exception as e:
             print(str(e)) 
 

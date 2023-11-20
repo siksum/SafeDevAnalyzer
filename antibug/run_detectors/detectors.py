@@ -1,7 +1,7 @@
 
-import importlib
 import logging
 import traceback
+import inspect
 
 from typing import Dict, Any
 
@@ -9,7 +9,6 @@ from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.exceptions import SlitherException
 from slither_core.detectors import all_detectors
 from slither_core.detectors.abstract_detector import AbstractDetector
-import inspect
 
 class RunDetector():
     def __init__(self, safe_dev_analyzer: "SafeDevAnalyzer", detectors=None):
@@ -30,8 +29,7 @@ class RunDetector():
 
     def available_detectors(self):
         detectors={d.ARGUMENT: d for d in self.import_list}
-        category_list = ['Assembly','Reentrancy', 'Randomness', 'CompilerBugs',
-                          'ERC20', 'ERC721', 'Functions', 'Operations', 'Shadowing', 'Statements', 'Variables']
+        category_list = ['Assembly','Reentrancy', 'Randomness', 'Delegatecall', 'DoS', 'Ownership', 'SelfDestruct', 'Operations']
         for category in category_list:
             filtered_list = [
                 item for item in self.import_list if f'{category.lower()}' in str(item)]

@@ -118,7 +118,12 @@ As a result, Eve wins the game."""
     WIKI_RECOMMENDATION = (
         "Do not use `block.timestamp`, `now` or `blockhash` as a source of randomness"
     )
-
+    WIKI_DESCRIPTION_KOREAN=""""""
+    WIKI_EXPLOIT_SCENARIO_KOREAN = """"""
+    WIKI_RECOMMENDATION_KOREAN=""""""
+    WIKI_REFERENCE=""""""
+    
+    
     def _detect(self) -> List[Output]:
         """Detect bad PRNG due to the use of block.timestamp, now or blockhash (block.blockhash) as a source of randomness"""
         results = []
@@ -128,7 +133,9 @@ As a result, Eve wins the game."""
 
                 for node in nodes:
                     info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
-                    res = self.generate_result(info)
-                    results.append(res)
+                    info_kr=f""
+                    json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
+
+                    results.append(json)
 
         return results

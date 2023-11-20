@@ -55,8 +55,8 @@
         "Visibility": "public",
         "Modifiers": [],
         "Internal Calls": [
-          "blockingFunction",
-          "require(bool,string)"
+          "require(bool,string)",
+          "blockingFunction"
         ],
         "External Calls": []
       }

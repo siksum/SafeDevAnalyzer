@@ -11,7 +11,7 @@ label = "Foo"
 label = "[Solidity]"
 "return(uint256,uint256)" 
 "require(bool,string)" 
-"39_foo" -> "require(bool,string)"
 "16_blockingFunction" -> "return(uint256,uint256)"
+"39_foo" -> "require(bool,string)"
 }
 }

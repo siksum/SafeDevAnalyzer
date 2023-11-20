@@ -74,7 +74,11 @@ class Timestamp(AbstractDetector):
     )
     WIKI_EXPLOIT_SCENARIO = """"Bob's contract relies on `block.timestamp` for its randomness. Eve is a miner and manipulates `block.timestamp` to exploit Bob's contract."""
     WIKI_RECOMMENDATION = "Avoid relying on `block.timestamp`."
-
+    WIKI_DESCRIPTION_KOREAN=""""""
+    WIKI_EXPLOIT_SCENARIO_KOREAN = """"""
+    WIKI_RECOMMENDATION_KOREAN=""""""
+    WIKI_REFERENCE=""""""
+    
     def _detect(self) -> List[Output]:
         """"""
         results = []

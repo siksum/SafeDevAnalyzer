@@ -4,7 +4,7 @@ import json
 from typing import Optional
 from datetime import datetime
 
-from antibug.utils.convert_to_json import output_dir, get_output_path, print_output_dir
+from antibug.utils.convert_to_json import output_dir, get_output_path
 
 
 def write_to_markdown(output_dir_path, payload, language, target: Optional[str] = None):

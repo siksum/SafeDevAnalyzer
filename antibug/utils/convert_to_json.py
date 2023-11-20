@@ -24,18 +24,6 @@ def output_dir(filename):
         os.makedirs(output_dir)
     return output_dir
 
-
-def print_output_dir(output_dir_path, language_type):
-    if language_type == "json":
-        print(f"Detect Result Output directory: {output_dir_path}")
-    elif language_type == "md":
-        print(f"Audit Report Output directory: {output_dir_path}")
-    elif language_type == "compile":
-        print(f"Compile Info Output directory: {output_dir_path}")
-    elif language_type == "analysis":
-        print(f"Contract Analysis Info Output directory: {output_dir_path}")
-
-
 def get_output_path(target, output_dir_path, language, language_type):
     filename=os.path.basename(target)[:-4]
     if language == "korean":
