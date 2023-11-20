@@ -20,6 +20,7 @@ def streamlit_page():
     
     with contract_analysis_tab:
         st.header('Contract Analysis')
+        st.subheader('Call Graph')
         st.expander('Show Call Graph')
         with st.expander('Show Call Graph'):
             st.subheader('Call Graph')
@@ -29,13 +30,15 @@ def streamlit_page():
         for contract_name, contract_data in json_data.items():
             contract_list.append(contract_name)
         
-        options=st.multiselect('Select contract', contract_list)
+        st.markdown("---")
+        
+        st.subheader('Contract Analysis')
+        options=st.multiselect('', contract_list)
         if options:
             for contract_name in options:
                 parse_contract_analysis_data(contract_name, json_data)
         
-            
-            
+          
 
     with security_analysis_tab:
         st.header('Security Analysis')
@@ -50,8 +53,6 @@ def streamlit_page():
         
         languages = ['English', 'Korean']
         selected_lang = st.selectbox('언어를 선택해주세요', languages)
-        
-        # selected_vulnerability = st.select_slider('Confidence', options=['Informational', 'Low', 'Medium', 'High', 'All'])
         
         
         options=st.multiselect('Select detector', detector_list)

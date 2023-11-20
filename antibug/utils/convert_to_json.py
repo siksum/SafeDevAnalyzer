@@ -83,7 +83,8 @@ def convert_to_compile_info_json(abi_list, bytecode_list, analyzer: SafeDevAnaly
             }
             result_json = json.dumps(combined_data, indent=2)
             write_to_json(output_dir_path, result_json, language, filename)
-    print_output_dir(output_dir_path, "compile")
+    print("Output Directory:",os.path.dirname(output_dir_path))
+
 
 
 def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyzer:"SafeDevAnalyzer") -> None:
@@ -149,7 +150,6 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
             json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
             combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
             write_to_json(output_dir_path, combined_json, language, filename)
-    print_output_dir(output_dir_path, "json")
 
 
 def convert_to_contract_analysis_info_json(combined_json_list, safe_dev_analyzer:"SafeDevAnalyzer"):
@@ -159,7 +159,7 @@ def convert_to_contract_analysis_info_json(combined_json_list, safe_dev_analyzer
         json_result[combined_data["Contract Name"]] = combined_data    
         combined_json = json.dumps(json_result, indent=2)
         write_to_json(output_dir_path, combined_json, "analysis", safe_dev_analyzer.file_basename)
-    print_output_dir(output_dir_path, "json")
+    print("Output Directory:", os.path.dirname(output_dir_path))
 
 
 def remove_all_json_files():

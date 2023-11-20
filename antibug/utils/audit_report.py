@@ -10,7 +10,6 @@ from antibug.utils.convert_to_json import output_dir, get_output_path, print_out
 def write_to_markdown(output_dir_path, payload, language, target: Optional[str] = None):
     if target is not None:      
         output_path= get_output_path(target, output_dir_path, language, "md")
-        print_output_dir(output_dir_path, "md")
     try:
         with open(output_path, "w") as f:
             f.write(payload)

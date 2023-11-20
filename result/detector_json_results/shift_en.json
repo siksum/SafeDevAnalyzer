@@ -1,39 +1,4 @@
 {
-  "incorrect-shift": {
-    "success": false,
-    "error": [
-      null
-    ],
-    "results": {
-      "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/shift.sol",
-      "detector": "incorrect-shift",
-      "impact": "High",
-      "confidence": "High",
-      "element": [
-        {
-          "type": "function",
-          "name": "f",
-          "line": 13,
-          "code": "    function f() internal pure returns (uint a) {\n",
-          "parent_type": "contract",
-          "parent_name": "Bar"
-        },
-        {
-          "type": "node",
-          "name": "a = 8 >>' a",
-          "line": 15,
-          "code": "            a := sar(a, 8)\n",
-          "parent_type": "function",
-          "parent_name": "f"
-        }
-      ],
-      "info": "Bar.f() (test/detector/shift.sol#13-17) contains an incorrect shift operation: a = 8 >>' a (test/detector/shift.sol#15)\n",
-      "description": "When using shift operations in an assembly function, it is important to check for cases where the parameters are in the wrong order.",
-      "exploit_scenario": "\n```solidity\ncontract C {\n    function f() internal returns (uint a) {\n        assembly {\n            a := shr(a, 8)\n        }\n    }\n}\n```\n`shr(a, 8)`: Shifts the bits of variable 'a' 8 positions to the right. In other words, it moves the value of 'a' 8 bits to the right.\n`shr(8, a)`: Shifts the number 8 to the right by the number of bits in variable 'a'. This safely shifts 'a' to the right by 8 bits, regardless of its value.\n\n`shl(a, 8)`: The variable a is being shifted. The result can vary depending on the value and bit length of a. If a has a sufficiently large value such that left-shifting it would exceed the bit length, unexpected values may occur.\n`shl(8, a)`: The number 8 is a fixed value being used to perform the shift operation. Therefore, the result of the shift operation depends solely on the value of the variable a. Consequently, it's safe to perform an 8-bit left shift on a, regardless of its current value.\n\n`sar(a, 8)`: This operation shifts the bits of variable `a` to the right, so the result depends on the current value of `a`.\n`sar(8, a)`: This operation always performs a bitwise right shift by the constant value 8, regardless of the current value of variable `a`. Therefore, it provides predictable and consistent results.\n",
-      "recommendation": "\nIn general, `sar(8, a)`, `shl(8, a)` and `shr(8, a)` can be more predictable and safer approaches. However, the choice of method may vary depending on the specific circumstances and the data being used. The decision should be made carefully, taking into account the requirements and goals of the program.\nFurthermore, Solidity Yul code does not check for Overflow/Underflow, so you should write your code with these cases in mind and handle them appropriately.\n",
-      "reference": "\n- https://ethereum.stackexchange.com/questions/127538/right-shift-not-working-in-inline-assembly\n- https://docs.soliditylang.org/en/v0.8.23/types.html#value-types:~:text=Before%20version%200.5.0%20a%20right%20shift%20x%20%3E%3E%20y%20for%20negative%20x%20was%20equivalent%20to%20the%20mathematical%20expression%20x%20/%202**y%20rounded%20towards%20zero%2C%20i.e.%2C%20right%20shifts%20used%20rounding%20up%20(towards%20zero)%20instead%20of%20rounding%20down%20(towards%20negative%20infinity).\n- https://docs.soliditylang.org/en/v0.8.23/types.html#value-types:~:text=Overflow%20checks%20are%20never%20performed%20for%20shift%20operations%20as%20they%20are%20done%20for%20arithmetic%20operations.%20Instead%2C%20the%20result%20is%20always%20truncated.    \n    "
-    }
-  },
   "incorrect-return": {
     "success": false,
     "error": [
@@ -75,33 +40,6 @@
       "exploit_scenario": "\n```solidity\ncontract C {\n    function f() internal returns (uint a, uint b) {\n        assembly {\n            return (5, 6)\n        }\n    }\n\n    function g() returns (bool){\n        f();\n        return true;\n    }\n}\n```\nThe return statement in `f` will cause execution in `g` to halt.\nThe function will return 6 bytes starting from offset 5, instead of returning a boolean.",
       "recommendation": "Use the `leave` statement.",
       "reference": "https://blog.ethereum.org/2019/12/03/ef-supported-teams-research-and-development-update-2019-pt-2#solidity-060:~:text=Add%20%22leave%22%20statement%20to%20Yul%20/%20Inline%20Assembly%20to%20return%20from%20current%20function"
-    }
-  },
-  "assembly": {
-    "success": false,
-    "error": [
-      null
-    ],
-    "results": {
-      "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/detector/shift.sol",
-      "detector": "assembly",
-      "impact": "Informational",
-      "confidence": "Low",
-      "element": [
-        {
-          "type": "function",
-          "name": "blockingFunction",
-          "line": 7,
-          "code": "    function blockingFunction() public pure returns (bool) {\n",
-          "parent_type": "contract",
-          "parent_name": "Bar"
-        }
-      ],
-      "info": "Function Bar.blockingFunction() (test/detector/shift.sol#7-11) uses inline-assembly\n",
-      "description": "\n<details> \n    <summary style='font-size: 18px;color:pink;'> 💡 What is Inline Assembly? </summary><br />\n    \n`inline-assembly` allows for direct interaction with the EVM, providing a level of control and precision that is not achievable at a high-level.\n\nSpecifically, it enables you to adjust gas usage and access specific EVM features. In Solidity, you can write `inline-assembly` using the intermediate language Yul, which is designed to compile into EVM bytecode. \n\nIt is written in the following form:\n\n```solidity\nassembly{ ... }\n```\n\n</details>\n<br />\n\nTypically, the Solidity compiler performs checks to ensure that memory is well-defined and safe. However, when using `inline-assembly`, you can bypass the compiler's checks, potentially leading to memory manipulation.\n",
-      "exploit_scenario": "\n```solidity\ncontract VulnerableContract {\n    uint8 public balance;\n\n    function deposit(uint8 amount) public {\n        assembly {\n            sstore(balance.slot, add(sload(balance.slot), amount))\n        }\n    }\n\n    function withdraw(uint8 amount) public {\n        require(amount <= balance, \"Insufficient balance\");\n        assembly {\n            sstore(balance.slot, sub(sload(balance.slot), amount))\n        }\n    }\n}\n```\n\n\nIn the `deposit` function, the `add` assembly instruction is used to add `amount` to the `balance`. \nIf the `balance` is close to its maximum value, such as 255, an overflow can occur when attempting to add more, causing the `balance` to wrap around unexpectedly and decrease.\n",
-      "recommendation": "Be cautious when using `inline assembly.`",
-      "reference": "\n- https://medium.com/@ac1d_eth/technical-exploration-of-inline-assembly-in-solidity-b7d2b0b2bda8\n- [https://solidity-kr.readthedocs.io/ko/latest/assembly.html#:~:text=Inline assembly is a way to access the Ethereum Virtual Machine at a low level. This bypasses several important safety features and checks of Solidity. You should only use it for tasks that need it%2C and only if you are confident with using it](https://solidity-kr.readthedocs.io/ko/latest/assembly.html#:~:text=Inline%20assembly%20is%20a%20way%20to%20access%20the%20Ethereum%20Virtual%20Machine%20at%20a%20low%20level.%20This%20bypasses%20several%20important%20safety%20features%20and%20checks%20of%20Solidity.%20You%20should%20only%20use%20it%20for%20tasks%20that%20need%20it%2C%20and%20only%20if%20you%20are%20confident%20with%20using%20it).    \n    "
     }
   }
 }

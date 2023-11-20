@@ -9,9 +9,9 @@ label = "Foo"
 "39_foo" -> "39_blockingFunction"
 }subgraph cluster_solidity {
 label = "[Solidity]"
-"require(bool,string)" 
 "return(uint256,uint256)" 
-"16_blockingFunction" -> "return(uint256,uint256)"
+"require(bool,string)" 
 "39_foo" -> "require(bool,string)"
+"16_blockingFunction" -> "return(uint256,uint256)"
 }
 }

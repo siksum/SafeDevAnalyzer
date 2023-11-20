@@ -8,56 +8,58 @@ from typing import Dict, Any
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from slither_core.exceptions import SlitherException
 from slither_core.detectors import all_detectors
+from slither_core.detectors.abstract_detector import AbstractDetector
+import inspect
 
 class RunDetector():
-    available_detector_list = []
-
     def __init__(self, safe_dev_analyzer: "SafeDevAnalyzer", detectors=None):
         self._detectors = []
         self.file = safe_dev_analyzer.file_basename
-        (_, self.category, self.import_list) = self.get_all_detectors()
-        self.selected_detectors = detectors if detectors is not None else []
+        self.import_list = self.get_all_detectors_import_list()
+        self.available_detector, self.category_list = self.available_detectors()
         self.output_error = []
         self.json_results: Dict[str, Any] = {}
+        self.selected_detectors = detectors if detectors is not None else []
         self.safe_dev_analyzer = safe_dev_analyzer
 
-    def get_all_detectors(self):
-        importlib.reload(all_detectors)
-        detector_list = [
-            key for key in all_detectors.__dict__.keys() if not key.startswith('__')]
-        import_list = [value for value in all_detectors.__dict__.values()]
-        self.available_detector_list = detector_list
-        category_list = ['Assembly','Reentrancy', 'Randomness', 'CompilerBugs', 'CustomizedRules',
-                         'ERC20', 'ERC721', 'Functions', 'Operations', 'Shadowing', 'Statements', 'Variables']
+    def get_all_detectors_import_list(self):
+        import_list_ = [getattr(all_detectors, name) for name in dir(all_detectors)]
+        import_list = [d for d in import_list_ if inspect.isclass(d) and issubclass(d, AbstractDetector)]
+        return import_list
+    
+
+    def available_detectors(self):
+        detectors={d.ARGUMENT: d for d in self.import_list}
+        category_list = ['Assembly','Reentrancy', 'Randomness', 'CompilerBugs',
+                          'ERC20', 'ERC721', 'Functions', 'Operations', 'Shadowing', 'Statements', 'Variables']
         for category in category_list:
-            self.available_detector_list.append(category)
-        return self.available_detector_list, category_list, import_list
+            filtered_list = [
+                item for item in self.import_list if f'{category.lower()}' in str(item)]
+            detectors[category] = filtered_list
+        return detectors, category_list
+
 
     def register_and_run_detectors(self):
         try: 
-            self.available_detector_list, _, self.import_list = self.get_all_detectors()
             compilation_unit_list = list(self.safe_dev_analyzer.compilation_units.values())
             results = []
             result=[]
+        
             compilation_units_detect_results=[]
             for compilnation_unit in compilation_unit_list:
                 if not self.selected_detectors:
-                    for item in self.import_list[10:]:
+                    for item in self.import_list:
                         compilnation_unit.register_detector(item)
                     results=compilnation_unit.run_detectors()
-                    
                 elif self.selected_detectors:
                     for detector in self.selected_detectors:
-                        if detector in self.category:
-                            category = detector.lower()
-                            filtered_list = [
-                                item for item in self.import_list if f'{category}' in str(item)]
-                            for item in filtered_list:
+                        if detector in self.category_list:
+                            for item in self.available_detector[detector]:
                                 compilnation_unit.register_detector(item)
                             results.append(compilnation_unit.run_detectors())
-                        elif detector in self.available_detector_list:
+                        elif detector in self.available_detector.keys():
                             compilnation_unit.register_detector(
-                                self.import_list[self.available_detector_list.index(detector)])
+                                self.available_detector[detector])
                             results.append(compilnation_unit.run_detectors())
                         else:
                             print(f'Error: {self.selected_detectors} is not available')
