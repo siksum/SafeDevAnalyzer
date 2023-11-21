@@ -239,11 +239,15 @@ class Output:
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
         description: Optional[str] = None,
+        background: Optional[str] = None,
         exploit_scenario: Optional[str] = None,
+        examples: Optional[List[str]] = None,
         recommendation: Optional[str] = None,
         info_kr: Optional[str] = None,
         description_korean: Optional[str] = None,
+        background_korean: Optional[str] = None,
         exploit_scenario_korean: Optional[str] = None,
+        examples_korean: Optional[str] = None,
         recommendation_korean: Optional[str] = None,
         reference: Optional[str] = None,
         additional_fields: Optional[Dict] = None,
@@ -265,14 +269,19 @@ class Output:
         self._data["elements"] = []
         self._data["info"] = "".join(_convert_to_description(d) for d in info)
         self._data["description"] = description
+        self._data["background"] = background
         # self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)
         # self._data["first_markdown_element"] = ""
         # self._markdown_root = markdown_root
         self._data["exploit_scenario"] = exploit_scenario
+        self._data["examples"] = examples
         self._data["recommendation"] = recommendation
+        
         self._data["info_korean"] = info_kr
         self._data["description_korean"] = description_korean
+        self._data["background_korean"] = background_korean
         self._data["exploit_scenario_korean"] = exploit_scenario_korean
+        self._data["examples_korean"] = examples_korean
         self._data["recommendation_korean"] = recommendation_korean
         self._data["reference"] = reference
         

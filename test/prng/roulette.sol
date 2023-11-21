@@ -1,19 +1,16 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
 
-contract Roulette {
-    uint public pastBlockTime;
-
-    constructor() public payable {}
-
-    function spin() external payable {
-        require(msg.value == 10 ether); // must send 10 ether to play
-        require(now != pastBlockTime); // only 1 transaction per block
-
-        pastBlockTime = block.timestamp;
-
-        if(now % 15 == 0) {
-            (bool sent, ) = msg.sender.call.value(address(this).balance)("");
+contract GuessTheRandomNumber {
+    constructor() payable {}
+    function guess(uint _guess) public {
+        uint answer = uint(
+            keccak256(abi.encodePacked(blockhash(block.number - 1), block.timestamp))
+        );
+ 
+        if (_guess == answer) {
+            (bool sent, ) = msg.sender.call{value: 1 ether}("");
             require(sent, "Failed to send Ether");
         }
     }
-}
+ }

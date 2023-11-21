@@ -1,17 +1,17 @@
 strict digraph {
-subgraph cluster_16_Bar {
-label = "Bar"
-"16_f" [label="f"]
-"16_blockingFunction" [label="blockingFunction"]
-}subgraph cluster_39_Foo {
-label = "Foo"
-"39_foo" [label="foo"]
-"39_foo" -> "39_blockingFunction"
+subgraph cluster_51_GuessTheRandomNumber {
+label = "GuessTheRandomNumber"
+"51_guess" [label="guess"]
+"51_constructor" [label="constructor"]
 }subgraph cluster_solidity {
 label = "[Solidity]"
-"return(uint256,uint256)" 
 "require(bool,string)" 
-"16_blockingFunction" -> "return(uint256,uint256)"
-"39_foo" -> "require(bool,string)"
+"blockhash(uint256)" 
+"abi.encodePacked()" 
+"keccak256(bytes)" 
+"51_guess" -> "blockhash(uint256)"
+"51_guess" -> "abi.encodePacked()"
+"51_guess" -> "require(bool,string)"
+"51_guess" -> "keccak256(bytes)"
 }
 }

@@ -111,12 +111,16 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
                     
                 combined_data['info'] = data["info"]
                 combined_data['description'] = data["description"]
+                combined_data['background'] = data["background"]
                 combined_data['exploit_scenario'] = data["exploit_scenario"]
+                combined_data['examples'] = data["examples"]
                 combined_data['recommendation'] = data["recommendation"]
                 
                 combined_data['info_korean'] = data["info_korean"]
                 combined_data['description_korean'] = data["description_korean"]
+                combined_data['background_korean'] = data["background_korean"]
                 combined_data['exploit_scenario_korean'] = data["exploit_scenario_korean"]
+                combined_data['examples_korean'] = data["examples_korean"]
                 combined_data['recommendation_korean'] = data["recommendation_korean"]
                 
                 combined_data['reference'] = data["reference"]
@@ -124,14 +128,19 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
                 if language == "korean":
                     del combined_data["info"]
                     del combined_data["description"]
+                    del combined_data["background"]
                     del combined_data["exploit_scenario"]
+                    del combined_data["examples"]
                     del combined_data["recommendation"]
                         
                 elif language == "english":
                     del combined_data["info_korean"]
                     del combined_data["description_korean"]
+                    del combined_data["background_korean"]
                     del combined_data["exploit_scenario_korean"]
+                    del combined_data["examples_korean"]
                     del combined_data["recommendation_korean"]
+                    
                 combined_data_list.append(combined_data)
         
         for combined_data in combined_data_list:

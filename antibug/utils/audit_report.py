@@ -99,15 +99,19 @@ def export_to_markdown(filename):
             code = detector_data["results"]["element"][-1]["code"]
             
             if language == "english":
-                description = detector_data["results"]["info"]
+                info = detector_data["results"]["info"]
+                background = detector_data["results"]["background"]
                 exploit_scenario = detector_data["results"]["exploit_scenario"]
+                examples = detector_data["results"]["examples"]
                 recommendation = detector_data["results"]["recommendation"]
-                info = detector_data["results"]["description"]
+                description = detector_data["results"]["description"]
             else:
                 exploit_scenario = detector_data["results"]["exploit_scenario_korean"]
                 recommendation = detector_data["results"]["recommendation_korean"]
-                description = detector_data["results"]["info_korean"]
-                info = detector_data["results"]["description_korean"]
+                info = detector_data["results"]["info_korean"]
+                description = detector_data["results"]["description_korean"]
+                background = detector_data["results"]["background_korean"]
+                examples = detector_data["results"]["examples_korean"]
             
             payload += f"<details>\n"
             payload += f"<summary style='font-size: 20px;'>{detector}</summary>\n"
@@ -116,7 +120,7 @@ def export_to_markdown(filename):
             payload += f"## Detect Results\n\n"
             payload += f"| Detector | Impact | Confidence | Info |\n"
             payload += f"|:---:|:---:|:---:|:---:|\n"
-            payload += f"| {detector} | {impact} | {confidence} | {description} |||\n\n\n"
+            payload += f"| {detector} | {impact} | {confidence} | {info} |||\n\n\n"
             
             payload += f"## Vulnerabiltiy in code:\n\n"
             # payload += f"```solidity\n"
@@ -128,14 +132,28 @@ def export_to_markdown(filename):
                 payload += f"line {code['line']}: {code['code']}\n"
                 payload += f"```\n"
                 payload += f" ---\n\n "
-                
-            payload += f"{info}\n\n"
+            
+            payload += f"""
+<details>\n
+<summary style='font-size: 18px; color:pink;'> 💡 Background </summary><br />
+{background}
+</details>\n\n"""
+
+            payload += f"<br />\n\n"
+            
+            payload += f"## Description:\n\n"
+            payload += f"{description}\n\n"
+            
+            
+            payload += f"## Recommendation:\n\n"
+            payload += f"{recommendation}\n\n" 
+            
             
             payload += f"## Exploit scenario:\n\n"
             payload += f"{exploit_scenario}\n\n"
             
-            payload += f"## Recommendation:\n\n"
-            payload += f"{recommendation}\n\n" 
+            payload += f"## Real World Examples:\n\n"
+            payload += f"{examples}\n\n"
             
             payload += f"## Reference:\n\n"
             payload += f"{reference}\n\n"   
