@@ -1,17 +1,12 @@
 import streamlit as st
 import time
-import pandas as pd
-from PIL import Image
-from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
 from antibug.run_security_report.utils import get_json_data, parse_json_data_overview
 from antibug.run_security_report.utils import parse_json_data_details, call_graph_path, parse_contract_analysis_data, read_contract_analysis_json
-from antibug.run_printer.printer import RunPrinter
-
 
 
 def streamlit_page():
     st.title('Report for Audit')
-
+    
     tab_titles = ['Contract Analysis', 'Security Analysis', 'Audit Report']
     contract_analysis_tab, security_analysis_tab, audit_report_tab = st.tabs(tab_titles)
     json_file_english, json_file_korean = get_json_data()
@@ -38,7 +33,6 @@ def streamlit_page():
             for contract_name in options:
                 parse_contract_analysis_data(contract_name, json_data)
         
-          
 
     with security_analysis_tab:
         st.header('Security Analysis')
@@ -54,7 +48,6 @@ def streamlit_page():
         languages = ['English', 'Korean']
         selected_lang = st.selectbox('언어를 선택해주세요', languages)
         
-        
         options=st.multiselect('Select detector', detector_list)
         
         if selected_lang == 'English':
@@ -68,10 +61,8 @@ def streamlit_page():
       
 def main(): 
     st.set_page_config(page_title="Antibug", layout="wide", page_icon="🐞")
-
     streamlit_page()
 
-        
         
 if __name__ == "__main__":
     main()

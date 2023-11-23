@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-def write_audit_report(detector, impact, confidence, reference, code, description, exploit_scenario, recommendation, info):
+def write_audit_report(detector, impact, confidence, reference, code, description, exploit_scenario, recommendation, info, background, examples):
     st.expander("detector")
             
     with st.expander(detector):
@@ -11,7 +11,7 @@ def write_audit_report(detector, impact, confidence, reference, code, descriptio
             'Detector': [detector],
             'Impact': [impact],
             'Confidence': [confidence],
-            'Info': [description]
+            'Info': [info]
         })
         
         column_config = {
@@ -35,6 +35,19 @@ def write_audit_report(detector, impact, confidence, reference, code, descriptio
         st.write(info)
         st.markdown("---")
         
+        st.subheader("Background")
+        st.write(background)
+        st.markdown("---")
+    
+        
+        st.subheader("Description:")
+        st.write(description)
+        st.markdown("---")
+        
+        st.subheader("Recommendation:")
+        st.write(recommendation)
+        st.markdown("---")
+        
         st.subheader("Exploit scenario:")
         code_start = exploit_scenario.find("```solidity")
         if code_start != -1:
@@ -48,10 +61,10 @@ def write_audit_report(detector, impact, confidence, reference, code, descriptio
         st.write(exploit_scenario_description)
         st.markdown("---")  
         
-        st.subheader("Recommendation:")
-        st.write(recommendation)
+        st.subheader("Real World Examples:")
+        st.write(examples)
         st.markdown("---")
-        
+
         st.subheader("Reference:")
         st.write(reference)
         st.markdown("---")

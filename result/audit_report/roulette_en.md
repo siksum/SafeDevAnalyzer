@@ -1,4 +1,4 @@
-<button class='date-button'>2023-11-21</button>
+<button class='date-button'>2023-11-23</button>
 
 # Audit Report
 
@@ -51,20 +51,20 @@
 
 | Detector | Impact | Confidence | Info |
 |:---:|:---:|:---:|:---:|
-| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | GuessTheRandomNumber.guess(uint256) (test/prng/roulette.sol#6-15) uses a weak PRNG: "_guess == answer (test/prng/roulette.sol#11)" 
+| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | GuessTheRandomNumber.guess(uint256) (test/prng/roulette.sol#5-17) uses a weak PRNG: "_guess == answer (test/prng/roulette.sol#13)" 
  |||
 
 
 ## Vulnerabiltiy in code:
 
 ```solidity
-line 6:     function guess(uint _guess) public {
+line 5:     function guess(uint _guess) public {
 
 ```
  ---
 
  ```solidity
-line 11:         if (_guess == answer) {
+line 13:         if (_guess == answer) {
 
 ```
  ---
@@ -125,7 +125,7 @@ There are two main methods for generating random numbers in blockchain:
 ## Exploit scenario:
 
 
-``` solidity
+```solidity
 contract GuessTheRandomNumber {
     constructor() payable {}
     function guess(uint _guess) public {
@@ -144,7 +144,7 @@ contract GuessTheRandomNumber {
 - If you are generating random numbers by combining the `blockhash` and `block.timestamp` of the previous block as a seed, this is used in a contract where users can guess a number, and if their guess matches the generated number, they win `1 ether`. 
 - While it may seem like randomness has been introduced, it's important to note that it can still be manipulated. 
 
-``` solidity
+```solidity
 contract Attack {
     receive() external payable {}
 

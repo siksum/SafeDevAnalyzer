@@ -66,13 +66,14 @@ class RunDetector():
                 else:
                     print(f'Error: {self.selected_detectors} is not available')
                     return
-                if all(not sublst for sublst in results if results is not None):
-                    self.output_error.append("No detection results")
-                    compilation_units_detect_results.append(None)
-                    return compilation_units_detect_results, self.safe_dev_analyzer.file_list, self.output_error, 
-                result=self.detect_result(results)
-                self.output_error.append(None)    
-                
+            # if all((not inner_list for inner_list in sublist) for sublist in results):
+            #     self.output_error.append("No detection results")
+            #     compilation_units_detect_results.append(None)
+            #     return compilation_units_detect_results, self.safe_dev_analyzer.file_list, self.output_error, 
+            result=self.detect_result(results)
+            
+            self.output_error.append(None)    
+            
         except SlitherException as e:
             self.output_error=str(e)
             traceback.print_exc()

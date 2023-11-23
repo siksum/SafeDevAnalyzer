@@ -17,71 +17,101 @@ from slither_core.core.variables.variable import Variable
 from slither_core.detectors.abstract_detector import AbstractDetector, DetectorClassification
 from slither_core.slithir.operations import BinaryType, Binary
 from slither_core.slithir.operations import SolidityCall
+from slither_core.slithir.operations.assignment import Assignment
+from slither_core.slithir.operations.type_conversion import TypeConversion
 from slither_core.utils.output import Output, AllSupportedOutput
+from slither_core.core.declarations.solidity_variables import SOLIDITY_VARIABLES_COMPOSED, SOLIDITY_VARIABLES
 
 
-def collect_return_values_of_bad_PRNG_functions(f: Function) -> List:
-    """
-        Return the return-values of calls to blockhash()
-    Args:
-        f (Function)
-    Returns:
-        list(values)
-    """
-    values_returned = []
-    for n in f.nodes:
-        for ir in n.irs_ssa:
-            if (
-                isinstance(ir, SolidityCall)
-                and ir.function == SolidityFunction("blockhash(uint256)")
-                and ir.lvalue
-            ):
-                values_returned.append(ir.lvalue)
-    print(values_returned)
-    return values_returned
+# def collect_return_values_of_bad_PRNG_functions(f: Function) -> List:
+#     """
+#         Return the return-values of calls to blockhash()
+#     Args:
+#         f (Function)
+#     Returns:
+#         list(values)
+#     """
+#     values_returned = []
+#     for n in f.nodes:
+#         for ir in n.irs_ssa:
+#             if (
+#                 isinstance(ir, SolidityCall)
+#                 and ir.function == SolidityFunction("blockhash(uint256)")
+#                 and ir.lvalue
+#             ):
+#                 values_returned.append(ir.lvalue)
+#     return values_returned
 
 
-def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variable]) -> List[Node]:
-    """
-         Check if any node in function has a modulus operator and the first operand is dependent on block.timestamp, now or blockhash()
-    Returns:
-        (nodes)
-    """
-    ret = set()
-    # pylint: disable=too-many-nested-blocks
+# def contains_bad_PRNG_sources(func: Function, blockhash_ret_values: List[Variable]) -> List[Node]:
+#     """
+#          Check if any node in function has a modulus operator and the first operand is dependent on block.timestamp, now or blockhash()
+#     Returns:
+#         (nodes)
+#     """
+#     ret = set()
+#     # pylint: disable=too-many-nested-blocks
+#     for node in func.nodes:
+#         if node.contains_require_or_assert():
+#             for var in node.variables_read:
+#                 if is_dependent(var, SolidityVariableComposed("block.timestamp"), node):
+#                     ret.add(node)
+#                 if is_dependent(var, SolidityVariable("now"), node):
+#                     ret.add(node)
+#         for ir in node.irs:
+#             if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
+#                 for var_read in ir.read:
+#                     if not isinstance(var_read, (Variable, SolidityVariable)):
+#                         continue
+#                     if is_dependent(var_read, SolidityVariableComposed("block.timestamp"), node):
+#                         ret.add(node)
+#                     if is_dependent(var_read, SolidityVariable("now"), node):
+#                         ret.add(node)
+#         for ir in node.irs_ssa:
+#             if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
+#                 var_left = ir.variable_left
+#                 if not isinstance(var_left, (Variable, SolidityVariable)):
+#                     continue
+#                 if is_dependent_ssa(
+#                     var_left, SolidityVariableComposed("block.timestamp"), node
+#                 ) or is_dependent_ssa(var_left, SolidityVariable("now"), node):
+#                     ret.add(node)
+#                     break
+
+#                 for ret_val in blockhash_ret_values:
+#                     if is_dependent_ssa(var_left, ret_val, node):
+#                         ret.add(node)
+#                         break
+#     return list(ret)
+
+        
+def contains_bad_PRNG_sources(func: Function) -> List[Node]:
+    lvalue = [] 
+    convert_value = []
+    assignment_value = []
+    results = []
     for node in func.nodes:
-        if node.contains_require_or_assert():
-            for var in node.variables_read:
-                if is_dependent(var, SolidityVariableComposed("block.timestamp"), node):
-                    ret.add(node)
-                if is_dependent(var, SolidityVariable("now"), node):
-                    ret.add(node)
         for ir in node.irs:
-            if isinstance(ir, Binary) and BinaryType.return_bool(ir.type):
-                for var_read in ir.read:
-                    if not isinstance(var_read, (Variable, SolidityVariable)):
-                        continue
-                    if is_dependent(var_read, SolidityVariableComposed("block.timestamp"), node):
-                        ret.add(node)
-                    if is_dependent(var_read, SolidityVariable("now"), node):
-                        ret.add(node)
-        for ir in node.irs_ssa:
-            if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
-                var_left = ir.variable_left
-                if not isinstance(var_left, (Variable, SolidityVariable)):
-                    continue
-                if is_dependent_ssa(
-                    var_left, SolidityVariableComposed("block.timestamp"), node
-                ) or is_dependent_ssa(var_left, SolidityVariable("now"), node):
-                    ret.add(node)
-                    break
-
-                for ret_val in blockhash_ret_values:
-                    if is_dependent_ssa(var_left, ret_val, node):
-                        ret.add(node)
-                        break
-    return list(ret)
-
+            print(ir)
+            if isinstance(ir, SolidityCall):
+                if ir.function == SolidityFunction('keccak256(bytes)') or ir.function == SolidityFunction('blockhash(uint256)'):
+                    if any(word in str(ir.expression) for word in SOLIDITY_VARIABLES_COMPOSED.keys()):
+                        lvalue.append(ir.lvalue.name)
+                        results.append(ir.node)
+            if isinstance(ir, TypeConversion):
+                if str(ir.variable) in lvalue:
+                    convert_value.append(ir.lvalue.name)
+                print(convert_value)
+            if isinstance(ir, Assignment):
+                print("AAAAA", ir.rvalue.name)
+                if str(ir.rvalue.name) in convert_value :
+                    assignment_value.append(ir.lvalue.name)
+            if node.contains_if() or node.contains_require_or_assert():
+                for var in node.variables_read:
+                    if str(var) in assignment_value:
+                        results.append(ir.node)
+    print(results)
+    return results
 
 def detect_bad_PRNG(contract: Contract) -> List[Tuple[Function, List[Node]]]:
     """
@@ -90,12 +120,12 @@ def detect_bad_PRNG(contract: Contract) -> List[Tuple[Function, List[Node]]]:
     Returns:
         list((Function), (list (Node)))
     """
-    blockhash_ret_values = []
-    for f in contract.functions:
-        blockhash_ret_values += collect_return_values_of_bad_PRNG_functions(f)
+    # blockhash_ret_values = []
+    # for f in contract.functions:
+    #     blockhash_ret_values += collect_return_values_of_bad_PRNG_functions(f)
     ret: List[Tuple[Function, List[Node]]] = []
     for f in contract.functions:
-        bad_prng_nodes = contains_bad_PRNG_sources(f, blockhash_ret_values)
+        bad_prng_nodes = contains_bad_PRNG_sources(f)
         if bad_prng_nodes:
             ret.append((f, bad_prng_nodes))
     return ret
@@ -150,7 +180,7 @@ There are two main methods for generating random numbers in blockchain:
 
     # region wiki_exploit_scenario
     WIKI_EXPLOIT_SCENARIO = """
-``` solidity
+```solidity
 contract GuessTheRandomNumber {
     constructor() payable {}
     function guess(uint _guess) public {
@@ -169,7 +199,7 @@ contract GuessTheRandomNumber {
 - If you are generating random numbers by combining the `blockhash` and `block.timestamp` of the previous block as a seed, this is used in a contract where users can guess a number, and if their guess matches the generated number, they win `1 ether`. 
 - While it may seem like randomness has been introduced, it's important to note that it can still be manipulated. 
 
-``` solidity
+```solidity
 contract Attack {
     receive() external payable {}
 
@@ -247,7 +277,7 @@ API 데이터와 같은 외부 randomness 소스를 가져와 컨트랙트 동�
 - 그러나 블록체인은 네트워크의 모든 노드가 동일한 결론에 도달하도록 보장하기 때문에, 동일한 입력이 주어지면 컨트랙트의 출력은 항상 동일하다는 특징이 있습니다.
     """
     WIKI_EXPLOIT_SCENARIO_KOREAN = """
-``` solidity
+```solidity
 contract GuessTheRandomNumber {
     constructor() payable {}
     function guess(uint _guess) public {
@@ -266,7 +296,7 @@ contract GuessTheRandomNumber {
 - 이전 블록의 `blockhash`와 `block.timestamp`을 난수 시드로 결합하여 업데이트 하는 방식으로 난수를 생성하고 있습니다.
 - 사용자가 추측한 숫자가 생성된 숫자와 일치하면 `1 ether`를 획득하게 되는 컨트랙트이며, 무작위성이 도입된 것으로 보이지만 조작이 가능합니다.
 
-``` solidity
+```solidity
 contract Attack {
     receive() external payable {}
 
@@ -319,10 +349,8 @@ contract Attack {
         results = []
         for c in self.compilation_unit.contracts_derived:
             values = detect_bad_PRNG(c)
-            print(values)
             for func, nodes in values:
                 for node in nodes:
-                    print(node)
                     info: List[AllSupportedOutput] = [func, ' uses a weak PRNG: "', node, '" \n']
                     info_kr=f"{func} 함수는 블록 변수를 이용하여 난수를 생성합니다. {node}"
                     json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_BACKGROUND, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_EXAMPLES, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_BACKGROUND_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_EXAMPLES_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
@@ -330,3 +358,5 @@ contract Attack {
                     results.append(json)
 
         return results
+    
+

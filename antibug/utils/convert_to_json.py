@@ -4,6 +4,7 @@ import os
 import shutil
 from typing import Optional
 from antibug.compile.safe_dev_analyzer import SafeDevAnalyzer
+from antibug.run_detectors.detectors import RunDetector
 
 
 def get_root_dir():
@@ -80,10 +81,7 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
     combined_data_list = [] 
     json_result = {}  
     result_list = [item for item in result_list if item is not None and item != '' and item != []]
-
-    if len(result_list) == 0:
-        print("Nothing to detect")
-        return 0   
+    print(result_list)
     for language in ["korean", "english"]:
         for result in result_list:
             for data in result:
@@ -142,9 +140,9 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
                     del combined_data["recommendation_korean"]
                     
                 combined_data_list.append(combined_data)
-        
+                
         for combined_data in combined_data_list:
-            json_result[combined_data["detector"]] = {"success": error is None, "error": error, "results": combined_data}
+            json_result[combined_data["detector"]] = {"success": error[0] is None, "error": error[0], "results": combined_data}
             combined_json = json.dumps(json_result, indent=2, ensure_ascii=False)
             write_to_json(output_dir_path, combined_json, language, filename)
 

@@ -22,8 +22,9 @@ def get_json_path_list():
 
 def get_json_data():
     json_files=get_json_path_list()
+    print(json_files)
     json_data = {}
-    language_list = ["English", "Korean"]
+    language_list = ["Korean", "English"]
     for json_file, language in zip(json_files, language_list):
         with open(json_file, "r") as file:
             json_str = file.read()
@@ -61,6 +62,7 @@ def parse_json_data_overview(json_data):
 def parse_json_data_details(json_data, language, detector_option):
     for detector_type, detector_data in json_data.items():
         detector = detector_data["results"]["detector"]
+        print(detector_data["results"])
 
         if detector_option == detector:
             impact = detector_data["results"]["impact"]
@@ -69,16 +71,20 @@ def parse_json_data_details(json_data, language, detector_option):
             code = detector_data["results"]["element"]
             
             if language == "English":
-                description = detector_data["results"]["info"]
+                info = detector_data["results"]["info"]
                 exploit_scenario = detector_data["results"]["exploit_scenario"]
                 recommendation = detector_data["results"]["recommendation"]
-                info = detector_data["results"]["description"]
+                description = detector_data["results"]["description"]
+                background = detector_data["results"]["background"]
+                examples = detector_data["results"]["examples"]
             else:
                 exploit_scenario = detector_data["results"]["exploit_scenario_korean"]
                 recommendation = detector_data["results"]["recommendation_korean"]
-                description = detector_data["results"]["info_korean"]
-                info = detector_data["results"]["description_korean"]
-            write_audit_report(detector, impact, confidence, reference, code, description, exploit_scenario, recommendation, info)
+                info = detector_data["results"]["info_korean"]
+                description = detector_data["results"]["description_korean"]
+                background = detector_data["results"]["background_korean"]
+                examples = detector_data["results"]["examples_korean"]
+            write_audit_report(detector, impact, confidence, reference, code, description, exploit_scenario, recommendation, info, background, examples)
         else:
             continue
 

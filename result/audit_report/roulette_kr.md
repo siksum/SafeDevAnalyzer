@@ -1,4 +1,4 @@
-<button class='date-button'>2023-11-21</button>
+<button class='date-button'>2023-11-23</button>
 
 # Audit Report
 
@@ -57,13 +57,13 @@
 ## Vulnerabiltiy in code:
 
 ```solidity
-line 6:     function guess(uint _guess) public {
+line 5:     function guess(uint _guess) public {
 
 ```
  ---
 
  ```solidity
-line 11:         if (_guess == answer) {
+line 13:         if (_guess == answer) {
 
 ```
  ---
@@ -125,7 +125,7 @@ API 데이터와 같은 외부 randomness 소스를 가져와 컨트랙트 동�
 ## Exploit scenario:
 
 
-``` solidity
+```solidity
 contract GuessTheRandomNumber {
     constructor() payable {}
     function guess(uint _guess) public {
@@ -144,7 +144,7 @@ contract GuessTheRandomNumber {
 - 이전 블록의 `blockhash`와 `block.timestamp`을 난수 시드로 결합하여 업데이트 하는 방식으로 난수를 생성하고 있습니다.
 - 사용자가 추측한 숫자가 생성된 숫자와 일치하면 `1 ether`를 획득하게 되는 컨트랙트이며, 무작위성이 도입된 것으로 보이지만 조작이 가능합니다.
 
-``` solidity
+```solidity
 contract Attack {
     receive() external payable {}
 

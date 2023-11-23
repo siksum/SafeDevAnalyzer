@@ -18,10 +18,10 @@
         "Visibility": "public",
         "Modifiers": [],
         "Internal Calls": [
+          "abi.encodePacked()",
           "keccak256(bytes)",
-          "blockhash(uint256)",
           "require(bool,string)",
-          "abi.encodePacked()"
+          "blockhash(uint256)"
         ],
         "External Calls": [
           "msg.sender.call{value: 1000000000000000000}()",
