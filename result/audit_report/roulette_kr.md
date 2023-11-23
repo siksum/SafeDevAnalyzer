@@ -51,7 +51,7 @@
 
 | Detector | Impact | Confidence | Info |
 |:---:|:---:|:---:|:---:|
-| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | guess 함수는 블록 변수를 이용하여 난수를 생성합니다. IF _guess == answer |||
+| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | guess 함수는 블록 변수를 이용하여 난수를 생성합니다. NEW VARIABLE answer = uint256(keccak256(bytes)(abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp))) |||
 
 
 ## Vulnerabiltiy in code:
@@ -63,7 +63,7 @@ line 5:     function guess(uint _guess) public {
  ---
 
  ```solidity
-line 13:         if (_guess == answer) {
+line 6:         uint answer = uint(
 
 ```
  ---
@@ -92,6 +92,7 @@ line 13:         if (_guess == answer) {
 완전한 난수가 생성되지 않는다는 것은 난수 생성에 대한 결과를 예측할 수 있어 조작을 할 수 있다는 것을 의미합니다.
 
 완전한 난수는 `atmospheric noise`나 `user action` 등 예측할 수 없는 외부 요인에 의존해야 하지만, 스마트 컨트랙트는 이러한 요인에 직접적으로 접근할 수 없어 완전한 난수를 생성할 수 없습니다.
+
 특히나, 스마트 컨트랙트는 개인키 생성 등 보안 메커니즘을 위해 사용하는 경우도 있으나, 공격자가 개인 키를 예측하여 계정이나 자금에 무단으로 액세스할 수도 있습니다.
 
 블록체인에서 난수를 생성하는 방법은 크게 두 가지로 나눌 수 있습니다.

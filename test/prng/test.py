@@ -33,6 +33,8 @@ for compilation in instance.compilation_units.values():
                     if isinstance(ir, TypeConversion):
                         if str(ir.variable) in lvalue:
                             convert_value.append(ir.lvalue.name)
+                    if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
+                        results.append(node)  
                     if isinstance(ir, Assignment):
                         if str(ir.rvalue.name) in convert_value :
                             assignment_value.append(ir.lvalue.name)

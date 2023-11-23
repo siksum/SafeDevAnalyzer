@@ -92,7 +92,6 @@ def contains_bad_PRNG_sources(func: Function) -> List[Node]:
     results = []
     for node in func.nodes:
         for ir in node.irs:
-            print(ir)
             if isinstance(ir, SolidityCall):
                 if ir.function == SolidityFunction('keccak256(bytes)') or ir.function == SolidityFunction('blockhash(uint256)'):
                     if any(word in str(ir.expression) for word in SOLIDITY_VARIABLES_COMPOSED.keys()):
@@ -101,16 +100,15 @@ def contains_bad_PRNG_sources(func: Function) -> List[Node]:
             if isinstance(ir, TypeConversion):
                 if str(ir.variable) in lvalue:
                     convert_value.append(ir.lvalue.name)
-                print(convert_value)
+            if isinstance(ir, Binary) and ir.type == BinaryType.MODULO:
+                results.append(node) 
             if isinstance(ir, Assignment):
-                print("AAAAA", ir.rvalue.name)
                 if str(ir.rvalue.name) in convert_value :
                     assignment_value.append(ir.lvalue.name)
             if node.contains_if() or node.contains_require_or_assert():
                 for var in node.variables_read:
                     if str(var) in assignment_value:
                         results.append(ir.node)
-    print(results)
     return results
 
 def detect_bad_PRNG(contract: Contract) -> List[Tuple[Function, List[Node]]]:
@@ -246,6 +244,7 @@ contract Attack {
 완전한 난수가 생성되지 않는다는 것은 난수 생성에 대한 결과를 예측할 수 있어 조작을 할 수 있다는 것을 의미합니다.
 
 완전한 난수는 `atmospheric noise`나 `user action` 등 예측할 수 없는 외부 요인에 의존해야 하지만, 스마트 컨트랙트는 이러한 요인에 직접적으로 접근할 수 없어 완전한 난수를 생성할 수 없습니다.
+
 특히나, 스마트 컨트랙트는 개인키 생성 등 보안 메커니즘을 위해 사용하는 경우도 있으나, 공격자가 개인 키를 예측하여 계정이나 자금에 무단으로 액세스할 수도 있습니다.
 
 블록체인에서 난수를 생성하는 방법은 크게 두 가지로 나눌 수 있습니다.

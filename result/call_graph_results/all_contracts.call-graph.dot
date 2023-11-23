@@ -5,13 +5,13 @@ label = "GuessTheRandomNumber"
 "51_constructor" [label="constructor"]
 }subgraph cluster_solidity {
 label = "[Solidity]"
-"keccak256(bytes)" 
-"blockhash(uint256)" 
-"abi.encodePacked()" 
 "require(bool,string)" 
+"keccak256(bytes)" 
+"abi.encodePacked()" 
+"blockhash(uint256)" 
+"51_guess" -> "abi.encodePacked()"
+"51_guess" -> "blockhash(uint256)"
 "51_guess" -> "keccak256(bytes)"
 "51_guess" -> "require(bool,string)"
-"51_guess" -> "blockhash(uint256)"
-"51_guess" -> "abi.encodePacked()"
 }
 }

@@ -81,7 +81,6 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
     combined_data_list = [] 
     json_result = {}  
     result_list = [item for item in result_list if item is not None and item != '' and item != []]
-    print(result_list)
     for language in ["korean", "english"]:
         for result in result_list:
             for data in result:
