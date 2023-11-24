@@ -447,7 +447,6 @@ def _run_solc(
 
     if stderr and (not solc_disable_warnings):
         LOGGER.error(stderr)
-        sys.exit(1)
         
     try:
         ret: Dict = json.loads(stdout)
