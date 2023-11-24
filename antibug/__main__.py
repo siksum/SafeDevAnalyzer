@@ -89,7 +89,7 @@ def main():
             # call graph -> png
             printer = RunPrinter(analyzer, 'call-graph')
             printer.register_and_run_printers()
-            printer.convert_dot_to_png()
+            # printer.convert_dot_to_png()
             
             result_list, filename, error = detect_vuln_action(analyzer, args.detector)
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)

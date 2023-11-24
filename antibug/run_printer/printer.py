@@ -34,13 +34,13 @@ class RunPrinter():
             # printer_results = [x for x in result if x]  # remove empty results
             # results_printers.extend(printer_results)
             
-        # return results_printersx/
+        # return results_printers
     
-    def convert_dot_to_png(self):
-        dot = f"call-graph.dot"
-        output_dir_path = os.path.join(get_root_dir(), f"result/call_graph_results/{dot}")
-        graph = graphviz.Source.from_file(output_dir_path)
-        graph.render(filename=output_dir_path[:-4], format='png', cleanup=True)
+    # def convert_dot_to_png(self):
+    #     dot = f"call-graph.dot"
+    #     output_dir_path = os.path.join(get_root_dir(), f"result/call_graph_results/{dot}")
+    #     graph = graphviz.Source.from_file(output_dir_path)
+    #     graph.render(filename=output_dir_path[:-4], format='png', cleanup=True)
         
 
 def contract_analysis(safe_dev_analyzer: "SafeDevAnalyzer"):

@@ -1,17 +1,16 @@
 <script src='https://unpkg.com/mermaid@8.1.0/dist/mermaid.min.js'></script>
 <div class='mermaid'>
 classDiagram
-	class Bar{
-		blockingFunction
-		f
-	}
-	class Foo{
-		foo
+	class GuessTheRandomNumber{
+		constructor
+		guess
 	}
 	class Solidity{
-		return(uint256,uint256)
+		keccak256(bytes)
+		blockhash(uint256)
+		abi.encodePacked()
 		require(bool,string)
 	}
-Foo --|> Solidity
-Foo --|> Bar
+GuessTheRandomNumber --|> Solidity
+
 </div>

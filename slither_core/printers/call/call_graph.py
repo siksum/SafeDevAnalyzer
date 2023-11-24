@@ -221,8 +221,7 @@ def _process_functions(functions: Sequence[Function]) -> str:
     if render_solidity_calls:
         for contract in all_contracts:
             edge = _edge(f"{contract}", "Solidity\n")
-    
-    if contract_edges:
+    if contract_edges is not None:
         contract_edge = "\n".join(contract_edges)
     return render_internal_calls + render_solidity_calls + render_external_calls + edge + contract_edge
 
