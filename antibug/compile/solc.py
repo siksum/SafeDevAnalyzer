@@ -437,18 +437,15 @@ def _run_solc(
         stdout_.decode(encoding="utf-8", errors="ignore"),
         stderr_.decode(encoding="utf-8", errors="ignore"),
     )  # convert bytestrings to unicode strings
-    # solc_disable_warnings = True
     
-    warnings = []
-    errors = []
-
-    warning_pattern = r"Warning: (.+)"
-    warnings = re.findall(warning_pattern, stderr)
-    if warnings and (not solc_disable_warnings):
-        LOGGER.warning(stderr)
+    # warnings = []
+    # warning_pattern = r"Warning: (.+)"
+    # warnings = re.findall(warning_pattern, stderr)
+    # if warnings and (not solc_disable_warnings):
+    #     LOGGER.warning(stderr)
         # sys.exit(1)
 
-    else: 
+    if stderr and (not solc_disable_warnings):
         LOGGER.error(stderr)
         sys.exit(1)
         

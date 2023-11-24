@@ -7,7 +7,7 @@
 """
 from collections import defaultdict
 import os
-from typing import Optional, Union, Dict, Set, Tuple, Sequence
+from typing import Optional, Union, Dict, Set, Tuple, Sequence, List
 
 from slither_core.core.declarations import Contract, FunctionContract
 from slither_core.core.declarations.function import Function
@@ -17,15 +17,14 @@ from slither_core.printers.abstract_printer import AbstractPrinter
 from slither_core.utils.output import Output
 from antibug.utils.convert_to_json import output_dir
 
-
-def _contract_subgraph(contract: Contract) -> str:
-    return f"cluster_{contract.id}_{contract.name}"
-
+internal_call_list = []
 
 # return unique id for contract function to use as node name
 def _function_node(contract: Contract, function: Union[Function, Variable]) -> str:
-    return f"{contract.id}_{function.name}"
+    return f"{function.name}"
 
+def _contract_node(function: Union[Function, Variable]) -> str:
+    return f"{function.canonical_name.split('.')[0]}"
 
 # return unique id for solidity function to use as node name
 def _solidity_function_node(solidity_function: SolidityFunction) -> str:
@@ -33,16 +32,15 @@ def _solidity_function_node(solidity_function: SolidityFunction) -> str:
 
 
 # return dot language string to add graph edge
-def _edge(from_node: str, to_node: str) -> str:
-    return f'"{from_node}" -> "{to_node}"'
+def _edge(from_contract: str, to_contract: str) -> str:
+    return f'{from_contract} --|> {to_contract}'
 
 
 # return dot language string to add graph node (with optional label)
 def _node(node: str, label: Optional[str] = None) -> str:
     return " ".join(
         (
-            f'"{node}"',
-            f'[label="{label}"]' if label is not None else "",
+            f'{label}' if label is not None else "",
         )
     )
 
@@ -59,20 +57,22 @@ def _process_internal_call(
     if isinstance(internal_call, (Function)):
         contract_calls[contract].add(
             _edge(
-                _function_node(contract, function),
-                _function_node(contract, internal_call),
+                _contract_node(function),
+                _contract_node(internal_call),
             )
         )
     elif isinstance(internal_call, (SolidityFunction)):
         solidity_functions.add(
             _node(_solidity_function_node(internal_call)),
         )
-        solidity_calls.add(
-            _edge(
-                _function_node(contract, function),
-                _solidity_function_node(internal_call),
-            )
-        )
+        # solidity_calls.add(
+        #     _edge(
+        #         _function_node(contract, function),
+        #         _solidity_function_node(internal_call),
+        #     )
+        # )
+        internal_call_list.append(internal_call)
+    return contract_calls[contract]
 
 
 def _render_external_calls(external_calls: Set[str]) -> str:
@@ -86,27 +86,27 @@ def _render_internal_calls(
 ) -> str:
     lines = []
 
-    lines.append(f"subgraph {_contract_subgraph(contract)} {{")
-    lines.append(f'label = "{contract.name}"')
+    lines.append(f'\tclass {contract.name}{{')
+    for temp in contract_functions[contract]:
+        lines.append(f'\t\t{temp}')
+    # lines.extend(contract_calls[contract])
 
-    lines.extend(contract_functions[contract])
-    lines.extend(contract_calls[contract])
-
-    lines.append("}")
+    lines.append("\t}\n")
 
     return "\n".join(lines)
 
 
-def _render_solidity_calls(solidity_functions: Set[str], solidity_calls: Set[str]) -> str:
+def _render_solidity_calls( solidity_calls: Set[str]) -> str:
     lines = []
-
-    lines.append("subgraph cluster_solidity {")
-    lines.append('label = "[Solidity]"')
-
-    lines.extend(solidity_functions)
+    lines.append('\tclass Solidity{')
+    
+    for internal_call in internal_call_list:
+        node = _solidity_function_node(internal_call)
+        lines.append(f'\t\t{node}')
+    lines.append("\t}\n")
+        
     lines.extend(solidity_calls)
 
-    lines.append("}")
 
     return "\n".join(lines)
 
@@ -155,9 +155,9 @@ def _process_function(
     contract_functions[contract].add(
         _node(_function_node(contract, function), function.name),
     )
-
+    contract_edge = set()
     for internal_call in function.internal_calls:
-        _process_internal_call(
+        edge=_process_internal_call(
             contract,
             function,
             internal_call,
@@ -165,6 +165,8 @@ def _process_function(
             solidity_functions,
             solidity_calls,
         )
+        contract_edge.update(edge)
+        
     for external_call in function.high_level_calls:
         _process_external_call(
             contract,
@@ -174,7 +176,7 @@ def _process_function(
             external_calls,
             all_contracts,
         )
-
+    return contract_edge
 
 def _process_functions(functions: Sequence[Function]) -> str:
     # TODO  add support for top level function
@@ -189,13 +191,13 @@ def _process_functions(functions: Sequence[Function]) -> str:
     external_calls: Set[str] = set()  # external calls edges
 
     all_contracts = set()
-
+    contract_edges = set()
     for function in functions:
         if isinstance(function, FunctionContract):
             all_contracts.add(function.contract_declarer)
     for function in functions:
         if isinstance(function, FunctionContract):
-            _process_function(
+            edge = _process_function(
                 function.contract_declarer,
                 function,
                 contract_functions,
@@ -205,18 +207,24 @@ def _process_functions(functions: Sequence[Function]) -> str:
                 external_calls,
                 all_contracts,
             )
+            contract_edges.update(edge)
 
     render_internal_calls = ""
     for contract in all_contracts:
         render_internal_calls += _render_internal_calls(
             contract, contract_functions, contract_calls
-        )
-
-    render_solidity_calls = _render_solidity_calls(solidity_functions, solidity_calls)
-
+        )  
+        
+    render_solidity_calls = _render_solidity_calls(solidity_calls)
     render_external_calls = _render_external_calls(external_calls)
-
-    return render_internal_calls + render_solidity_calls + render_external_calls
+    
+    if render_solidity_calls:
+        for contract in all_contracts:
+            edge = _edge(f"{contract}", "Solidity\n")
+    
+    if contract_edges:
+        contract_edge = "\n".join(contract_edges)
+    return render_internal_calls + render_solidity_calls + render_external_calls + edge + contract_edge
 
 
 class PrinterCallGraph(AbstractPrinter):
@@ -236,43 +244,42 @@ class PrinterCallGraph(AbstractPrinter):
         
 
         all_contracts_filename = ""
-        if not filename.endswith(".dot"):
+        if not filename.endswith(".html"):
             if filename in ("", "."):
                 filename = ""
             else:
                 filename += "."
-            all_contracts_filename = os.path.join(output_dir_path, f"all_contracts.call-graph.dot")
+            all_contracts_filename = os.path.join(output_dir_path, f"all_contracts.call-graph.html")
 
-        if filename == ".dot":
-            all_contracts_filename = os.path.join(output_dir_path, "all_contracts.dot")
+        if filename == ".html":
+            all_contracts_filename = os.path.join(output_dir_path, "all_contracts.html")
 
         info = ""
         results = []
-        with open(all_contracts_filename, "w", encoding="utf8") as f:
-            info += f"Call Graph: {all_contracts_filename}\n"
+        # with open(all_contracts_filename, "w", encoding="utf8") as f:
+        #     info += f"Call Graph: {all_contracts_filename}\n"
 
-            # Avoid duplicate functions due to different compilation unit
-            all_functionss = [
-                compilation_unit.functions for compilation_unit in self.slither.compilation_units
-            ]
-            all_functions = [item for sublist in all_functionss for item in sublist]
-            all_functions_as_dict = {
-                function.canonical_name: function for function in all_functions
-            }
-            content = "\n".join(
-                ["strict digraph {"]
-                + [_process_functions(list(all_functions_as_dict.values()))]
-                + ["}"]
-            )
-            f.write(content)
-            results.append((all_contracts_filename, content))   
+        #     # Avoid duplicate functions due to different compilation unit
+        #     all_functionss = [
+        #         compilation_unit.functions for compilation_unit in self.slither.compilation_units
+        #     ]
+        #     all_functions = [item for sublist in all_functionss for item in sublist]
+        #     all_functions_as_dict = {
+        #         function.canonical_name: function for function in all_functions
+        #     }
+        #     content = "\n".join(
+        #         ["classDiagram"]
+        #         + [_process_functions(list(all_functions_as_dict.values()))]
+        #     )
+        #     f.write(content)
+        #     results.append((all_contracts_filename, content))   
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = os.path.join(output_dir_path, f"call-graph.dot")
+            derived_output_filename = os.path.join(output_dir_path, f"call-graph.html")
             with open(derived_output_filename, "w", encoding="utf8") as f:
                 info += f"Call Graph: {derived_output_filename}\n"
                 content = "\n".join(
-                    ["strict digraph {"] + [_process_functions(derived_contract.functions)] + ["}"]
+                    ["<script src='https://unpkg.com/mermaid@8.1.0/dist/mermaid.min.js'></script>"] + ["<div class='mermaid'>"] + ["classDiagram"] + [_process_functions(derived_contract.functions)] + ["</div>"]
                 )
                 f.write(content)
                 results.append((derived_output_filename, content))

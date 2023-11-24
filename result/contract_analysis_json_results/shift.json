@@ -1,0 +1,65 @@
+{
+  "Bar": {
+    "Contract Name": "Bar",
+    "Inheritance": [],
+    "State Variables": {},
+    "Function Summaries": {
+      "blockingFunction()": {
+        "Name": "blockingFunction()",
+        "Signature": "0x04d11bde",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "return(uint256,uint256)"
+        ],
+        "External Calls": []
+      },
+      "f()": {
+        "Name": "f()",
+        "Signature": "0x04d11bde",
+        "Visibility": "internal",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      }
+    }
+  },
+  "Foo": {
+    "Contract Name": "Foo",
+    "Inheritance": [
+      "Bar"
+    ],
+    "State Variables": {},
+    "Function Summaries": {
+      "blockingFunction()": {
+        "Name": "blockingFunction()",
+        "Signature": "0x04d11bde",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "return(uint256,uint256)"
+        ],
+        "External Calls": []
+      },
+      "f()": {
+        "Name": "f()",
+        "Signature": "0x04d11bde",
+        "Visibility": "internal",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      },
+      "foo()": {
+        "Name": "foo()",
+        "Signature": "0xc2985578",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "require(bool,string)",
+          "blockingFunction"
+        ],
+        "External Calls": []
+      }
+    }
+  }
+}

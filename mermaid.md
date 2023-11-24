@@ -12,3 +12,9 @@ classDiagram
     }
     GuessTheRandomNumber --|> Solidity
 </pre>
+
+<style>
+    /* .mermaid{
+        background-color: #A5A3DE;
+    } */
+</style>

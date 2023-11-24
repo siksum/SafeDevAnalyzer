@@ -1,4 +1,4 @@
-<button class='date-button'>2023-11-23</button>
+<button class='date-button'>2023-11-24</button>
 
 # Audit Report
 
@@ -51,7 +51,7 @@
 
 | Detector | Impact | Confidence | Info |
 |:---:|:---:|:---:|:---:|
-| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | guess 함수는 블록 변수를 이용하여 난수를 생성합니다. NEW VARIABLE answer = uint256(keccak256(bytes)(abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp))) |||
+| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | guess 함수는 블록 변수를 이용하여 난수를 생성합니다. IF _guess == answer |||
 
 
 ## Vulnerabiltiy in code:
@@ -63,7 +63,7 @@ line 5:     function guess(uint _guess) public {
  ---
 
  ```solidity
-line 6:         uint answer = uint(
+line 13:         if (_guess == answer) {
 
 ```
  ---

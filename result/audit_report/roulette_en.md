@@ -1,4 +1,4 @@
-<button class='date-button'>2023-11-23</button>
+<button class='date-button'>2023-11-24</button>
 
 # Audit Report
 
@@ -51,7 +51,7 @@
 
 | Detector | Impact | Confidence | Info |
 |:---:|:---:|:---:|:---:|
-| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | GuessTheRandomNumber.guess(uint256) (roulette.sol#5-17) uses a weak PRNG: "answer = uint256(keccak256(bytes)(abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp))) (roulette.sol#6-8)" 
+| weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | GuessTheRandomNumber.guess(uint256) (test/prng/roulette.sol#5-17) uses a weak PRNG: "_guess == answer (test/prng/roulette.sol#13)" 
  |||
 
 
@@ -64,7 +64,7 @@ line 5:     function guess(uint _guess) public {
  ---
 
  ```solidity
-line 6:         uint answer = uint(
+line 13:         if (_guess == answer) {
 
 ```
  ---
