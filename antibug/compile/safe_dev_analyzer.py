@@ -29,7 +29,7 @@ class SafeDevAnalyzer():
                     self.file_list.append(self.file_path)
                     if self.solc_parse is None:
                         self.solc_parse = SolcParser(self.file_list[0])
-                    self.solc_parse.run_parser()                    
+                    self.solc_parse.run_parser()    
                     self.antibug_compile.append(AntibugCompile(self.file_list[0], self.solc_parse._solc_binary_version))
                     
                     self.compilation_units[os.path.basename(self.file_path)] = Slither(self.antibug_compile[0]) 
