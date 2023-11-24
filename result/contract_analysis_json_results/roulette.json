@@ -18,9 +18,9 @@
         "Visibility": "public",
         "Modifiers": [],
         "Internal Calls": [
-          "keccak256(bytes)",
           "blockhash(uint256)",
           "abi.encodePacked()",
+          "keccak256(bytes)",
           "require(bool,string)"
         ],
         "External Calls": [

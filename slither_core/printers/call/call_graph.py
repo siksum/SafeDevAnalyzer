@@ -274,14 +274,24 @@ class PrinterCallGraph(AbstractPrinter):
         #     results.append((all_contracts_filename, content))   
 
         for derived_contract in self.slither.contracts_derived:
-            derived_output_filename = os.path.join(output_dir_path, f"call-graph.html")
-            with open(derived_output_filename, "w", encoding="utf8") as f:
-                info += f"Call Graph: {derived_output_filename}\n"
-                content = "\n".join(
-                    ["<script src='https://unpkg.com/mermaid@8.1.0/dist/mermaid.min.js'></script>"] + ["<div class='mermaid'>"] + ["classDiagram"] + [_process_functions(derived_contract.functions)] + ["</div>"]
-                )
-                f.write(content)
-                results.append((derived_output_filename, content))
+            function_process = _process_functions(derived_contract.functions)
+            for lang in ["html", "md"]:
+                derived_output_filename = os.path.join(output_dir_path, f"call-graph.{lang}")
+                
+                with open(derived_output_filename, "w", encoding="utf8") as f:
+                    info += f"Call Graph: {derived_output_filename}\n"
+                    if lang == "md":
+                        content = "\n".join(
+                            ["```mermaid"] + ["classDiagram"] + [function_process] + ["```"]
+                        )
+                        
+                    else:
+                        content = "\n".join(
+                            ["<script src='https://unpkg.com/mermaid@8.1.0/dist/mermaid.min.js'></script>"] + ["<div class='mermaid'>"] + ["classDiagram"] + [function_process] + ["</div>"]
+                        )
+                        
+                    f.write(content)
+                    results.append((derived_output_filename, content))
 
         self.info(info)
         res = self.generate_output(info)
