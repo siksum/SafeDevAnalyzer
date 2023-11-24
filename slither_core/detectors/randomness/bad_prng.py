@@ -341,8 +341,6 @@ contract Attack {
     """
     
     
-    
-    
     def _detect(self) -> List[Output]:
         """Detect bad PRNG due to the use of block.timestamp, now or blockhash (block.blockhash) as a source of randomness"""
         results = []

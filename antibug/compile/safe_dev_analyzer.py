@@ -32,8 +32,8 @@ class SafeDevAnalyzer():
                     self.solc_parse.run_parser()                    
                     self.antibug_compile.append(AntibugCompile(self.file_list[0], self.solc_parse._solc_binary_version))
                     
-                    self.compilation_units[os.path.basename(
-                        self.file_path)] = Slither(self.antibug_compile[0]) 
+                    self.compilation_units[os.path.basename(self.file_path)] = Slither(self.antibug_compile[0]) 
+                    
         except InvalidCompilation:
             return
 
