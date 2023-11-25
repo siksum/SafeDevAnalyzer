@@ -275,7 +275,8 @@ class AbstractDetector(metaclass=abc.ABCMeta):
 
     def generate_result(
         self,
-        info: DETECTOR_INFO,
+        # info: DETECTOR_INFO,
+        info,
         description,
         background,
         exploit_scenario,

@@ -1,0 +1,91 @@
+{
+  "Target": {
+    "Contract Name": "Target",
+    "Inheritance": [],
+    "State Variables": {
+      "pwned()": {
+        "Name": "pwned",
+        "Signature": "0x95f11c0e",
+        "Slot": 0,
+        "Offset": 0
+      }
+    },
+    "Function Summaries": {
+      "isContract(address)": {
+        "Name": "isContract(address)",
+        "Signature": "0x16279055",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      },
+      "protected()": {
+        "Name": "protected()",
+        "Signature": "0x834d8185",
+        "Visibility": "external",
+        "Modifiers": [],
+        "Internal Calls": [
+          "isContract",
+          "require(bool,string)"
+        ],
+        "External Calls": []
+      },
+      "slitherConstructorVariables()": {
+        "Name": "slitherConstructorVariables()",
+        "Signature": "0x834d8185",
+        "Visibility": "internal",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      }
+    }
+  },
+  "FailedAttack": {
+    "Contract Name": "FailedAttack",
+    "Inheritance": [],
+    "State Variables": {},
+    "Function Summaries": {
+      "pwn(address)": {
+        "Name": "pwn(address)",
+        "Signature": "0x02c6591d",
+        "Visibility": "external",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": [
+          "Target(_target).protected()"
+        ]
+      }
+    }
+  },
+  "Hack": {
+    "Contract Name": "Hack",
+    "Inheritance": [],
+    "State Variables": {
+      "isContract()": {
+        "Name": "isContract",
+        "Signature": "0xf7ec2f35",
+        "Slot": 0,
+        "Offset": 0
+      },
+      "addr()": {
+        "Name": "addr",
+        "Signature": "0x767800de",
+        "Slot": 0,
+        "Offset": 1
+      }
+    },
+    "Function Summaries": {
+      "constructor(address)": {
+        "Name": "constructor(address)",
+        "Signature": "0xf8a6c595",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": [
+          "Target(_target).isContract(address(this))",
+          "Target(_target).protected()"
+        ]
+      }
+    }
+  }
+}

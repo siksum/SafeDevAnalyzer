@@ -1,15 +1,11 @@
 ```mermaid
 classDiagram
-	class GuessTheRandomNumber{
+	class Hack{
 		constructor
-		guess
 	}
 	class Solidity{
-		blockhash(uint256)
-		keccak256(bytes)
 		require(bool,string)
-		abi.encodePacked()
 	}
-GuessTheRandomNumber --|> Solidity
+Hack --|> Solidity
 
 ```

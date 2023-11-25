@@ -1,0 +1,29 @@
+{
+  "incorrect-extcodesize": {
+    "success": true,
+    "error": null,
+    "results": {
+      "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/extcodesize.sol",
+      "detector": "incorrect-extcodesize",
+      "impact": "Informational",
+      "confidence": "High",
+      "element": [
+        {
+          "type": "function",
+          "name": "isContract",
+          "line": 5,
+          "code": "    function isContract(address account) public view returns (bool) {\n",
+          "parent_type": "contract",
+          "parent_name": "Target"
+        }
+      ],
+      "info": "Target.isContract(address) (test/extcodesize.sol#5-14) uses `extcodesize` for contract size check. Use `code.length` instead of `extcodesize`.\n",
+      "description": "\nIn certain smart contracts, for security reasons, calls are only permitted from Externally Owned Accounts (EOA) and not from other smart contracts. To prevent a function from being executed by a contract, a `require` statement is needed to ensure that `msg.sender` does not have any code stored, indicating that it is an EOA.\n\nHowever, the logic of checking whether `msg.sender` is an EOA by using the built-in `extcodesize` in assembly can be easily bypassed by attackers.\n\nChecking the code size of an address can be beneficial when the purpose is to protect users, such as preventing the transfer of funds or tokens into a contract that could become permanently locked. However, it is not advisable to use this method when it is necessary for the function caller to be an EOA.\n\nDuring the construction of a contract, even if the address is a contract address, `extcodesize` will return 0 for that address, allowing the contract to be bypassed.\n    ",
+      "background": "\n<details> \n    <summary style='font-size: 18px;color:pink;'> 💡 What is Inline Assembly? </summary><br />\n    \n`inline-assembly` allows for direct interaction with the EVM, providing a level of control and precision that is not achievable at a high-level.\n\nSpecifically, it enables you to adjust gas usage and access specific EVM features. In Solidity, you can write `inline-assembly` using the intermediate language Yul, which is designed to compile into EVM bytecode. \n\nIt is written in the following form:\n\n```solidity\nassembly{ ... }\n```\n\n</details>\n<br />  \n\n<details> \n    <summary style='font-size: 18px;color:pink;'> 💡 What is extcode? </summary><br />\n    \nThe `extcodesize` function is one of the `Ethereum Virtual Machine (EVM)` opcodes, which returns the size of the code at a specific address in bytes. \nThis function is used to determine whether the address that called a contract is an `Externally Owned Account (EOA)` or a `Contract Account (CA)`.\n\nWhen a contract is being created, it does not yet have code, so the code executed by the constructor is not included in the bytecode.\n\nIn essence, if the code size at an address is `greater than zero`, then the address is a `CA`, and if it is `zero`, it is an `EOA`.\n\n</details>\n<br />\n    ",
+      "exploit_scenario": "\n```solidity\npragma solidity ^0.8.13;\n\ncontract Target {\n    function isContract(address account) public view returns (bool) {\n        uint size;\n        assembly {\n            size := extcodesize(account)\n        }\n        return size > 0;\n    }\n\n    bool public pwned = false;\n\n    function protected() external {\n        require(!isContract(msg.sender), \"no contract allowed\");\n        pwned = true;\n    }\n}\n```\n\nThe `Target` contract is defined to allow calls only from Externally Owned Accounts (EOA) through a `protected` function, and not from other smart contracts.\n\nUsing `extcodesize`, if the caller is a Contract Account (CA), the `pwned` value is kept as `false`.\n\nIn the `protected` function, a `require` statement checks if `msg.sender` is an EOA, and if it is, the `pwned` value is changed to `true`.\n\nHowever, the logic of using the built-in `extcodesize` in assembly to check if `msg.sender` is an EOA can be easily bypassed by attackers.\n\n```solidity\ncontract Hack {\n    bool public isContract;\n    address public addr;\n\n    constructor(address _target) {\n        isContract = Target(_target).isContract(address(this));\n        addr = address(this);\n        Target(_target).protected();\n    }\n}\n```\n\nAttackers can bypass the security measures by implementing a logic in their constructor that calls the `isContract` and `protected` functions of the `Target` contract. \n\nThis allows them to change the value of `pwned` to `true`.\n\n    ",
+      "examples": "",
+      "recommendation": "\nFrom Solidity version 0.8.0 onwards, you can check if an address is a contract address using the `code.length` property. \n\n```solidity\nfunction isContract(address _addr) view returns (bool) {\n  return _addr.code.length > 0;\n}\n```\n\nIt is more reliable to use the `code.length` property to determine if an address is a contract address.\n    ",
+      "reference": "\n- https://solidity-by-example.org/hacks/contract-size/\n- https://ethereum.stackexchange.com/questions/15641/how-does-a-contract-find-out-if-another-address-is-a-contract\n- https://consensys.github.io/smart-contract-best-practices/development-recommendations/solidity-specific/extcodesize-checks/    \n    "
+    }
+  }
+}

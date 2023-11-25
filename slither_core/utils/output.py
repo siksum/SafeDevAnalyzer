@@ -238,6 +238,7 @@ class Output:
     def __init__(
         self,
         info_: Union[str, List[Union[str, SupportedOutput]]],
+        # info: Optional[str] = None,
         description: Optional[str] = None,
         background: Optional[str] = None,
         exploit_scenario: Optional[str] = None,
@@ -268,6 +269,7 @@ class Output:
         self._data = OrderedDict()
         self._data["elements"] = []
         self._data["info"] = "".join(_convert_to_description(d) for d in info)
+        # self._data["info"] = info
         self._data["description"] = description
         self._data["background"] = background
         # self._data["markdown"] = "".join(_convert_to_markdown(d, markdown_root) for d in info)

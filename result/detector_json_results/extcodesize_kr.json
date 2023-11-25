@@ -1,0 +1,29 @@
+{
+  "incorrect-extcodesize": {
+    "success": true,
+    "error": null,
+    "results": {
+      "filename": "/Users/sikk/Desktop/Antibug/SafeDevAnalyzer/test/extcodesize.sol",
+      "detector": "incorrect-extcodesize",
+      "impact": "Informational",
+      "confidence": "High",
+      "element": [
+        {
+          "type": "function",
+          "name": "isContract",
+          "line": 5,
+          "code": "    function isContract(address account) public view returns (bool) {\n",
+          "parent_type": "contract",
+          "parent_name": "Target"
+        }
+      ],
+      "info_korean": "함수 `Target.isContract(address)`가 컨트랙트의 크기를 확인하기 위해 `extcodesize`를 사용합니다. `extcodesize` 대신 `code.length`를 사용하세요.\n",
+      "description_korean": "\n특정 스마트 컨트랙트에서는 보안상의 이유로 `EOA`에서만 호출을 허용하고 다른 스마트 컨트랙트에서는 호출을 허용하지 않도록 정의되어 있습니다.\n이러한 경우 함수가 컨트랙트에서 실행되는 것을 방지하려면 주소에 코드가 저장되지 않은 `msg.sender`를 요구하기 위해 `require` 문이 필요합니다.\n\n그러나 어셈블리에 내장된 `extcodesize`를 사용하여 `EOA`인지 확인하는 로직은 공격자가 쉽게 우회할 수 있습니다.\n\n주소의 코드 크기를 확인하는 것은 사용자가 영원히 잠길 수 있는 컨트랙트로 자금이나 토큰을 이체하는 것을 방지하는 등 사용자에게 이득을 주는 것이 목적일 때 유용합니다.\n함수 호출자가 `EOA`이어야 하는 경우에는 이 방법을 사용하지 않는 것이 좋습니다.\n\n컨트랙트를 구성하는 동안 해당 주소가 컨트랙트 주소이더라도 해당 주소에 대한 `extcodesize 0`을 반환하게 되어 컨트랙트를 우회할 수 있습니다.\n    ",
+      "background_korean": "\n<details> \n    <summary style='font-size: 18px;color:pink;'> 💡 Inline Assembly란? </summary><br />\n    \n`inline-assembly`는 EVM에 직접적으로 상호작용하며 high-level에서 할 수 없는 수준의 control과 정밀도를 부여합니다.\n\n구체적으로, 가스 사용량을 조정하거나, 특정 EVM 기능에 액세스할 수 있습니다.\n\nsolidity에서는 EVM bytecode로 컴파일하도록 설계된 중간 언어인 Yul을 사용하여 `inline-assembly`를 작성할 수 있습니다.\n\n    assembly{ … }\n형태로 작성합니다.\n\n</details>\n<br />   \n    \n<details> \n    <summary style='font-size: 18px;color:pink;'> 💡 extcodesize 란? </summary><br />\n    \n`extcodesize` 함수는 Ethereum의 `EVM(Ethereum Virtual Machine)` 명령어 중 하나로, 특정 주소에 배포된 스마트 컨트랙트의 코드 크기를 바이트 단위로 반환합니다.\n`extcodesize` 함수는 contract를 호출한 주소가 `EOA(Externally Owned Accounts)`인지, `CA(Contract Accounts)`인지 확인하는데 사용됩니다.\n컨트랙트를 생성할 때는 아직 코드가 없으므로 constructor로 실행되는 코드는 bytecode에 포함되지 않습니다.\n\n즉, 주소의 코드 크기가 0보다 크면 해당 주소는 `CA`이며, 0이면 `EOA`입니다.\n\n</details>\n<br />   \n    ",
+      "exploit_scenario_korean": "\n```solidity\ncontract Target {\n    function isContract(address account) public view returns (bool) {\n        uint size;\n        assembly {\n            size := extcodesize(account)\n        }\n        return size > 0;\n    }\n\n    bool public pwned = false;\n\n    function protected() external {\n        require(!isContract(msg.sender), \"no contract allowed\");\n        pwned = true;\n    }\n}\n```\n`Target` 컨트랙트는 `protected` 함수를 통해 `EOA`에서만 호출을 허용하고 다른 스마트 컨트랙트에서는 호출을 허용하지 않도록 정의되어 있습니다.\n\n`extcodesize`를 통해 `CA`라면 `pwned` 값을 `false`로 유지합니다.\n\n`protected` 함수에서 require 문을 통해 msg.sender가 EOA인지 확인하여 `msg.sender`가 `EOA`라면 `pwned` 값을 `true`로 변경합니다.\n\n그러나 어셈블리에 내장된 `extcodesize`를 사용하여 `EOA`인지 확인하는 로직은 공격자가 쉽게 우회할 수 있습니다.\n\n```solidity\ncontract Hack {\n    bool public isContract;\n    address public addr;\n\n    constructor(address _target) {\n        isContract = Target(_target).isContract(address(this));\n        addr = address(this);\n        Target(_target).protected();\n    }\n}\n```\n공격자는 constructor에 `Target` contract의 `isContract` 함수와 `protected` 함수를 호출하는 로직을 구현하여 우회할 수 있습니다.\n\n이를 통해 `pwned`의 값을 `true`로 변경할 수 있게 됩니다. \n    ",
+      "examples_korean": "",
+      "recommendation_korean": "\nsolidity 0.8.0 버전부터 `code.length` 속성을 사용하여 컨트랙트 주소인지 확인할 수 있습니다.\n\n```solidity\nfunction isContract(address _addr) view returns (bool) {\n  return _addr.code.length > 0;\n}\n```\n\n주소가 컨트랙트 주소인지 확인하려면 `code.length` 속성을 사용하는 것이 더 안정적입니다.\n    ",
+      "reference": "\n- https://solidity-by-example.org/hacks/contract-size/\n- https://ethereum.stackexchange.com/questions/15641/how-does-a-contract-find-out-if-another-address-is-a-contract\n- https://consensys.github.io/smart-contract-best-practices/development-recommendations/solidity-specific/extcodesize-checks/    \n    "
+    }
+  }
+}
