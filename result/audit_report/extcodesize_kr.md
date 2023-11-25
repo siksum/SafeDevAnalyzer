@@ -44,14 +44,14 @@
 
                
 <details>
-<summary style='font-size: 20px;'>incorrect-extcodesize</summary>
+<summary style='font-size: 20px;'>assembly</summary>
 <div markdown='1'>
 
 ## Detect Results
 
 | Detector | Impact | Confidence | Info |
 |:---:|:---:|:---:|:---:|
-| incorrect-extcodesize | <span style='color:skyblue'> Informational </span> | <span style='color:lightcoral'> High </span> | 함수 `Target.isContract(address)`가 컨트랙트의 크기를 확인하기 위해 `extcodesize`를 사용합니다. `extcodesize` 대신 `code.length`를 사용하세요.
+| assembly | <span style='color:skyblue'> Informational </span> | <span style='color:sandybrown'> Low </span> | 함수 `Target.isContract(address)`에서 `inline-assembly`가 사용되었습니다.
  |||
 
 
@@ -79,23 +79,11 @@ line 5:     function isContract(address account) public view returns (bool) {
 
 solidity에서는 EVM bytecode로 컴파일하도록 설계된 중간 언어인 Yul을 사용하여 `inline-assembly`를 작성할 수 있습니다.
 
-    assembly{ … }
+    `assembly{ … }`
 형태로 작성합니다.
 
 </details>
-<br />   
-    
-<details> 
-    <summary style='font-size: 18px;color:pink;'> 💡 extcodesize 란? </summary><br />
-    
-`extcodesize` 함수는 Ethereum의 `EVM(Ethereum Virtual Machine)` 명령어 중 하나로, 특정 주소에 배포된 스마트 컨트랙트의 코드 크기를 바이트 단위로 반환합니다.
-`extcodesize` 함수는 contract를 호출한 주소가 `EOA(Externally Owned Accounts)`인지, `CA(Contract Accounts)`인지 확인하는데 사용됩니다.
-컨트랙트를 생성할 때는 아직 코드가 없으므로 constructor로 실행되는 코드는 bytecode에 포함되지 않습니다.
-
-즉, 주소의 코드 크기가 0보다 크면 해당 주소는 `CA`이며, 0이면 `EOA`입니다.
-
-</details>
-<br />   
+<br />    
     
 
 <br />
@@ -103,32 +91,14 @@ solidity에서는 EVM bytecode로 컴파일하도록 설계된 중간 언어인 
 ## Description:
 
 
-특정 스마트 컨트랙트에서는 보안상의 이유로 `EOA`에서만 호출을 허용하고 다른 스마트 컨트랙트에서는 호출을 허용하지 않도록 정의되어 있습니다.
-이러한 경우 함수가 컨트랙트에서 실행되는 것을 방지하려면 주소에 코드가 저장되지 않은 `msg.sender`를 요구하기 위해 `require` 문이 필요합니다.
+일반적으로 solidity 컴파일러는 메모리가 잘 정의되어 있는지 확인하고 있지만, `inline-assembly`를 사용하면 컴파일러의 검사를 벗어나기 때문에 메모리 조작으로 이어질 수 있습니다.
 
-그러나 어셈블리에 내장된 `extcodesize`를 사용하여 `EOA`인지 확인하는 로직은 공격자가 쉽게 우회할 수 있습니다.
-
-주소의 코드 크기를 확인하는 것은 사용자가 영원히 잠길 수 있는 컨트랙트로 자금이나 토큰을 이체하는 것을 방지하는 등 사용자에게 이득을 주는 것이 목적일 때 유용합니다.
-함수 호출자가 `EOA`이어야 하는 경우에는 이 방법을 사용하지 않는 것이 좋습니다.
-
-컨트랙트를 구성하는 동안 해당 주소가 컨트랙트 주소이더라도 해당 주소에 대한 `extcodesize 0`을 반환하게 되어 컨트랙트를 우회할 수 있습니다.
-    
 
 <br />
 
 ## Recommendation:
 
-
-solidity 0.8.0 버전부터 `code.length` 속성을 사용하여 컨트랙트 주소인지 확인할 수 있습니다.
-
-```solidity
-function isContract(address _addr) view returns (bool) {
-  return _addr.code.length > 0;
-}
-```
-
-주소가 컨트랙트 주소인지 확인하려면 `code.length` 속성을 사용하는 것이 더 안정적입니다.
-    
+`inline assembly` 사용에 주의하세요.
 
 <br />
 
@@ -136,56 +106,34 @@ function isContract(address _addr) view returns (bool) {
 
 
 ```solidity
-contract Target {
-    function isContract(address account) public view returns (bool) {
-        uint size;
+contract VulnerableContract {
+    uint8 public balance;
+
+    function deposit(uint8 amount) public {
         assembly {
-            size := extcodesize(account)
+            sstore(balance.slot, add(sload(balance.slot), amount))
         }
-        return size > 0;
     }
 
-    bool public pwned = false;
-
-    function protected() external {
-        require(!isContract(msg.sender), "no contract allowed");
-        pwned = true;
-    }
-}
-```
-`Target` 컨트랙트는 `protected` 함수를 통해 `EOA`에서만 호출을 허용하고 다른 스마트 컨트랙트에서는 호출을 허용하지 않도록 정의되어 있습니다.
-
-`extcodesize`를 통해 `CA`라면 `pwned` 값을 `false`로 유지합니다.
-
-`protected` 함수에서 require 문을 통해 msg.sender가 EOA인지 확인하여 `msg.sender`가 `EOA`라면 `pwned` 값을 `true`로 변경합니다.
-
-그러나 어셈블리에 내장된 `extcodesize`를 사용하여 `EOA`인지 확인하는 로직은 공격자가 쉽게 우회할 수 있습니다.
-
-```solidity
-contract Hack {
-    bool public isContract;
-    address public addr;
-
-    constructor(address _target) {
-        isContract = Target(_target).isContract(address(this));
-        addr = address(this);
-        Target(_target).protected();
+    function withdraw(uint8 amount) public {
+        require(amount <= balance, "Insufficient balance");
+        assembly {
+            sstore(balance.slot, sub(sload(balance.slot), amount))
+        }
     }
 }
-```
-공격자는 constructor에 `Target` contract의 `isContract` 함수와 `protected` 함수를 호출하는 로직을 구현하여 우회할 수 있습니다.
+```    
+`deposit` 함수에서 `amount`를 `balance`에 더할 때 `add` 명령을 사용하고 있습니다.
+`balance`가 최댓값이 255에 가까워진 상태에서 더하려고 하면 오버플로우가 발생하여 `balance`가 감소할 수 있습니다.
 
-이를 통해 `pwned`의 값을 `true`로 변경할 수 있게 됩니다. 
-    
 
 <br />
 
 ## Reference:
 
 
-- https://solidity-by-example.org/hacks/contract-size/
-- https://ethereum.stackexchange.com/questions/15641/how-does-a-contract-find-out-if-another-address-is-a-contract
-- https://consensys.github.io/smart-contract-best-practices/development-recommendations/solidity-specific/extcodesize-checks/    
+- https://medium.com/@ac1d_eth/technical-exploration-of-inline-assembly-in-solidity-b7d2b0b2bda8
+- [https://solidity-kr.readthedocs.io/ko/latest/assembly.html#:~:text=Inline assembly is a way to access the Ethereum Virtual Machine at a low level. This bypasses several important safety features and checks of Solidity. You should only use it for tasks that need it%2C and only if you are confident with using it](https://solidity-kr.readthedocs.io/ko/latest/assembly.html#:~:text=Inline%20assembly%20is%20a%20way%20to%20access%20the%20Ethereum%20Virtual%20Machine%20at%20a%20low%20level.%20This%20bypasses%20several%20important%20safety%20features%20and%20checks%20of%20Solidity.%20You%20should%20only%20use%20it%20for%20tasks%20that%20need%20it%2C%20and%20only%20if%20you%20are%20confident%20with%20using%20it).    
     
 
 </details>

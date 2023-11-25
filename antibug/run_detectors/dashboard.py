@@ -143,7 +143,6 @@ def audit_report(filename):
 
         languages = ['English', 'Korean']
         selected_lang = st.selectbox('언어를 선택해주세요', languages)
-        print(selected_lang)
         detector_list=[]
         json_data= get_json_data(filename, selected_lang.lower())
         

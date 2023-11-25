@@ -22,7 +22,6 @@ def get_json_path_list():
 
 def get_json_data():
     json_files=get_json_path_list()
-    print(json_files)
     json_data = {}
     language_list = ["Korean", "English"]
     for json_file, language in zip(json_files, language_list):
@@ -62,7 +61,6 @@ def parse_json_data_overview(json_data):
 def parse_json_data_details(json_data, language, detector_option):
     for detector_type, detector_data in json_data.items():
         detector = detector_data["results"]["detector"]
-        print(detector_data["results"])
 
         if detector_option == detector:
             impact = detector_data["results"]["impact"]

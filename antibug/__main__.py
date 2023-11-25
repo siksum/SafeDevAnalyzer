@@ -95,9 +95,9 @@ def main():
             ret= convert_to_detect_result_json(result_list, filename, error, analyzer)
             if ret != 0:
                 export_to_markdown(args.target)
-                streamlit_path_ = get_root_dir()
-                streamlit_path = os.path.join(streamlit_path_+"/antibug/run_security_report/app.py")
-                print(f"Streamlit Path: {streamlit_path} ")
+                # streamlit_path_ = get_root_dir()
+                # streamlit_path = os.path.join(streamlit_path_+"/antibug/run_security_report/app.py")
+                # print(f"Streamlit Path: {streamlit_path} ")
         except Exception as e:
             print(str(e)) 
 

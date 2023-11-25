@@ -235,16 +235,16 @@ function isContract(address _addr) view returns (bool) {
     def _contains_inline_extcodesize_use(node: Node) -> bool:
         results = []
         if node.type == NodeType.ASSEMBLY:
-           print(node.irs)
-        for ir in node.irs:
-            #print(ir)
-            
-            if isinstance(ir.expression, AssignmentOperation) and "extcodesize" in str(ir.expression.expression_right):
-                results.append(ir.expression.__str__())
-            elif isinstance(ir.expression, BinaryOperation) and " > 0" in str(ir.expression):
-                results.append(ir.expression.__str__())
+        #    print(node.irs)
+            for ir in node.irs:
+                #print(ir)
+                
+                if isinstance(ir.expression, AssignmentOperation) and "extcodesize" in str(ir.expression.expression_right):
+                    results.append(ir.expression.__str__())
+                elif isinstance(ir.expression, BinaryOperation) and " > 0" in str(ir.expression):
+                    results.append(ir.expression.__str__())
 
-                # results.append({"expression":ir.expression.__str__(),"operation":ir.expression.__str__()})
+                    # results.append({"expression":ir.expression.__str__(),"operation":ir.expression.__str__()})
         return results
 
     def detect_assembly(self, contract: Contract) -> List[Tuple[FunctionContract, List[Node]]]:
