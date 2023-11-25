@@ -119,7 +119,7 @@ Therefore, the `Attack` contract is recognized as an `EOA` with `Alice`'s addres
  
     """
 
-    WIKI_EXAMPLES="ddd"
+    WIKI_EXAMPLES=""
     WIKI_RECOMMENDATION = """
 Using `tx.origin` limits interoperability between contracts because a contract that uses `tx.origin` cannot be safely used by another contract. <br>
 Additionally, according to an answer by `Vitalik Buterin` on [ethereum stackexchange](https://ethereum.stackexchange.com/questions/196/how-do-i-make-my-dapp-serenity-proof/200#200) in July 2016, there is a possibility that `tx.origin` may be removed in future Ethereum protocol updates.<br>

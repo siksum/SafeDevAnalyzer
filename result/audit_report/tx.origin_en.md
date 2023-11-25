@@ -190,12 +190,6 @@ Therefore, the `Attack` contract is recognized as an `EOA` with `Alice`'s addres
 
 <br />
 
-## Real World Examples:
-
-ddd
-
-<br />
-
 ## Reference:
 
 
