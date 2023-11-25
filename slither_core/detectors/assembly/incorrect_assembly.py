@@ -28,6 +28,9 @@ class IncorrectAssembly(AbstractDetector):
 
     WIKI_TITLE = "Assembly usage"
     WIKI_DESCRIPTION = """
+Typically, the Solidity compiler performs checks to ensure that memory is well-defined and safe. However, when using `inline-assembly`, you can bypass the compiler's checks, potentially leading to memory manipulation.
+"""
+    WIKI_BACKGROUND = """
 <details> 
     <summary style='font-size: 18px;color:pink;'> 💡 What is Inline Assembly? </summary><br />
     
@@ -42,10 +45,8 @@ assembly{ ... }
 ```
 
 </details>
-<br />
-
-Typically, the Solidity compiler performs checks to ensure that memory is well-defined and safe. However, when using `inline-assembly`, you can bypass the compiler's checks, potentially leading to memory manipulation.
-"""
+<br />    
+    """
 
     WIKI_EXPLOIT_SCENARIO = """
 ```solidity
@@ -71,8 +72,15 @@ contract VulnerableContract {
 In the `deposit` function, the `add` assembly instruction is used to add `amount` to the `balance`. 
 If the `balance` is close to its maximum value, such as 255, an overflow can occur when attempting to add more, causing the `balance` to wrap around unexpectedly and decrease.
 """
+    WIKI_EXAMPLES=""
     WIKI_RECOMMENDATION = "Be cautious when using `inline assembly.`"
+    
+    ########################################
+    
     WIKI_DESCRIPTION_KOREAN="""
+일반적으로 solidity 컴파일러는 메모리가 잘 정의되어 있는지 확인하고 있지만, `inline-assembly`를 사용하면 컴파일러의 검사를 벗어나기 때문에 메모리 조작으로 이어질 수 있습니다.
+"""
+    WIKI_BACKGROUND_KOREAN = """
 <details> 
     <summary style='font-size: 18px;color:pink;'> 💡 Inline Assembly란? </summary><br />
     
@@ -82,15 +90,13 @@ If the `balance` is close to its maximum value, such as 255, an overflow can occ
 
 solidity에서는 EVM bytecode로 컴파일하도록 설계된 중간 언어인 Yul을 사용하여 `inline-assembly`를 작성할 수 있습니다.
 
-    assembly{ … }
+    `assembly{ … }`
 형태로 작성합니다.
 
 </details>
-<br />
+<br />    
+    """
 
-일반적으로 solidity 컴파일러는 메모리가 잘 정의되어 있는지 확인하고 있지만, `inline-assembly`를 사용하면 컴파일러의 검사를 벗어나기 때문에 메모리 조작으로 이어질 수 있습니다.
-    
-"""
     WIKI_EXPLOIT_SCENARIO_KOREAN = """
 ```solidity
 contract VulnerableContract {
@@ -113,6 +119,7 @@ contract VulnerableContract {
 `deposit` 함수에서 `amount`를 `balance`에 더할 때 `add` 명령을 사용하고 있습니다.
 `balance`가 최댓값이 255에 가까워진 상태에서 더하려고 하면 오버플로우가 발생하여 `balance`가 감소할 수 있습니다.
 """
+    WIKI_EXAMPLES_KOREAN=""
     WIKI_RECOMMENDATION_KOREAN="`inline assembly` 사용에 주의하세요."
     WIKI_REFERENCE="""
 - https://medium.com/@ac1d_eth/technical-exploration-of-inline-assembly-in-solidity-b7d2b0b2bda8
@@ -154,7 +161,7 @@ contract VulnerableContract {
                 #     info += ["\t- ", node, "\n"]
                 #     info_kr += f"{node.expression}, 어셈블리 사용\n"
 
-                json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
+                json = self.generate_result(info, self.WIKI_DESCRIPTION, self.WIKI_BACKGROUND, self.WIKI_EXPLOIT_SCENARIO, self.WIKI_EXAMPLES, self.WIKI_RECOMMENDATION, info_kr, self.WIKI_DESCRIPTION_KOREAN, self.WIKI_BACKGROUND_KOREAN, self.WIKI_EXPLOIT_SCENARIO_KOREAN, self.WIKI_EXAMPLES_KOREAN, self.WIKI_RECOMMENDATION_KOREAN, self.WIKI_REFERENCE)
 
                 results.append(json)
 

@@ -19,9 +19,9 @@
         "Modifiers": [],
         "Internal Calls": [
           "blockhash(uint256)",
-          "abi.encodePacked()",
           "keccak256(bytes)",
-          "require(bool,string)"
+          "require(bool,string)",
+          "abi.encodePacked()"
         ],
         "External Calls": [
           "abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp)",

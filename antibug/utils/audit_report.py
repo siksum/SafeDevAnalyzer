@@ -121,6 +121,7 @@ def export_to_markdown(filename):
             payload += f"| Detector | Impact | Confidence | Info |\n"
             payload += f"|:---:|:---:|:---:|:---:|\n"
             payload += f"| {detector} | {impact} | {confidence} | {info} |||\n\n\n"
+            payload += f"<br />\n\n"
             
             payload += f"## Vulnerabiltiy in code:\n\n"
             # payload += f"```solidity\n"
@@ -132,28 +133,29 @@ def export_to_markdown(filename):
                 payload += f"line {code['line']}: {code['code']}\n"
                 payload += f"```\n"
                 payload += f" ---\n\n "
-            
-            payload += f"""
-<details>\n
-<summary style='font-size: 18px; color:pink;'> 💡 Background </summary><br />
-{background}
-</details>\n\n"""
-
             payload += f"<br />\n\n"
             
+            
+            payload += f"## Background:\n\n"
+            payload += f"{background}\n\n"
+            payload += f"<br />\n\n"
+
             payload += f"## Description:\n\n"
             payload += f"{description}\n\n"
-            
+            payload += f"<br />\n\n"
             
             payload += f"## Recommendation:\n\n"
             payload += f"{recommendation}\n\n" 
-            
+            payload += f"<br />\n\n"
             
             payload += f"## Exploit scenario:\n\n"
             payload += f"{exploit_scenario}\n\n"
+            payload += f"<br />\n\n"
             
-            payload += f"## Real World Examples:\n\n"
-            payload += f"{examples}\n\n"
+            if examples:
+                payload += f"## Real World Examples:\n\n"
+                payload += f"{examples}\n\n"
+                payload += f"<br />\n\n"
             
             payload += f"## Reference:\n\n"
             payload += f"{reference}\n\n"   

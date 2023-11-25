@@ -1,14 +1,14 @@
 ```mermaid
 classDiagram
 	class GuessTheRandomNumber{
-		guess
 		constructor
+		guess
 	}
 	class Solidity{
 		blockhash(uint256)
-		abi.encodePacked()
 		keccak256(bytes)
 		require(bool,string)
+		abi.encodePacked()
 	}
 GuessTheRandomNumber --|> Solidity
 

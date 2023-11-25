@@ -54,6 +54,8 @@
 | weak-prng | <span style='color:lightcoral'> High </span> | <span style='color:olivedrab'> Medium </span> | guess 함수는 블록 변수를 이용하여 난수를 생성합니다. IF _guess == answer |||
 
 
+<br />
+
 ## Vulnerabiltiy in code:
 
 ```solidity
@@ -68,20 +70,26 @@ line 13:         if (_guess == answer) {
 ```
  ---
 
- 
-<details>
+ <br />
 
-<summary style='font-size: 18px; color:pink;'> 💡 Background </summary><br />
+## Background:
 
-블록체인에서 Randomness란?
+
+<details> 
+    <summary style='font-size: 18px;color:pink;'> 💡 블록체인에서 Randomness란? </summary><br />
+    
 - Randomness는 `pseudo-randomness`와 `true-randomness`로 구분할 수 있습니다.
+
     - `pseudo-randomness`는 결정론적 알고리즘에 의해 생성되며, 초기 시드 값을 알고 있다면 예측할 수 있습니다.
+    
     - `true-randomness`는 엔트로피 소스에 의존하고 있어, 예측 불가능한 랜덤 값을 생성합니다.
 
 - 블록체인 네트워크의 노드는 다양한 알고리즘을 이용해 `pseudo-randomness`를 생성할 수 있으며, 복권 당첨자 선정, 보상 분배, 게임에서 NFT 토큰 아이템의 희귀도, 전리품 분배 등의 시나리오에서 난수를 사용합니다.
 - 그러나 블록체인은 네트워크의 모든 노드가 동일한 결론에 도달하도록 보장하기 때문에, 동일한 입력이 주어지면 컨트랙트의 출력은 항상 동일하다는 특징이 있습니다.
-    
+
 </details>
+<br />      
+    
 
 <br />
 
@@ -97,22 +105,43 @@ line 13:         if (_guess == answer) {
 
 블록체인에서 난수를 생성하는 방법은 크게 두 가지로 나눌 수 있습니다.
 
-`1. 블록체인 네트워크의 노드가 생성한 난수를 사용하는 방법`
+<details> 
+    <summary style='font-size: 16px;color:skyblue;'> 1. 블록체인 네트워크의 노드가 생성한 난수를 사용하는 방법 </summary><br />
+   
+블록 변수에는 
 
-블록 변수에는 `block.basefee(uint)`, `block.chainid(uint)`, `block.coinbase()`, `block.difficulty(uint)`, `block.gaslimit(uint)`, `block.number(uint)`, `block.timestamp(uint)`, `blockhash(uint)` 등이 있으며,
+|  |  |  |
+---|---|---
+`block.basefee(uint)`|`block.chainid(uint)`|`block.coinbase()`
+`block.difficulty(uint)`|`block.gaslimit(uint)`|`block.number(uint)`
+`block.timestamp(uint)`|`blockhash(uint)` 
+
+
+등이 있으며,
+
 이 중 `block.difficulty`, `blockhash`, `block.number`, `block.timestamp`가 난수 생성에 주로 활용됩니다.
 
-https://docs.soliditylang.org/en/latest/units-and-global-variables.html#block-and-transaction-properties:~:text=use%20utility%20functions.-,Block%20and%20Transaction%20Properties,%EF%83%81,-blockhash(uint%20blockNumber
+[Solidity Docs](https://docs.soliditylang.org/en/latest/units-and-global-variables.html#block-and-transaction-properties "Reference")
 
 블록 데이터에 의해 생성되는 난수는 일반적인 사용자가 난수를 예측할 수 있는 가능성은 제한하지만, 악의적인 채굴자는 블록 데이터를 조작하여 난수를 조작할 수 있습니다.
 블록 데이터는 한 블록에서 동일한 값을 갖고 있어, 같은 블록에서 난수를 생성하면 항상 동일한 결과를 얻을 수 있습니다.
+</details>
+<br />
 
 
-`2. 외부 난수 생성기를 사용하는 방법`
-
+<details> 
+    <summary style='font-size: 16px;color:skyblue;'> 2. 외부 난수 생성기를 사용하는 방법 </summary><br />
+   
 블록체인 오라클에서 난수 시드를 생성할 수 있으며, 온체인 오라클을 사용해 오프체인 데이터를 온체인에서 얻을 수 있습니다.
+
 API 데이터와 같은 외부 randomness 소스를 가져와 컨트랙트 동작에 영향을 줄 수 있어 블록체인 변수를 사용해 난수를 생성하는 것보다 예측 불가능성을 높일 수 있지만, 오라클에 대한 신뢰도 문제가 발생할 수 있습니다.
+
+</details>
+<br />
+
     
+
+<br />
 
 ## Recommendation:
 
@@ -122,6 +151,8 @@ API 데이터와 같은 외부 randomness 소스를 가져와 컨트랙트 동�
 - 여러 입력을 활용해 난수를 생성하는 탈중앙화 솔루션인 `Chainlink VRF(Verifiable Random Function)`를 활용하는 것이 좋습니다.
 - 하드웨어 난수 생성기(RNG)를 사용해 공격자가 예측할 수 없는 무작위 값 생성하는 것이 좋습니다.  
     
+
+<br />
 
 ## Exploit scenario:
 
@@ -168,6 +199,8 @@ contract Attack {
 - `GuessTheRandomNumber` 컨트랙트의 `guess` 함수가 동일한 블록에서 실행되면 `block.number`와 `block.timestamp`는 변경되지 않기 때문에 동일한 난수를 생성할 수 있게 되어, 공격자는 `1 ether`를 획득할 수 있습니다.  
     
 
+<br />
+
 ## Real World Examples:
 
 
@@ -179,6 +212,8 @@ contract Attack {
     https://etherscan.io/address/0xa62142888aba8370742be823c1782d17a0389da1
     https://medium.com/@zhongqiangc/randomness-in-smart-contracts-is-predictable-and-vulnerable-fomo3d-part-1-4d500c628191
     
+
+<br />
 
 ## Reference:
 
