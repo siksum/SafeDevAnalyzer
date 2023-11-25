@@ -8,3 +8,6 @@ from .assembly.incorrect_extcodesize import IncorrectExtcodesize
 
 ## Randomness
 from .randomness.bad_prng import BadPRNG
+
+## Ownership
+from .ownership.tx_origin import TxOrigin

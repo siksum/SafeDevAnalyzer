@@ -1,11 +1,13 @@
 ```mermaid
 classDiagram
-	class Hack{
+	class Attack{
 		constructor
+		attack
 	}
 	class Solidity{
 		require(bool,string)
+		balance(address)
 	}
-Hack --|> Solidity
+Attack --|> Solidity
 
 ```

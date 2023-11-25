@@ -1,12 +1,14 @@
 <script src='https://unpkg.com/mermaid@8.1.0/dist/mermaid.min.js'></script>
 <div class='mermaid'>
 classDiagram
-	class Hack{
+	class Attack{
 		constructor
+		attack
 	}
 	class Solidity{
 		require(bool,string)
+		balance(address)
 	}
-Hack --|> Solidity
+Attack --|> Solidity
 
 </div>

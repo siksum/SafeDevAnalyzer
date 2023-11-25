@@ -44,3 +44,8 @@ classDiagram
 	}
 GuessTheRandomNumber --|> Solidity
 </div>
+
+<div class='mermaid'>
+flowchart LR
+    id1(Contract A) --> id2(Contract B) --> id3(Contract C)
+</div>
