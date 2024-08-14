@@ -13,7 +13,7 @@ if "VIRTUAL_ENV" in os.environ:
 else:
     HOME_DIR = Path.home()
     
-SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-select")
+SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-parser")
 SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("artifacts")
 
 class SolcParser:

@@ -41,7 +41,7 @@ def parse_arguments():
     # 'deploy' sub-command
     compile_parser = subparsers.add_parser(
         'compile', help='antibug compiler, defaults to all')
-    compile_parser.add_argument('target', help='ath to the rule file')
+    compile_parser.add_argument('target', help='path to the rule file')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)

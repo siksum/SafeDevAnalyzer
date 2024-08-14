@@ -1,13 +1,16 @@
 ```mermaid
 classDiagram
-	class Attack{
-		constructor
-		attack
+	class TimeLock{
+		increaseLockTime
+		deposit
+		withdraw
 	}
 	class Solidity{
 		require(bool,string)
+		require(bool)
 		balance(address)
+		require(bool,string)
 	}
-Attack --|> Solidity
+TimeLock --|> Solidity
 
 ```

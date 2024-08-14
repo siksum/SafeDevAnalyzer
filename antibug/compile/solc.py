@@ -31,6 +31,13 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger("AntibugCompile")
 LOGGER.setLevel(logging.ERROR) 
 
+if "VIRTUAL_ENV" in os.environ:
+    HOME_DIR = Path(os.environ["VIRTUAL_ENV"])
+else:
+    HOME_DIR = Path.home()
+    
+SOLC_PARSER_DIR = HOME_DIR.joinpath(".solc-parser")
+SOLC_BINARIES_DIR = SOLC_PARSER_DIR.joinpath("artifacts")
 
 def _build_contract_data(compilation_unit: "CompilationUnit") -> Dict:
     contracts = {}
@@ -152,7 +159,6 @@ class Solc():
         solc_working_dir = kwargs.get("solc_working_dir", None)
         force_legacy_json = kwargs.get("solc_force_legacy_json", False)
         compilation_unit = CompilationUnit(antibug_compile, str(self.target), self.compiler_version)
-
         targets_json = _get_targets_json(compilation_unit, self.target, **kwargs)
 
         # there have been a couple of changes in solc starting from 0.8.x,
@@ -162,7 +168,6 @@ class Solc():
         skip_filename = compilation_unit.compiler_version in [
             f"0.4.{x}" for x in range(0, 10)
         ]
-
         if "sources" in targets_json:
             for path, info in targets_json["sources"].items():
                 if skip_filename:
@@ -354,10 +359,10 @@ def _build_options(compiler_version: SolcParser, force_legacy_json: bool) -> str
     assert compiler_version
     if compiler_version in old_04_versions or compiler_version.startswith("0.3"):
         return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc"
-    if force_legacy_json:
-        return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
-    if compiler_version in explicit_compact_format:
-        return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format"
+    # if force_legacy_json:
+    #     return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
+    # if compiler_version in explicit_compact_format:
+    #     return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
 
     return "abi,asm,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes"
 
@@ -398,7 +403,10 @@ def _run_solc(
     compiler_version = compilation_unit.compiler_version
     # assert compiler_version
     options = _build_options(compiler_version, force_legacy_json)
-    cmd = [solc]
+
+    compiler_path = str(SOLC_BINARIES_DIR.joinpath(f"solc-{compiler_version}/solc-{compiler_version}"))
+    cmd = [compiler_path]
+    
     if solc_remaps:
         if isinstance(solc_remaps, str):
             solc_remaps = solc_remaps.split(" ")
