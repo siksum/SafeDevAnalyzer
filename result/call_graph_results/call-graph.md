@@ -1,16 +1,20 @@
 ```mermaid
 classDiagram
-	class TimeLock{
-		increaseLockTime
+	class EtherStore{
+		guess
 		deposit
+		reward
+		getBalance
 		withdraw
 	}
 	class Solidity{
 		require(bool,string)
-		require(bool)
-		balance(address)
+		keccak256(bytes)
+		abi.encodePacked()
+		blockhash(uint256)
 		require(bool,string)
+		balance(address)
 	}
-TimeLock --|> Solidity
-
+EtherStore --|> Solidity
+EtherStore --|> EtherStore
 ```

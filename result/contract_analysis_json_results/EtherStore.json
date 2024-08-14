@@ -1,0 +1,88 @@
+{
+  "EtherStore": {
+    "Contract Name": "EtherStore",
+    "Inheritance": [],
+    "State Variables": {
+      "balances(address)": {
+        "Name": "balances",
+        "Signature": "0x27e235e3",
+        "Slot": 0,
+        "Offset": 0
+      },
+      "highScores(address)": {
+        "Name": "highScores",
+        "Signature": "0x00d8e104",
+        "Slot": 1,
+        "Offset": 0
+      },
+      "owner()": {
+        "Name": "owner",
+        "Signature": "0x8da5cb5b",
+        "Slot": 2,
+        "Offset": 0
+      }
+    },
+    "Function Summaries": {
+      "deposit()": {
+        "Name": "deposit()",
+        "Signature": "0xd0e30db0",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [],
+        "External Calls": []
+      },
+      "withdraw(uint256)": {
+        "Name": "withdraw(uint256)",
+        "Signature": "0x2e1a7d4d",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "require(bool,string)"
+        ],
+        "External Calls": [
+          "msg.sender.call()"
+        ]
+      },
+      "guess(uint256)": {
+        "Name": "guess(uint256)",
+        "Signature": "0x9189fec1",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "reward",
+          "keccak256(bytes)",
+          "abi.encodePacked()",
+          "blockhash(uint256)"
+        ],
+        "External Calls": [
+          "abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp)"
+        ]
+      },
+      "reward(address)": {
+        "Name": "reward(address)",
+        "Signature": "0x6353586b",
+        "Visibility": "public",
+        "Modifiers": [
+          "onlyOwner"
+        ],
+        "Internal Calls": [
+          "onlyOwner",
+          "require(bool,string)"
+        ],
+        "External Calls": [
+          "to.call()"
+        ]
+      },
+      "getBalance()": {
+        "Name": "getBalance()",
+        "Signature": "0x12065fe0",
+        "Visibility": "public",
+        "Modifiers": [],
+        "Internal Calls": [
+          "balance(address)"
+        ],
+        "External Calls": []
+      }
+    }
+  }
+}

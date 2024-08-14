@@ -82,8 +82,8 @@ def convert_to_detect_result_json(result_list, filename, error, safe_dev_analyze
     json_result = {}  
     result_list = [item for item in result_list if item is not None and item != '' and item != []]
     for language in ["korean", "english"]:
-        for result in result_list:
-            for data in result:
+        for data in result_list:
+            # for data in result:
                 combined_data = {}
                 combined_data['filename'] = data["elements"][0]["source_mapping"]["filename_absolute"]
                 combined_data['detector'] = data["check"]
