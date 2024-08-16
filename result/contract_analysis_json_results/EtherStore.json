@@ -50,9 +50,9 @@
         "Modifiers": [],
         "Internal Calls": [
           "reward",
-          "keccak256(bytes)",
           "abi.encodePacked()",
-          "blockhash(uint256)"
+          "blockhash(uint256)",
+          "keccak256(bytes)"
         ],
         "External Calls": [
           "abi.encodePacked(blockhash(uint256)(block.number - 1),block.timestamp)"
@@ -66,8 +66,8 @@
           "onlyOwner"
         ],
         "Internal Calls": [
-          "onlyOwner",
-          "require(bool,string)"
+          "require(bool,string)",
+          "onlyOwner"
         ],
         "External Calls": [
           "to.call()"
